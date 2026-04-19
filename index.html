@@ -1311,6 +1311,100 @@ body {
   color: var(--ember);
 }
 
+/* ============ MOBILE NAV TOGGLE ============ */
+.nav-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin-right: 6px;
+  background: transparent;
+  border: 1px solid var(--border-1);
+  border-radius: 999px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+.nav-toggle span {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 1.5px;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform .2s ease, opacity .2s ease, top .2s ease;
+}
+.nav-toggle span:nth-child(1) { top: 13px; }
+.nav-toggle span:nth-child(2) { top: 19px; }
+.nav-toggle span:nth-child(3) { top: 25px; }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+
+.nav-drawer {
+  display: none;
+  max-width: 1160px;
+  margin: 10px auto 0;
+  padding: 18px 22px;
+  background: rgba(245, 239, 230, 0.96);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-1);
+  border-radius: 24px;
+  box-shadow: var(--shadow-sm);
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-drawer.open { display: flex; }
+.nav-drawer a {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--border-1);
+}
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: var(--ember); }
+
+@media (max-width: 800px) {
+  .nav-toggle { display: block; }
+}
+
+/* ============ MOBILE SPACING REFINEMENTS ============ */
+@media (max-width: 700px) {
+  .wrap { padding: 0 20px; }
+  .section { padding: 56px 0; }
+  .site-nav-outer { padding: 0 16px; }
+  .site-nav { padding: 10px 14px 10px 18px; }
+  .nav-word { font-size: 19px; }
+
+  .hero { padding-top: 32px; }
+  .hero-title { font-size: clamp(2.4rem, 10vw, 3.2rem); }
+
+  .update-card { padding: 32px 22px; border-radius: 20px; }
+  .update-headline { font-size: clamp(1.7rem, 7.5vw, 2.2rem); }
+  .update-body { font-size: 17px; margin-bottom: 28px; }
+  .brain-trust { margin-top: 24px; padding-top: 24px; }
+  .brain-trust-grid { grid-template-columns: 1fr; gap: 12px; }
+  .bt-cell { padding: 16px 18px; }
+  .bt-value { font-size: 19px; }
+  .update-kicker { margin-top: 24px; padding-top: 20px; font-size: 15px; }
+
+  .price-block { padding: 44px 22px; border-radius: 20px; }
+  .price-title { font-size: clamp(1.7rem, 7vw, 2.2rem); }
+  .price-desc { font-size: 17px; margin-bottom: 28px; }
+  .price-figures { padding: 16px 20px; gap: 18px; margin-bottom: 28px; }
+  .price-figures .now { font-size: 44px; }
+  .price-figures .was { font-size: 22px; }
+  .price-cta-note { font-size: 14px; }
+
+  .site-footer { margin-top: 40px; padding: 40px 0 28px; }
+  .footer-top { grid-template-columns: 1fr; gap: 28px; margin-bottom: 32px; }
+  .footer-bot { flex-direction: column; gap: 6px; align-items: flex-start; }
+}
+
 </style>
 </head>
 <body>
@@ -1325,9 +1419,32 @@ body {
       <a href="#curriculum">Curriculum</a>
       <a href="#teacher">Instructor</a>
     </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-controls="nav-drawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
     <a href="https://zoom.us/meeting/register/gRbQarQkSlC5Ik7cFGR3NA#/registration" class="btn btn-primary btn-sm">Reserve seat →</a>
   </nav>
+  <div class="nav-drawer" id="nav-drawer">
+    <a href="past-sessions.html">Past Sessions</a>
+    <a href="#update">The update</a>
+    <a href="#curriculum">Curriculum</a>
+    <a href="#teacher">Instructor</a>
+  </div>
 </div>
+
+<script>
+  (function(){
+    var t = document.getElementById('nav-toggle');
+    var d = document.getElementById('nav-drawer');
+    if (!t || !d) return;
+    function close(){ d.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+    t.addEventListener('click', function(){
+      var open = d.classList.toggle('open');
+      t.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    d.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+  })();
+</script>
 
 <!-- ======= HERO ======= -->
 <main id="top" class="wrap">
