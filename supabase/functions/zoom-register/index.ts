@@ -1,14 +1,30 @@
 // zoom-register — PUBLIC Supabase Edge Function
 // ---------------------------------------------------------------------------
-// Called from the branded signup form on ignoraint.com. Registers the visitor
-// for Addie's Zoom meeting, adds them to the CRM, and emails a personal join
-// link via Resend.
+// Powers the branded signup modal on ignoraint.com. Two modes:
+//
+//   FULL MODE (when Zoom Server-to-Server OAuth is configured):
+//     Registers the visitor with Zoom's API → returns their personal join URL
+//     → emails a branded confirmation. One-click experience, no Zoom page.
+//
+//   HYBRID MODE (when S2S OAuth is NOT yet configured — current state):
+//     Captures the contact in the CRM, then returns the public Zoom
+//     registration URL with name + email prefilled as query params. Form
+//     auto-redirects them to Zoom to finish in one click. We still own the
+//     lead and can send follow-ups via the campaign system.
+//
+// Mode is auto-detected at request time based on whether ZOOM_ACCOUNT_ID etc.
+// are set. To upgrade from hybrid → full, set the four ZOOM_* secrets and the
+// function flips automatically. No code change.
 //
 // Deploy with:  supabase functions deploy zoom-register --no-verify-jwt
 //
 // Required env:
 //   SUPABASE_URL                    (auto)
 //   SUPABASE_SERVICE_ROLE_KEY       (auto)
+//   ZOOM_REGISTRATION_URL           Public Zoom register URL — used in HYBRID mode.
+//                                   e.g. https://zoom.us/meeting/register/xyz123
+//
+// Required for FULL mode (omit to run in HYBRID mode):
 //   ZOOM_ACCOUNT_ID                 Server-to-Server OAuth — Account ID
 //   ZOOM_CLIENT_ID                  Server-to-Server OAuth — Client ID
 //   ZOOM_CLIENT_SECRET              Server-to-Server OAuth — Client Secret
@@ -204,8 +220,19 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const meetingId   = Deno.env.get("ZOOM_MEETING_ID");
-  if (!supabaseUrl || !serviceKey || !meetingId) {
+  const accountId   = Deno.env.get("ZOOM_ACCOUNT_ID");
+  const clientId    = Deno.env.get("ZOOM_CLIENT_ID");
+  const clientSec   = Deno.env.get("ZOOM_CLIENT_SECRET");
+  const publicRegUrl = Deno.env.get("ZOOM_REGISTRATION_URL");
+  if (!supabaseUrl || !serviceKey) {
     return json({ error: "Server misconfigured" }, req, { status: 500 });
+  }
+
+  // Decide mode. FULL needs all four S2S values + meeting id. Otherwise run
+  // HYBRID (needs only ZOOM_REGISTRATION_URL).
+  const fullMode = Boolean(accountId && clientId && clientSec && meetingId);
+  if (!fullMode && !publicRegUrl) {
+    return json({ error: "Server misconfigured: set ZOOM_REGISTRATION_URL (or the four ZOOM_* OAuth secrets for full mode)" }, req, { status: 500 });
   }
 
   let p: Payload;
@@ -222,53 +249,65 @@ Deno.serve(async (req) => {
   const phone     = (p.phone ?? "").trim() || null;
   const source    = (p.source ?? "ignoraint.com").trim();
 
-  // --- 1. Register with Zoom ------------------------------------------------
+  // --- 1. Get a join URL (full mode) or a prefilled register URL (hybrid) ---
   let joinUrl: string;
   let meetingTopic = "The AI Masterclass";
   let meetingStart: string | undefined;
-  try {
-    const accessToken = await getZoomToken();
+  let mode: "full" | "hybrid" = fullMode ? "full" : "hybrid";
 
-    // Grab meeting metadata for the confirmation email subject/body.
+  if (fullMode) {
     try {
-      const metaRes = await fetch(`https://api.zoom.us/v2/meetings/${meetingId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (metaRes.ok) {
-        const meta = await metaRes.json();
-        if (meta.topic)      meetingTopic = meta.topic;
-        if (meta.start_time) meetingStart = meta.start_time;
-      }
-    } catch (_) { /* non-fatal */ }
+      const accessToken = await getZoomToken();
 
-    const regRes = await fetch(`https://api.zoom.us/v2/meetings/${meetingId}/registrants`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        first_name: firstName,
-        last_name:  lastName,
-        email,
-        phone:      phone ?? undefined,
-        // Matches the existing page source attribution.
-        custom_questions: source ? [{ title: "Source", value: source }] : undefined,
-      }),
-    });
-    const regText = await regRes.text();
-    if (!regRes.ok) {
-      // Zoom returns structured error codes — surface a friendly version.
-      let friendly = `Registration failed (${regRes.status}).`;
+      // Grab meeting metadata for the confirmation email subject/body.
       try {
-        const j = JSON.parse(regText);
-        if (j.message) friendly = j.message;
-      } catch (_) { /* ignore */ }
-      console.error("Zoom register failed:", regText);
-      return json({ error: friendly }, req, { status: 502 });
+        const metaRes = await fetch(`https://api.zoom.us/v2/meetings/${meetingId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (metaRes.ok) {
+          const meta = await metaRes.json();
+          if (meta.topic)      meetingTopic = meta.topic;
+          if (meta.start_time) meetingStart = meta.start_time;
+        }
+      } catch (_) { /* non-fatal */ }
+
+      const regRes = await fetch(`https://api.zoom.us/v2/meetings/${meetingId}/registrants`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name:  lastName,
+          email,
+          phone:      phone ?? undefined,
+          custom_questions: source ? [{ title: "Source", value: source }] : undefined,
+        }),
+      });
+      const regText = await regRes.text();
+      if (!regRes.ok) {
+        let friendly = `Registration failed (${regRes.status}).`;
+        try {
+          const j = JSON.parse(regText);
+          if (j.message) friendly = j.message;
+        } catch (_) { /* ignore */ }
+        console.error("Zoom register failed:", regText);
+        return json({ error: friendly }, req, { status: 502 });
+      }
+      const reg = JSON.parse(regText) as { join_url: string; registrant_id: string };
+      joinUrl = reg.join_url;
+    } catch (e) {
+      console.error(e);
+      return json({ error: "Couldn't reach Zoom. Try again in a moment." }, req, { status: 502 });
     }
-    const reg = JSON.parse(regText) as { join_url: string; registrant_id: string };
-    joinUrl = reg.join_url;
-  } catch (e) {
-    console.error(e);
-    return json({ error: "Couldn't reach Zoom. Try again in a moment." }, req, { status: 502 });
+  } else {
+    // HYBRID: append name + email to Zoom's public registration URL. Zoom
+    // honors `first_name`, `last_name`, and `email` query params on most
+    // registration pages — when it doesn't, the user just has to confirm
+    // their already-entered values on Zoom's page.
+    const u = new URL(publicRegUrl!);
+    u.searchParams.set("first_name", firstName);
+    u.searchParams.set("last_name",  lastName);
+    u.searchParams.set("email",      email);
+    joinUrl = u.toString();
   }
 
   // --- 2. Upsert contact + add to registration list ------------------------
@@ -310,21 +349,32 @@ Deno.serve(async (req) => {
   }
 
   // --- 3. Send branded confirmation email ----------------------------------
-  try {
-    await sendConfirmationEmail({
-      to: email,
-      firstName,
-      joinUrl,
-      topic: meetingTopic,
-      startTime: meetingStart,
-    });
-  } catch (e) {
-    console.error("Confirmation email failed:", e);
+  // FULL mode: we have a real personal join URL — send our branded email now.
+  // HYBRID mode: the visitor hasn't actually finished Zoom's form yet, so Zoom
+  // will send the official confirmation once they do. Sending ours first would
+  // be premature and could confuse them with duplicate "join links".
+  if (fullMode) {
+    try {
+      await sendConfirmationEmail({
+        to: email,
+        firstName,
+        joinUrl,
+        topic: meetingTopic,
+        startTime: meetingStart,
+      });
+    } catch (e) {
+      console.error("Confirmation email failed:", e);
+    }
   }
+
+  const message = fullMode
+    ? `You're registered, ${firstName}. Check ${email} for your personal join link.`
+    : `You're saved, ${firstName} — one quick step left on Zoom.`;
 
   return json({
     ok: true,
-    message: `You're registered, ${firstName}. Check ${email} for your personal join link.`,
+    mode,
+    message,
     join_url: joinUrl,
   }, req);
 });

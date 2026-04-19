@@ -1984,6 +1984,7 @@ body {
       <h3 id="signup-success-title">You're in.</h3>
       <p id="signup-success-msg">Check your inbox — your personal Zoom link is on its way.</p>
       <a id="signup-join-link" href="#" class="join-btn" target="_blank" rel="noopener">Open Zoom now →</a>
+      <p id="signup-redirect-note" style="display:none;color:var(--ink-soft,#3C5679);font-size:13px;margin-top:10px;">Taking you to Zoom in a moment…</p>
     </div>
   </div>
 </div>
@@ -2005,6 +2006,8 @@ body {
   var success   = document.getElementById('signup-success');
   var joinLink  = document.getElementById('signup-join-link');
   var sucMsg    = document.getElementById('signup-success-msg');
+  var sucTitle  = document.getElementById('signup-success-title');
+  var redirNote = document.getElementById('signup-redirect-note');
 
   function open() {
     // Reset to form view every time.
@@ -2075,10 +2078,32 @@ body {
       // Success state
       formWrap.style.display = 'none';
       success.style.display  = '';
-      sucMsg.textContent = body.message || ('Check ' + data.email + ' for your personal join link.');
+
+      var isHybrid = body.mode === 'hybrid';
+
+      if (isHybrid) {
+        // Visitor still has to finish on Zoom's page. Copy reflects that.
+        sucTitle.textContent = "You're saved — one step left.";
+        sucMsg.textContent   = body.message || "We'll take you to Zoom now to finish registration (takes ~5 seconds).";
+        joinLink.textContent = 'Continue on Zoom →';
+        redirNote.style.display = '';
+      } else {
+        sucTitle.textContent = "You're in.";
+        sucMsg.textContent   = body.message || ('Check ' + data.email + ' for your personal join link.');
+        joinLink.textContent = 'Open Zoom now →';
+        redirNote.style.display = 'none';
+      }
+
       if (body.join_url) {
         joinLink.href = body.join_url;
         joinLink.style.display = '';
+        // Hybrid mode: auto-redirect so the handoff feels seamless.
+        if (isHybrid) {
+          setTimeout(function() {
+            // Same tab so we hand them off; back button returns them to ignoraint.com.
+            window.location.href = body.join_url;
+          }, 1800);
+        }
       } else {
         joinLink.style.display = 'none';
       }
