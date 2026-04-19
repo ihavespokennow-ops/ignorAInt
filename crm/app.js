@@ -223,41 +223,143 @@ async function renderContacts() {
     ),
   ));
 
-  const search = el("input", { type: "text", placeholder: "Search email, first name, last name…", class: "search-bar" });
-  const searchWrap = el("div", { class: "search-bar" }); searchWrap.appendChild(search);
-  main.appendChild(searchWrap);
+  // --- Filters row ---
+  const search      = el("input", { type: "text", placeholder: "Search email, first name, last name, phone…" });
+  const sourceSel   = el("select", {});
+  const statusSel   = el("select", {});
+  sourceSel.appendChild(el("option", { value: "" }, "All sources"));
+  ["subscribed", "unsubscribed"].forEach(() => {}); // placeholder, populated below
+  [["", "All statuses"], ["subscribed", "Subscribed only"], ["unsubscribed", "Unsubscribed only"]].forEach(([v, l]) => {
+    statusSel.appendChild(el("option", { value: v }, l));
+  });
 
-  const card = el("div", { class: "card" }, el("div", { id: "contacts-table" }, el("p", { class: "muted" }, "Loading…")));
+  const filterBar = el("div", { style: {
+    display: "grid",
+    gridTemplateColumns: "minmax(220px, 1fr) 200px 200px",
+    gap: "12px",
+    marginBottom: "16px",
+  } }, search, sourceSel, statusSel);
+  // Collapse to one column on narrow screens
+  const mq = window.matchMedia("(max-width: 800px)");
+  const applyMq = () => { filterBar.style.gridTemplateColumns = mq.matches ? "1fr" : "minmax(220px, 1fr) 200px 200px"; };
+  applyMq(); mq.addEventListener("change", applyMq);
+  main.appendChild(filterBar);
+
+  // --- Bulk actions bar (hidden until a row is selected) ---
+  const bulkBar = el("div", {
+    style: {
+      display: "none",
+      alignItems: "center",
+      gap: "12px",
+      padding: "10px 14px",
+      marginBottom: "12px",
+      background: "rgba(201,122,72,0.08)",
+      border: "1px solid rgba(201,122,72,0.25)",
+      borderRadius: "12px",
+      flexWrap: "wrap",
+    },
+  });
+  const bulkCount   = el("span", { style: { fontWeight: "600", color: "var(--ink)" } }, "0 selected");
+  const bulkDelBtn  = el("button", { class: "btn-danger btn-sm" }, "Delete selected");
+  const bulkClrBtn  = el("button", { class: "btn-ghost btn-sm" }, "Clear");
+  bulkBar.append(bulkCount, bulkDelBtn, bulkClrBtn);
+  main.appendChild(bulkBar);
+
+  // --- Card holding table + 'delete all matching filters' footer ---
+  const tableHost = el("div", { id: "contacts-table" }, el("p", { class: "muted" }, "Loading…"));
+  const footer    = el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", flexWrap: "wrap", gap: "8px" } });
+  const countEl   = el("span", { class: "muted", style: { fontSize: "13px" } }, "");
+  const delAllBtn = el("button", { class: "btn-danger btn-sm" }, "Delete all matching filters");
+  footer.append(countEl, delAllBtn);
+  const card = el("div", { class: "card" }, tableHost, footer);
   main.appendChild(card);
 
-  let q = "";
-  search.addEventListener("input", () => { q = search.value.trim().toLowerCase(); load(); });
+  // --- State ---
+  let allRows = [];        // latest fetched rows (pre-filter)
+  let filtered = [];       // latest filtered view
+  const selected = new Set();
 
-  async function load() {
-    const { data, error } = await sb.from("contacts").select("*").order("created_at", { ascending: false }).limit(500);
-    const host = $("#contacts-table");
-    if (error) { host.innerHTML = `<p class="muted">Error: ${esc(error.message)}</p>`; return; }
-    const filtered = (data || []).filter((c) => {
-      if (!q) return true;
-      const hay = [c.email, c.first_name, c.last_name].filter(Boolean).join(" ").toLowerCase();
-      return hay.includes(q);
+  function updateBulkBar() {
+    if (selected.size === 0) { bulkBar.style.display = "none"; return; }
+    bulkBar.style.display = "flex";
+    bulkCount.textContent = `${selected.size} selected`;
+  }
+
+  function applyFilters(rows) {
+    const q = search.value.trim().toLowerCase();
+    const src = sourceSel.value;
+    const st  = statusSel.value;
+    return rows.filter((c) => {
+      if (q) {
+        const hay = [c.email, c.first_name, c.last_name, c.phone].filter(Boolean).join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (src && (c.source || "") !== src) return false;
+      if (st === "subscribed"   && !c.subscribed) return false;
+      if (st === "unsubscribed" &&  c.subscribed) return false;
+      return true;
     });
+  }
+
+  function renderTable() {
+    filtered = applyFilters(allRows);
 
     if (filtered.length === 0) {
-      host.innerHTML = `<div class="empty-state"><h2>No contacts${q ? " match your search" : " yet"}</h2><p>${q ? "" : "Import a Zoom CSV to get started."}</p></div>`;
+      const anyFilter = search.value || sourceSel.value || statusSel.value;
+      tableHost.innerHTML = `<div class="empty-state"><h2>No contacts${anyFilter ? " match your filters" : " yet"}</h2><p>${anyFilter ? "" : "Import a Zoom CSV to get started."}</p></div>`;
+      countEl.textContent = "";
+      delAllBtn.style.display = "none";
       return;
     }
 
-    host.innerHTML = "";
+    const anyFilter = !!(search.value || sourceSel.value || statusSel.value);
+    countEl.textContent = `${filtered.length} contact${filtered.length === 1 ? "" : "s"}${anyFilter ? " match your filters" : ""}`;
+    delAllBtn.style.display = anyFilter ? "inline-block" : "none";
+
+    tableHost.innerHTML = "";
     const tbl = el("table", {});
+
+    // Select-all header checkbox
+    const selAll = el("input", { type: "checkbox", title: "Select all on this page" });
+    selAll.checked = filtered.length > 0 && filtered.every((c) => selected.has(c.id));
+    selAll.addEventListener("change", () => {
+      if (selAll.checked) filtered.forEach((c) => selected.add(c.id));
+      else                filtered.forEach((c) => selected.delete(c.id));
+      renderTable();
+      updateBulkBar();
+    });
+
     tbl.appendChild(el("thead", {}, el("tr", {},
-      el("th", {}, "Email"), el("th", {}, "Name"), el("th", {}, "Source"), el("th", {}, "Status"), el("th", {}, "Added"), el("th", {}, ""))));
+      el("th", { style: { width: "36px" } }, selAll),
+      el("th", {}, "Email"),
+      el("th", {}, "Name"),
+      el("th", {}, "Phone"),
+      el("th", {}, "Source"),
+      el("th", {}, "Status"),
+      el("th", {}, "Added"),
+      el("th", {}, ""),
+    )));
+
     const tb = el("tbody", {});
     filtered.forEach((c) => {
       const name = [c.first_name, c.last_name].filter(Boolean).join(" ") || "—";
+      const cb = el("input", { type: "checkbox" });
+      cb.checked = selected.has(c.id);
+      cb.addEventListener("click", (e) => e.stopPropagation());
+      cb.addEventListener("change", () => {
+        if (cb.checked) selected.add(c.id); else selected.delete(c.id);
+        updateBulkBar();
+      });
+
+      const phoneCell = c.phone
+        ? el("a", { href: `tel:${c.phone}`, style: { color: "var(--ink)" } }, c.phone)
+        : el("span", { class: "muted" }, "—");
+
       tb.appendChild(el("tr", {},
+        el("td", {}, cb),
         el("td", {}, c.email),
         el("td", {}, name),
+        el("td", {}, phoneCell),
         el("td", {}, c.source || "—"),
         el("td", {}, el("span", { class: `pill pill-${c.subscribed ? "sub" : "unsub"}` }, c.subscribed ? "Subscribed" : "Unsubscribed")),
         el("td", {}, fmtDate(c.created_at)),
@@ -267,14 +369,73 @@ async function renderContacts() {
           el("button", { class: "btn-danger btn-sm", onClick: async () => {
             if (!confirmDialog(`Delete ${c.email}? This also removes them from all lists.`)) return;
             const { error } = await sb.from("contacts").delete().eq("id", c.id);
-            if (error) toast(error.message, "error"); else { toast("Deleted.", "success"); load(); }
+            if (error) toast(error.message, "error"); else { toast("Deleted.", "success"); selected.delete(c.id); updateBulkBar(); load(); }
           }}, "Delete"),
         ),
       ));
     });
     tbl.appendChild(tb);
-    host.appendChild(tbl);
+    tableHost.appendChild(tbl);
   }
+
+  async function load() {
+    const { data, error } = await sb.from("contacts").select("*").order("created_at", { ascending: false }).limit(2000);
+    if (error) { tableHost.innerHTML = `<p class="muted">Error: ${esc(error.message)}</p>`; return; }
+    allRows = data || [];
+
+    // Populate sources dropdown from what actually exists (preserve current selection)
+    const prevSrc = sourceSel.value;
+    while (sourceSel.options.length > 1) sourceSel.remove(1);
+    const sources = [...new Set(allRows.map((c) => c.source).filter(Boolean))].sort();
+    sources.forEach((s) => sourceSel.appendChild(el("option", { value: s }, s)));
+    if (prevSrc) sourceSel.value = prevSrc;
+
+    // Drop any selected ids that have disappeared
+    const existing = new Set(allRows.map((c) => c.id));
+    for (const id of [...selected]) if (!existing.has(id)) selected.delete(id);
+
+    renderTable();
+    updateBulkBar();
+  }
+
+  // --- Wire up bulk actions ---
+  bulkClrBtn.addEventListener("click", () => { selected.clear(); updateBulkBar(); renderTable(); });
+
+  bulkDelBtn.addEventListener("click", async () => {
+    const ids = [...selected];
+    if (!ids.length) return;
+    if (!confirmDialog(`Delete ${ids.length} contact${ids.length === 1 ? "" : "s"}? They'll be removed from all lists too. This cannot be undone.`)) return;
+    bulkDelBtn.disabled = true; bulkDelBtn.innerHTML = '<span class="spinner"></span> Deleting…';
+    const { error } = await sb.from("contacts").delete().in("id", ids);
+    bulkDelBtn.disabled = false; bulkDelBtn.textContent = "Delete selected";
+    if (error) { toast(error.message, "error"); return; }
+    toast(`Deleted ${ids.length} contact${ids.length === 1 ? "" : "s"}.`, "success");
+    selected.clear();
+    updateBulkBar();
+    load();
+  });
+
+  delAllBtn.addEventListener("click", async () => {
+    if (!filtered.length) return;
+    const label = `all ${filtered.length} contact${filtered.length === 1 ? "" : "s"} matching your current filters`;
+    if (!confirmDialog(`Delete ${label}? This cannot be undone.`)) return;
+    const ids = filtered.map((c) => c.id);
+    delAllBtn.disabled = true; delAllBtn.innerHTML = '<span class="spinner"></span> Deleting…';
+    const { error } = await sb.from("contacts").delete().in("id", ids);
+    delAllBtn.disabled = false; delAllBtn.textContent = "Delete all matching filters";
+    if (error) { toast(error.message, "error"); return; }
+    toast(`Deleted ${ids.length} contact${ids.length === 1 ? "" : "s"}.`, "success");
+    selected.clear();
+    updateBulkBar();
+    load();
+  });
+
+  // --- Wire up filter inputs ---
+  let searchT;
+  search.addEventListener("input", () => { clearTimeout(searchT); searchT = setTimeout(renderTable, 150); });
+  sourceSel.addEventListener("change", renderTable);
+  statusSel.addEventListener("change", renderTable);
+
   load();
 }
 
@@ -283,12 +444,15 @@ function openNewContact() {
   const email = el("input", { type: "email", required: true });
   const first = el("input", { type: "text" });
   const last  = el("input", { type: "text" });
+  const phone = el("input", { type: "tel", placeholder: "+1 (555) 123-4567" });
   const source = el("input", { type: "text", placeholder: "e.g. manual, referral" });
   form.appendChild(el("div", { class: "field" }, el("label", {}, "Email *"), email));
   form.appendChild(el("div", { class: "row row-2" },
     el("div", { class: "field" }, el("label", {}, "First name"), first),
     el("div", { class: "field" }, el("label", {}, "Last name"), last)));
-  form.appendChild(el("div", { class: "field" }, el("label", {}, "Source"), source));
+  form.appendChild(el("div", { class: "row row-2" },
+    el("div", { class: "field" }, el("label", {}, "Phone"), phone),
+    el("div", { class: "field" }, el("label", {}, "Source"), source)));
 
   const { close } = openModal(form);
   form.appendChild(el("div", { class: "modal-actions" },
@@ -299,6 +463,7 @@ function openNewContact() {
         email: email.value.trim().toLowerCase(),
         first_name: first.value.trim() || null,
         last_name: last.value.trim() || null,
+        phone: phone.value.trim() || null,
         source: source.value.trim() || "manual",
       });
       if (error) toast(error.message, "error"); else { toast("Contact added.", "success"); close(); renderContacts(); }
@@ -312,13 +477,16 @@ async function editContact(c) {
     const email = el("input", { type: "email", value: c.email });
     const first = el("input", { type: "text", value: c.first_name || "" });
     const last  = el("input", { type: "text", value: c.last_name || "" });
+    const phone = el("input", { type: "tel", value: c.phone || "", placeholder: "+1 (555) 123-4567" });
     const source = el("input", { type: "text", value: c.source || "" });
     const sub = el("input", { type: "checkbox" }); sub.checked = c.subscribed;
     form.appendChild(el("div", { class: "field" }, el("label", {}, "Email"), email));
     form.appendChild(el("div", { class: "row row-2" },
       el("div", { class: "field" }, el("label", {}, "First name"), first),
       el("div", { class: "field" }, el("label", {}, "Last name"), last)));
-    form.appendChild(el("div", { class: "field" }, el("label", {}, "Source"), source));
+    form.appendChild(el("div", { class: "row row-2" },
+      el("div", { class: "field" }, el("label", {}, "Phone"), phone),
+      el("div", { class: "field" }, el("label", {}, "Source"), source)));
     form.appendChild(el("div", { class: "field" }, el("label", { style: { display: "flex", alignItems: "center", gap: "8px" } }, sub, "Subscribed")));
 
     const { close } = openModal(form);
@@ -329,6 +497,7 @@ async function editContact(c) {
           email: email.value.trim().toLowerCase(),
           first_name: first.value.trim() || null,
           last_name: last.value.trim() || null,
+          phone: phone.value.trim() || null,
           source: source.value.trim() || null,
           subscribed: sub.checked,
         }).eq("id", c.id);
@@ -373,8 +542,8 @@ function openCsvImport({ zoom = false } = {}) {
   const box = el("div", {});
   box.appendChild(el("h2", {}, zoom ? "Import Zoom registrations" : "Import contacts from CSV"));
   box.appendChild(el("p", { class: "muted" }, zoom
-    ? "Upload the registration report CSV exported from Zoom. We'll detect First Name, Last Name, and Email columns — Zoom sometimes includes a preamble above the header, which we'll skip."
-    : "Upload a CSV with columns: email (required), first_name, last_name, source."));
+    ? "Upload the registration report CSV exported from Zoom. We'll detect First Name, Last Name, Email, and Phone columns — Zoom sometimes includes a preamble above the header, which we'll skip."
+    : "Upload a CSV with columns: email (required), first_name, last_name, phone, source."));
 
   const fileInput = el("input", { type: "file", accept: ".csv,text/csv" });
   box.appendChild(el("div", { class: "field" }, el("label", {}, "CSV file"), fileInput));
@@ -411,6 +580,7 @@ function openCsvImport({ zoom = false } = {}) {
     const idxEmail = header.findIndex((h) => h === "email" || h.includes("email address"));
     const idxFirst = header.findIndex((h) => h === "first_name" || h === "first name");
     const idxLast  = header.findIndex((h) => h === "last_name"  || h === "last name");
+    const idxPhone = header.findIndex((h) => h === "phone" || h === "phone number" || h === "mobile" || h === "cell" || h === "tel");
 
     const out = [];
     for (let i = headerIdx + 1; i < rows.length; i++) {
@@ -421,6 +591,7 @@ function openCsvImport({ zoom = false } = {}) {
         email: emailVal,
         first_name: idxFirst >= 0 ? (r[idxFirst] || "").trim() || null : null,
         last_name:  idxLast  >= 0 ? (r[idxLast]  || "").trim() || null : null,
+        phone:      idxPhone >= 0 ? (r[idxPhone] || "").trim() || null : null,
         source: sourceInput.value.trim() || (zoom ? "zoom" : "csv"),
       });
     }
