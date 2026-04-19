@@ -1422,7 +1422,7 @@ body {
     <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-controls="nav-drawer" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
-    <a href="https://zoom.us/meeting/register/gRbQarQkSlC5Ik7cFGR3NA#/registration" class="btn btn-primary btn-sm">Reserve seat →</a>
+    <button type="button" data-signup-trigger class="btn btn-primary btn-sm">Reserve seat →</button>
   </nav>
   <div class="nav-drawer" id="nav-drawer">
     <a href="past-sessions.html">Past Sessions</a>
@@ -1464,7 +1464,7 @@ body {
       <div class="price-meta" style="margin-bottom:8px;"><strong style="color:var(--ink);font-weight:600;">Members &amp; invited guests</strong> · Limited seats</div>
 
       <div class="hero-ctas">
-        <a href="https://zoom.us/meeting/register/gRbQarQkSlC5Ik7cFGR3NA#/registration" class="btn btn-primary">Reserve my free seat →</a>
+        <button type="button" data-signup-trigger class="btn btn-primary">Reserve my free seat →</button>
         <a href="#curriculum" class="btn btn-ghost">See the 17 topics →</a>
       </div>
       <p class="hero-note">Know a friend who'd benefit? Invite them — this event is open to guests.</p>
@@ -1758,7 +1758,7 @@ body {
         </div>
 
         <div>
-          <a href="https://zoom.us/meeting/register/gRbQarQkSlC5Ik7cFGR3NA#/registration" class="btn btn-accent" style="font-size:17px;padding:16px 32px;">Save my free spot →</a>
+          <button type="button" data-signup-trigger class="btn btn-accent" style="font-size:17px;padding:16px 32px;">Save my free spot →</button>
         </div>
 
         <p class="price-cta-note">Know a friend who'd benefit? Invite them — this event is open to guests.<br/>Questions? Reach out at <a href="mailto:grow@beyond9to5club.com">grow@beyond9to5club.com</a></p>
@@ -1785,6 +1785,311 @@ body {
     </div>
   </footer>
 </main>
+
+<!-- ================================================================== -->
+<!-- ============== SIGNUP MODAL (zoom-register integration) ========== -->
+<!-- ================================================================== -->
+<style>
+  .signup-backdrop {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(31,58,95,0.55);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    animation: signupFadeIn .18s ease-out;
+  }
+  .signup-backdrop.open { display: flex; }
+  @keyframes signupFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes signupRise   { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
+
+  .signup-card {
+    background: var(--bg-1, #F5EFE6);
+    color: var(--ink, #1F3A5F);
+    width: 100%; max-width: 480px;
+    border-radius: 18px;
+    padding: 36px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.25);
+    position: relative;
+    animation: signupRise .22s ease-out;
+  }
+  .signup-close {
+    position: absolute; top: 14px; right: 16px;
+    width: 32px; height: 32px;
+    border: none; background: transparent;
+    font-size: 22px; line-height: 1;
+    color: var(--ink-soft, #3C5679);
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  .signup-close:hover { background: rgba(31,58,95,0.06); }
+
+  .signup-eyebrow {
+    text-transform: uppercase; letter-spacing: .14em;
+    font-size: 11px; color: var(--ember, #C97B4A); font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .signup-title {
+    font-family: var(--font-serif, 'Fraunces', serif);
+    font-size: 26px; line-height: 1.15; margin: 0 0 6px;
+    color: var(--ink, #1F3A5F);
+  }
+  .signup-sub {
+    font-size: 14px; color: var(--ink-soft, #3C5679);
+    margin: 0 0 20px;
+  }
+
+  .signup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .signup-field { margin-bottom: 12px; }
+  .signup-field label {
+    display: block;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em;
+    color: var(--ink-soft, #3C5679);
+    margin-bottom: 6px;
+  }
+  .signup-field input {
+    width: 100%; box-sizing: border-box;
+    padding: 11px 13px; font-size: 15px;
+    background: #fff;
+    border: 1px solid rgba(31,58,95,0.18);
+    border-radius: 10px;
+    color: var(--ink, #1F3A5F);
+    transition: border-color .15s, box-shadow .15s;
+    font-family: inherit;
+  }
+  .signup-field input:focus {
+    outline: none;
+    border-color: var(--ember, #C97B4A);
+    box-shadow: 0 0 0 3px rgba(201,122,72,0.15);
+  }
+  .signup-field input::placeholder { color: rgba(31,58,95,0.35); }
+  .signup-honey { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+
+  .signup-submit {
+    width: 100%; margin-top: 6px;
+    padding: 13px 20px; font-size: 16px; font-weight: 600;
+    background: var(--ember, #C97B4A); color: #fff;
+    border: none; border-radius: 10px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    transition: background .15s, transform .15s;
+    font-family: inherit;
+  }
+  .signup-submit:hover:not(:disabled) { background: var(--ember-deep, #A8623A); transform: translateY(-1px); }
+  .signup-submit:disabled { opacity: .65; cursor: not-allowed; }
+
+  .signup-spin {
+    width: 14px; height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: signupSpin .7s linear infinite;
+  }
+  @keyframes signupSpin { to { transform: rotate(360deg); } }
+
+  .signup-error {
+    background: rgba(176,65,62,0.08);
+    color: #B0413E;
+    border: 1px solid rgba(176,65,62,0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .signup-error.show { display: block; }
+
+  .signup-fineprint {
+    margin-top: 14px; font-size: 12px; color: var(--ink-soft, #3C5679);
+    text-align: center;
+  }
+
+  .signup-success {
+    text-align: center;
+    padding: 14px 0;
+  }
+  .signup-success .check {
+    width: 56px; height: 56px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: rgba(79,107,74,0.15);
+    color: #4F6B4A;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 700;
+  }
+  .signup-success h3 {
+    font-family: var(--font-serif, serif);
+    font-size: 22px; margin: 0 0 8px;
+  }
+  .signup-success p { color: var(--ink-soft, #3C5679); font-size: 14px; margin: 0 0 16px; }
+  .signup-success .join-btn {
+    display: inline-block;
+    padding: 11px 22px; font-size: 14px; font-weight: 600;
+    background: var(--ink, #1F3A5F); color: #fff;
+    border-radius: 10px; text-decoration: none;
+    margin-top: 6px;
+  }
+  .signup-success .join-btn:hover { background: #173052; }
+
+  @media (max-width: 520px) {
+    .signup-card { padding: 28px 22px; }
+    .signup-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="signup-backdrop" id="signup-backdrop" role="dialog" aria-modal="true" aria-labelledby="signup-title">
+  <div class="signup-card">
+    <button type="button" class="signup-close" id="signup-close" aria-label="Close">×</button>
+
+    <div id="signup-form-wrap">
+      <div class="signup-eyebrow">Reserve your free seat</div>
+      <h2 class="signup-title" id="signup-title">The AI Masterclass</h2>
+      <p class="signup-sub">Saturday, April 25 · 10:00 AM EST · 2 hours · Live on Zoom</p>
+
+      <div class="signup-error" id="signup-error"></div>
+
+      <form id="signup-form" novalidate>
+        <div class="signup-row">
+          <div class="signup-field">
+            <label for="su-first">First name</label>
+            <input id="su-first" name="first_name" type="text" autocomplete="given-name" required placeholder="Addie"/>
+          </div>
+          <div class="signup-field">
+            <label for="su-last">Last name</label>
+            <input id="su-last" name="last_name" type="text" autocomplete="family-name" required placeholder="Agarwal"/>
+          </div>
+        </div>
+        <div class="signup-field">
+          <label for="su-email">Email</label>
+          <input id="su-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"/>
+        </div>
+        <div class="signup-field">
+          <label for="su-phone">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(31,58,95,0.4);">— optional</span></label>
+          <input id="su-phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 (555) 123-4567"/>
+        </div>
+        <div class="signup-honey" aria-hidden="true">
+          <label>Don't fill this out: <input type="text" name="honey" tabindex="-1" autocomplete="off"/></label>
+        </div>
+
+        <button type="submit" class="signup-submit" id="signup-submit">
+          <span id="signup-submit-label">Reserve my seat</span>
+        </button>
+        <p class="signup-fineprint">We'll email your personal join link the moment you register. No spam, unsubscribe anytime.</p>
+      </form>
+    </div>
+
+    <div id="signup-success" class="signup-success" style="display:none;">
+      <div class="check">✓</div>
+      <h3 id="signup-success-title">You're in.</h3>
+      <p id="signup-success-msg">Check your inbox — your personal Zoom link is on its way.</p>
+      <a id="signup-join-link" href="#" class="join-btn" target="_blank" rel="noopener">Open Zoom now →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // -- Configure the endpoint here. ----------------------------------------
+  // The function is deployed at:
+  //   https://qphagqshsrdeefspxhss.supabase.co/functions/v1/zoom-register
+  var ENDPOINT = 'https://qphagqshsrdeefspxhss.supabase.co/functions/v1/zoom-register';
+
+  var bd        = document.getElementById('signup-backdrop');
+  var closeBtn  = document.getElementById('signup-close');
+  var form      = document.getElementById('signup-form');
+  var errBox    = document.getElementById('signup-error');
+  var submit    = document.getElementById('signup-submit');
+  var subLabel  = document.getElementById('signup-submit-label');
+  var formWrap  = document.getElementById('signup-form-wrap');
+  var success   = document.getElementById('signup-success');
+  var joinLink  = document.getElementById('signup-join-link');
+  var sucMsg    = document.getElementById('signup-success-msg');
+
+  function open() {
+    // Reset to form view every time.
+    formWrap.style.display = '';
+    success.style.display  = 'none';
+    errBox.classList.remove('show');
+    submit.disabled = false;
+    subLabel.innerHTML = 'Reserve my seat';
+    bd.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ document.getElementById('su-first').focus(); }, 60);
+  }
+  function close() {
+    bd.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('[data-signup-trigger]').forEach(function(b){
+    b.addEventListener('click', function(e){ e.preventDefault(); open(); });
+  });
+  closeBtn.addEventListener('click', close);
+  bd.addEventListener('click', function(e){ if (e.target === bd) close(); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && bd.classList.contains('open')) close();
+  });
+
+  function showError(msg) {
+    errBox.textContent = msg;
+    errBox.classList.add('show');
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    errBox.classList.remove('show');
+
+    var data = {
+      first_name: document.getElementById('su-first').value.trim(),
+      last_name:  document.getElementById('su-last').value.trim(),
+      email:      document.getElementById('su-email').value.trim(),
+      phone:      document.getElementById('su-phone').value.trim(),
+      honey:      form.elements['honey'].value,
+      source:     window.location.hostname,
+    };
+
+    if (!data.first_name || !data.last_name || !data.email) {
+      showError('Please fill in your name and email.');
+      return;
+    }
+
+    submit.disabled = true;
+    subLabel.innerHTML = '<span class="signup-spin"></span> Reserving your seat…';
+
+    try {
+      var res = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      var body = await res.json().catch(function(){ return { error: 'Unexpected response' }; });
+
+      if (!res.ok || body.error) {
+        showError(body.error || 'Something went wrong. Please try again.');
+        submit.disabled = false;
+        subLabel.innerHTML = 'Reserve my seat';
+        return;
+      }
+
+      // Success state
+      formWrap.style.display = 'none';
+      success.style.display  = '';
+      sucMsg.textContent = body.message || ('Check ' + data.email + ' for your personal join link.');
+      if (body.join_url) {
+        joinLink.href = body.join_url;
+        joinLink.style.display = '';
+      } else {
+        joinLink.style.display = 'none';
+      }
+    } catch (err) {
+      showError('Network error — please try again.');
+      submit.disabled = false;
+      subLabel.innerHTML = 'Reserve my seat';
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
