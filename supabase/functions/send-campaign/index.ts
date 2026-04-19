@@ -210,7 +210,13 @@ Deno.serve(async (req) => {
   if (!campaign.subject)      return json({ error: "Campaign is missing a subject" }, { status: 400 });
   if (!campaign.body_html && !campaign.body_text) return json({ error: "Campaign has no body" }, { status: 400 });
   if (!payload.test_email && !campaign.list_id)   return json({ error: "Campaign has no list_id" }, { status: 400 });
-  if (!payload.test_email && campaign.status === "sent") return json({ error: "Campaign already sent" }, { status: 409 });
+  // If the campaign is already marked sent, only allow a resend when the caller
+  // has explicitly opted into skip-already-sent — otherwise we'd double-email
+  // every recipient. This is the safety guardrail; the skip flag + the batch
+  // filter below do the actual de-duplication.
+  if (!payload.test_email && campaign.status === "sent" && !payload.skip_already_sent) {
+    return json({ error: "Campaign already sent. Open it, click Send to list, and keep the \"Skip already-sent\" checkbox on to send only to contacts who haven't received it yet." }, { status: 409 });
+  }
 
   // --- load recipients ---
   let contacts: Contact[] = [];

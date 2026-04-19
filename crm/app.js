@@ -929,7 +929,11 @@ async function renderCampaignEditor(id) {
     el("div", { class: "actions" },
       el("button", { class: "btn-ghost", onClick: () => save(false) }, "Save draft"),
       el("button", { class: "btn-ghost", onClick: openTestSend }, "Send test"),
-      el("button", { class: "btn-ember", onClick: openSendConfirm, disabled: c.status === "sent" }, c.status === "sent" ? "Already sent" : "Send to list"),
+      // Always enabled — even for "sent" campaigns, because skip-already-sent
+      // lets you resume a partial send or send to contacts added to the list
+      // after the initial send. The modal will pre-check the skip box.
+      el("button", { class: "btn-ember", onClick: openSendConfirm },
+        c.status === "sent" ? "Resend to remaining" : "Send to list"),
     ),
   ));
 
