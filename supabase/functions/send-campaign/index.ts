@@ -17,7 +17,10 @@
 //   DEFAULT_FROM_EMAIL      — e.g. addie@blog.ignoraint.com
 //   DEFAULT_FROM_NAME       — e.g. "Addie Agarwal"
 //   UNSUBSCRIBE_BASE_URL    — e.g. https://crm.ignoraint.com/unsubscribe
-//   RATE_LIMIT_PER_SECOND   — Resend default is 10; leave unset unless raised.
+//   SENDER_POSTAL_ADDRESS   — CAN-SPAM footer; defaults to Ignoraint LLC
+//   BATCH_SIZE              — 1..100 emails per Resend /emails/batch request (default 100)
+//   BATCH_PACING_MS         — idle ms between batches (default 300)
+//   MAX_BATCH_RETRIES       — 429 retries with exponential backoff (default 4)
 // ---------------------------------------------------------------------------
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -50,8 +53,13 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const RATE_LIMIT_PER_SECOND = Number(Deno.env.get("RATE_LIMIT_PER_SECOND") ?? 10);
-const UNSUBSCRIBE_BASE_URL  = Deno.env.get("UNSUBSCRIBE_BASE_URL") ?? "https://crm.ignoraint.com/unsubscribe";
+// Resend's Batch API accepts up to 100 emails per request. Using the batch
+// endpoint keeps us at ~1 HTTP request per 100 contacts instead of 1 per email,
+// so account-wide rate limits (5 req/s by default) become irrelevant.
+const BATCH_SIZE             = Math.min(100, Number(Deno.env.get("BATCH_SIZE") ?? 100));
+const BATCH_PACING_MS        = Number(Deno.env.get("BATCH_PACING_MS") ?? 300); // gap between batches
+const MAX_BATCH_RETRIES      = Number(Deno.env.get("MAX_BATCH_RETRIES") ?? 4);
+const UNSUBSCRIBE_BASE_URL   = Deno.env.get("UNSUBSCRIBE_BASE_URL") ?? "https://crm.ignoraint.com/unsubscribe";
 // CAN-SPAM-required physical postal address, shown in every campaign footer.
 // Override per-deploy with `supabase secrets set SENDER_POSTAL_ADDRESS="..."`.
 const SENDER_POSTAL_ADDRESS = Deno.env.get("SENDER_POSTAL_ADDRESS") ?? "Ignoraint LLC · North Carolina, USA";
@@ -90,10 +98,19 @@ function ensureHtmlShell(html: string, footerHtml: string): string {
   return `<!DOCTYPE html><html><body style="font-family: -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; line-height:1.55; color:#2A2A2A; background:#F5EFE6; padding:24px;">${html}${footerHtml}</body></html>`;
 }
 
-async function resendSend(
-  apiKey: string,
-  payload: { from: string; to: string; subject: string; html: string; text: string; reply_to?: string; headers?: Record<string, string> }
-): Promise<{ id?: string; error?: string }> {
+type EmailPayload = {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  reply_to?: string;
+  headers?: Record<string, string>;
+};
+
+// Single-email send — used only for the "send test" path so we get a clean
+// single-message response.
+async function resendSend(apiKey: string, payload: EmailPayload): Promise<{ id?: string; error?: string }> {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
@@ -101,12 +118,54 @@ async function resendSend(
   });
   const text = await res.text();
   if (!res.ok) return { error: `${res.status}: ${text.slice(0, 500)}` };
-  try {
-    const json = JSON.parse(text);
-    return { id: json.id };
-  } catch {
-    return { id: undefined };
+  try { return { id: JSON.parse(text).id }; } catch { return {}; }
+}
+
+// Batch send — up to 100 emails in one HTTP request. Each item is a full
+// email object (independent from, to, subject, html, headers), so we still
+// get per-contact personalization, unsubscribe URL, etc. Retries on 429 with
+// exponential backoff so a cold-cache rate-limit never marks real sends as
+// "failed". Returns one result per input email, in order.
+async function resendBatchSend(
+  apiKey: string,
+  payloads: EmailPayload[],
+): Promise<Array<{ id?: string; error?: string }>> {
+  if (payloads.length === 0) return [];
+
+  let attempt = 0;
+  while (attempt <= MAX_BATCH_RETRIES) {
+    const res = await fetch("https://api.resend.com/emails/batch", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify(payloads),
+    });
+    const text = await res.text();
+
+    // 429 → back off (1s, 2s, 4s, 8s, 16s) and retry the whole batch.
+    if (res.status === 429 && attempt < MAX_BATCH_RETRIES) {
+      const delay = Math.min(16000, 1000 * Math.pow(2, attempt));
+      await new Promise((r) => setTimeout(r, delay));
+      attempt++;
+      continue;
+    }
+
+    if (!res.ok) {
+      const errMsg = `${res.status}: ${text.slice(0, 300)}`;
+      return payloads.map(() => ({ error: errMsg }));
+    }
+
+    // Success — parse response. Resend returns { data: [{ id }, ...] } in order.
+    try {
+      const parsed = JSON.parse(text);
+      const data: Array<{ id?: string }> = Array.isArray(parsed) ? parsed : (parsed.data ?? []);
+      return payloads.map((_, i) => ({ id: data[i]?.id }));
+    } catch {
+      return payloads.map(() => ({}));
+    }
   }
+
+  // Exhausted retries — still 429-ing.
+  return payloads.map(() => ({ error: "Resend rate limit (429) after retries" }));
 }
 
 Deno.serve(async (req) => {
@@ -178,62 +237,85 @@ Deno.serve(async (req) => {
   const results: { contact_id: string; email: string; status: string; error?: string; provider_message_id?: string }[] = [];
   const fromLine = `${campaign.from_name} <${campaign.from_email}>`;
 
-  // Send in small batches to respect provider rate limits.
-  const batchSize = Math.max(1, RATE_LIMIT_PER_SECOND);
-  for (let i = 0; i < contacts.length; i += batchSize) {
-    const batch = contacts.slice(i, i + batchSize);
-    const started = Date.now();
+  // Helper: turn a contact into a fully-personalized email payload (same shape
+  // whether we're sending via /emails or /emails/batch).
+  const buildPayload = (contact: Contact): EmailPayload => {
+    const unsubUrl = buildUnsubscribeUrl(contact);
+    const subject  = personalize(campaign.subject,   contact, unsubUrl);
+    const bodyText = personalize(campaign.body_text, contact, unsubUrl);
+    const footerH  = `<hr style="margin:32px 0 16px;border:0;border-top:1px solid #e0d9c5"/>
+      <p style="color:#7a7367;font-size:12px;line-height:1.5;margin:0 0 8px">
+        You're receiving this because you registered for an IgnorAInt masterclass.
+        <a href="${unsubUrl}" style="color:#A8612F">Unsubscribe</a>.
+      </p>
+      <p style="color:#7a7367;font-size:12px;line-height:1.5;margin:0">
+        ${SENDER_POSTAL_ADDRESS}
+      </p>`;
+    const footerT = `\n\n----\nYou're receiving this because you registered for an IgnorAInt masterclass.\nUnsubscribe: ${unsubUrl}\n${SENDER_POSTAL_ADDRESS}\n`;
+    const html    = ensureHtmlShell(personalize(campaign.body_html, contact, unsubUrl), footerH);
 
-    const promises = batch.map(async (contact) => {
-      const unsubUrl = buildUnsubscribeUrl(contact);
-      const subject = personalize(campaign.subject, contact, unsubUrl);
-      const text    = personalize(campaign.body_text, contact, unsubUrl);
-      const footerH = `<hr style="margin:32px 0 16px;border:0;border-top:1px solid #e0d9c5"/>
-        <p style="color:#7a7367;font-size:12px;line-height:1.5;margin:0 0 8px">
-          You're receiving this because you registered for an IgnorAInt masterclass.
-          <a href="${unsubUrl}" style="color:#A8612F">Unsubscribe</a>.
-        </p>
-        <p style="color:#7a7367;font-size:12px;line-height:1.5;margin:0">
-          ${SENDER_POSTAL_ADDRESS}
-        </p>`;
-      // Plain-text footer mirrors the HTML one for clients that prefer text/plain.
-      const footerT = `\n\n----\nYou're receiving this because you registered for an IgnorAInt masterclass.\nUnsubscribe: ${unsubUrl}\n${SENDER_POSTAL_ADDRESS}\n`;
-      const html = ensureHtmlShell(personalize(campaign.body_html, contact, unsubUrl), footerH);
+    return {
+      from: fromLine,
+      to: contact.email,
+      subject,
+      html,
+      text: `${bodyText}${footerT}`,
+      reply_to: campaign.reply_to ?? undefined,
+      headers: {
+        "List-Unsubscribe": `<${unsubUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
+    };
+  };
 
-      const r = await resendSend(resendKey!, {
-        from: fromLine,
-        to: contact.email,
-        subject,
-        html,
-        text: `${text}${footerT}`,
-        reply_to: campaign.reply_to ?? undefined,
-        headers: {
-          "List-Unsubscribe": `<${unsubUrl}>`,
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        },
-      });
-
-      const sendRow = {
-        campaign_id: campaign.id,
-        contact_id: contact.id,
-        status: r.error ? "failed" : "sent",
-        provider_message_id: r.id ?? null,
-        error: r.error ?? null,
-        sent_at: r.error ? null : new Date().toISOString(),
-      };
-      if (!payload.test_email) {
-        await admin.from("campaign_sends")
-          .upsert(sendRow, { onConflict: "campaign_id,contact_id" });
-      }
-      results.push({ contact_id: contact.id, email: contact.email, status: sendRow.status, error: r.error, provider_message_id: r.id });
+  // TEST SEND — one email, use the single-send endpoint for a clean response.
+  if (payload.test_email) {
+    const contact = contacts[0];
+    const r = await resendSend(resendKey!, buildPayload(contact));
+    results.push({
+      contact_id: contact.id,
+      email: contact.email,
+      status: r.error ? "failed" : "sent",
+      error: r.error,
+      provider_message_id: r.id,
     });
+  } else {
+    // CAMPAIGN SEND — use /emails/batch (up to 100 emails per request).
+    // This keeps us comfortably under Resend's 5 req/s account limit even at
+    // 10,000+ recipients, and isolates rate-limit retries to whole batches.
+    for (let i = 0; i < contacts.length; i += BATCH_SIZE) {
+      const batch    = contacts.slice(i, i + BATCH_SIZE);
+      const payloads = batch.map(buildPayload);
+      const batchRes = await resendBatchSend(resendKey!, payloads);
 
-    await Promise.all(promises);
+      // Record each result in campaign_sends. Upsert so re-sends don't error.
+      for (let j = 0; j < batch.length; j++) {
+        const contact = batch[j];
+        const r       = batchRes[j] ?? {};
+        const status  = r.error ? "failed" : "sent";
+        await admin.from("campaign_sends").upsert({
+          campaign_id: campaign.id,
+          contact_id:  contact.id,
+          status,
+          provider_message_id: r.id ?? null,
+          error:   r.error ?? null,
+          sent_at: r.error ? null : new Date().toISOString(),
+        }, { onConflict: "campaign_id,contact_id" });
 
-    // Pace: ensure batch takes at least ~1s to stay under RATE_LIMIT_PER_SECOND
-    const elapsed = Date.now() - started;
-    if (elapsed < 1000 && i + batchSize < contacts.length) {
-      await new Promise((r) => setTimeout(r, 1000 - elapsed));
+        results.push({
+          contact_id: contact.id,
+          email: contact.email,
+          status,
+          error: r.error,
+          provider_message_id: r.id,
+        });
+      }
+
+      // Small gap between batches so we stay well under account-wide rate
+      // limits (5 req/s). With batch size 100 this is ~200 emails/sec cap.
+      if (i + BATCH_SIZE < contacts.length && BATCH_PACING_MS > 0) {
+        await new Promise((r) => setTimeout(r, BATCH_PACING_MS));
+      }
     }
   }
 
