@@ -6,11 +6,10 @@
 // ---------------------------------------------------------------------------
 
 window.CRM_CONFIG = {
-  // e.g. "https://xxxxxxxxxxxxxxxx.supabase.co"
-  SUPABASE_URL: "PASTE_YOUR_SUPABASE_PROJECT_URL_HERE",
+  SUPABASE_URL: "https://qphagqshsrdeefspxhss.supabase.co",
 
-  // e.g. "eyJhbGci...." (the long anon/public key)
-  SUPABASE_ANON_KEY: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE",
+  // Supabase publishable key (safe to ship — RLS limits what it can do).
+  SUPABASE_ANON_KEY: "sb_publishable_T4tRxxiXsxisiH4RH120UQ_JZPC7Ra-",
 
   // Default sender — only used to pre-fill new campaigns; can be overridden per campaign.
   DEFAULT_FROM_NAME:  "Addie Agarwal",
