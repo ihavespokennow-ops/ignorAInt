@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The AI Advantage — Masterclass Playbook & Recap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #0b0b0c;
+    --paper:      #f6f2ea;
+    --paper-deep: #efe9dd;
+    --rule:       #1a1a1c;
+    --rule-soft:  rgba(11,11,12,0.12);
+    --muted:      #5a564e;
+    --muted-2:    #7a7367;
+    --gold:       #b58a3a;
+    --gold-deep:  #8a6620;
+    --accent-bg:  #0b0b0c;
+
+    --serif: "Fraunces", "Cormorant Garamond", "Times New Roman", serif;
+    --sans:  "Inter", "Helvetica Neue", Arial, sans-serif;
+
+    --max: 760px;
+    --gutter: clamp(20px, 4vw, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 19px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02", "liga", "onum";
+  }
+
+  ::selection { background: var(--gold); color: var(--ink); }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ───────── Cover ───────── */
+  .cover {
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: clamp(28px, 5vw, 56px) var(--gutter);
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(181,138,58,0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(181,138,58,0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .cover-head, .cover-body, .cover-foot { position: relative; }
+
+  .cover-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.6);
+  }
+  .cover-head .mark {
+    display: inline-flex; align-items: center; gap: 10px;
+    color: rgba(246,242,234,0.85);
+  }
+  .cover-head .mark .dot {
+    width: 7px; height: 7px; background: var(--gold); border-radius: 50%;
+  }
+
+  .cover-body {
+    align-self: center;
+    max-width: 920px;
+  }
+  .cover-eyebrow {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+  }
+  .cover-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(48px, 9vw, 128px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .cover-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold);
+  }
+  .cover-sub {
+    margin-top: 36px;
+    max-width: 560px;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(18px, 2vw, 22px);
+    line-height: 1.5;
+    color: rgba(246,242,234,0.82);
+  }
+  .cover-rule {
+    width: 64px; height: 1.5px; background: var(--gold);
+    margin: 44px 0 24px;
+  }
+
+  .cover-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 40px;
+    align-items: end;
+    padding-top: 48px;
+    border-top: 1px solid rgba(246,242,234,0.15);
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.6);
+  }
+  .cover-foot .label {
+    display: block;
+    color: rgba(246,242,234,0.4);
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+  .cover-foot .val {
+    color: var(--paper);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ───────── Article shell ───────── */
+  article {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: clamp(80px, 12vh, 140px) var(--gutter);
+  }
+
+  .section + .section,
+  .brand-update + .section { margin-top: clamp(80px, 12vh, 120px); }
+
+  .section-num {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-num::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule-soft);
+  }
+
+  h1.section-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 5.5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 36px;
+  }
+  h1.section-title em { font-style: italic; font-weight: 300; color: var(--gold-deep); }
+
+  .dropcap::first-letter {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 5.2em;
+    float: left;
+    line-height: 0.88;
+    padding: 6px 12px 0 0;
+    color: var(--ink);
+  }
+
+  p {
+    margin: 0 0 1.2em;
+    text-wrap: pretty;
+  }
+  p.lede {
+    font-size: 1.18em;
+    line-height: 1.55;
+    color: #2a2926;
+  }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ───────── Pull quote ───────── */
+  .pullquote {
+    margin: clamp(40px, 6vh, 64px) 0;
+    padding: 0;
+    border: none;
+    position: relative;
+  }
+  .pullquote .pq-mark {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 96px;
+    line-height: 0.6;
+    color: var(--gold);
+    display: block;
+    margin-bottom: -12px;
+  }
+  .pullquote blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(24px, 3.2vw, 34px);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .pullquote cite {
+    display: block;
+    margin-top: 20px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-style: normal;
+    color: var(--muted);
+  }
+
+  /* Side pull quote — sets flush against right rule */
+  .sidequote {
+    float: right;
+    width: min(320px, 42%);
+    margin: 8px -60px 24px 32px;
+    padding: 20px 0 20px 28px;
+    border-left: 2px solid var(--gold);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .sidequote cite {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .sidequote { float: none; width: auto; margin: 28px 0; }
+  }
+
+  /* ───────── Subheads ───────── */
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    margin: 2em 0 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.25;
+    margin: 0 0 6px;
+  }
+  h3 .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold-deep);
+    margin-right: 10px;
+  }
+
+  /* ───────── Tool list ───────── */
+  .tools {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .tools li {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .tools .tool-name {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+  }
+  .tools .tool-name small {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-top: 4px;
+  }
+  .tools .tool-desc {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #2a2926;
+  }
+  @media (max-width: 700px) {
+    .tools li { grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  /* ───────── Prompt card ───────── */
+  .prompt {
+    margin: 28px 0 40px;
+  }
+  .prompt-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  .prompt-head .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 40px;
+    color: var(--gold);
+    line-height: 1;
+    min-width: 34px;
+  }
+  .prompt-head h3 {
+    margin: 0;
+    font-size: 24px;
+  }
+  .prompt-desc {
+    margin: 0 0 16px 50px;
+    font-size: 16px;
+    color: var(--muted);
+    font-family: var(--sans);
+    line-height: 1.55;
+  }
+  .prompt-body {
+    margin-left: 50px;
+    padding: 22px 26px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--gold);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #1a1916;
+    position: relative;
+  }
+  .prompt-body::before {
+    content: "“";
+    position: absolute;
+    top: -14px; left: 14px;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 400;
+  }
+  .prompt-body .phase {
+    display: block;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 4px;
+  }
+  .prompt-body + .prompt-body { margin-top: 14px; }
+  @media (max-width: 700px) {
+    .prompt-desc, .prompt-body { margin-left: 0; }
+  }
+
+  /* ───────── Q&A ───────── */
+  .qa { margin-top: 8px; }
+  .qa-item { padding: 28px 0; border-bottom: 1px solid var(--rule-soft); }
+  .qa-item:first-child { border-top: 1px solid var(--rule-soft); }
+  .qa-q {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 14px;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .qa-q .marker {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+  }
+  .qa-a {
+    margin: 0 0 0 38px;
+    font-size: 17px;
+    line-height: 1.65;
+    color: #2a2926;
+  }
+  @media (max-width: 700px) {
+    .qa-a { margin-left: 0; }
+  }
+
+  /* ───────── Lessons ───────── */
+  .lessons { counter-reset: lesson; margin-top: 8px; }
+  .lesson {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 28px;
+    padding: 32px 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .lesson:last-child { border-bottom: 1px solid var(--rule-soft); }
+  .lesson .lesson-num {
+    counter-increment: lesson;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 64px;
+    line-height: 0.9;
+    color: var(--gold);
+  }
+  .lesson .lesson-num::before { content: counter(lesson, decimal-leading-zero); }
+  .lesson h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    margin: 6px 0 8px;
+  }
+  .lesson p {
+    font-size: 17px;
+    color: #2a2926;
+    margin: 0;
+  }
+  @media (max-width: 700px) {
+    .lesson { grid-template-columns: 1fr; gap: 4px; }
+    .lesson .lesson-num { font-size: 44px; }
+  }
+
+  /* ───────── Appreciation ───────── */
+  .testimonials { display: grid; gap: 36px; margin: 40px 0 0; }
+  .testimonial {
+    padding-left: 24px;
+    border-left: 2px solid var(--gold);
+  }
+  .testimonial blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .testimonial cite {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .thanks-list {
+    margin: 40px 0 0;
+    padding: 24px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.7;
+    color: #2a2926;
+  }
+
+  /* ───────── Colophon / footer ───────── */
+  .colophon {
+    margin-top: clamp(100px, 14vh, 160px);
+    padding: 56px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+  .colophon .label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--muted-2);
+    margin-bottom: 8px;
+  }
+  .colophon .val {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+  }
+  @media (max-width: 600px) {
+    .colophon { grid-template-columns: 1fr; }
+  }
+
+  /* ───────── Progress bar ───────── */
+  .progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: var(--gold);
+    z-index: 50;
+    transition: width 120ms linear;
+  }
+
+  /* ───────── Running header ───────── */
+  .runhead {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px var(--gutter);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(246,242,234,0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule-soft);
+    z-index: 40;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+  .runhead.visible { opacity: 1; transform: translateY(0); }
+  .runhead .mark { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
+  .runhead .mark .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+
+  /* ───────── Brand Update (post-intro announcement) ───────── */
+  .brand-update {
+    max-width: var(--max);
+    margin: clamp(60px, 10vh, 100px) auto 0;
+    padding: 0 var(--gutter);
+  }
+  .bu-card {
+    position: relative;
+    background: var(--ink);
+    color: var(--paper);
+    padding: clamp(36px, 5vw, 56px) clamp(32px, 5vw, 56px);
+    overflow: hidden;
+    border: 1px solid var(--ink);
+    box-shadow: 8px 8px 0 0 var(--gold);
+  }
+  .bu-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(600px 200px at 90% -20%, rgba(181,138,58,0.22), transparent 65%),
+      radial-gradient(400px 300px at -10% 120%, rgba(181,138,58,0.1), transparent 65%);
+    pointer-events: none;
+  }
+  .bu-tape {
+    position: absolute;
+    top: 18px; right: -52px;
+    transform: rotate(38deg);
+    background: var(--gold);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 6px 60px;
+  }
+  .bu-eyebrow {
+    position: relative;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .bu-eyebrow::before {
+    content: "";
+    width: 28px; height: 1.5px; background: var(--gold);
+  }
+  .bu-title {
+    position: relative;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 4.6vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 12px;
+    color: var(--paper);
+  }
+  .bu-title em { font-style: italic; color: var(--gold); }
+  .bu-title s { text-decoration: line-through rgba(246,242,234,0.5) 2px; color: rgba(246,242,234,0.5); }
+  .bu-body {
+    position: relative;
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.6;
+    color: rgba(246,242,234,0.88);
+    margin: 0 0 22px;
+    max-width: 56ch;
+  }
+  .bu-body em { color: var(--gold); font-style: italic; }
+  .bu-swap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 26px 0 24px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(246,242,234,0.15);
+    border-bottom: 1px solid rgba(246,242,234,0.15);
+    flex-wrap: wrap;
+  }
+  .bu-old, .bu-new {
+    font-family: var(--serif);
+    font-size: clamp(22px, 3.2vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .bu-old {
+    color: rgba(246,242,234,0.45);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    font-weight: 400;
+  }
+  .bu-arrow {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .bu-new {
+    color: var(--paper);
+    font-weight: 500;
+  }
+  .bu-new .cap-a {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .bu-meta {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px 32px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.5);
+  }
+  .bu-meta .val {
+    display: block;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--paper);
+    margin-top: 6px;
+  }
+  .bu-meta a.val { border-bottom: 1px dotted rgba(246,242,234,0.4); }
+  .bu-wink {
+    position: relative;
+    margin: 22px 0 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: rgba(246,242,234,0.7);
+  }
+  .bu-wink .emoji {
+    font-style: normal;
+    filter: grayscale(1) brightness(1.2);
+    opacity: 0.8;
+  }
+
+  /* ───────── Tweaks Panel ───────── */
+  .tweaks-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 12px;
+    border: 1px solid var(--ink);
+    box-shadow: 6px 6px 0 0 var(--gold);
+    z-index: 100;
+    display: none;
+  }
+  .tweaks-panel.open { display: block; }
+  .tweaks-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(246,242,234,0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .tweaks-head .close {
+    background: none; border: none; color: rgba(246,242,234,0.6);
+    cursor: pointer; font-size: 16px; line-height: 1; padding: 0;
+  }
+  .tweaks-body { padding: 16px 18px 18px; display: grid; gap: 18px; }
+  .tweak-group label.group-label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.55);
+    margin-bottom: 8px;
+  }
+  .tweak-seg {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    border: 1px solid rgba(246,242,234,0.2);
+  }
+  .tweak-seg button {
+    background: transparent;
+    color: rgba(246,242,234,0.7);
+    border: none;
+    border-right: 1px solid rgba(246,242,234,0.1);
+    padding: 8px 6px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .tweak-seg button:last-child { border-right: none; }
+  .tweak-seg button.active { background: var(--gold); color: var(--ink); font-weight: 600; }
+  .tweak-seg button:hover:not(.active) { color: var(--paper); background: rgba(246,242,234,0.06); }
+
+  /* Theme: Light editorial (default is already light) */
+  body.theme-noir { --paper: #0f0f10; --paper-deep: #18181a; --ink: #f4eddb; --rule-soft: rgba(244,237,219,0.16); --muted: #9a948a; --muted-2: #7a7367; --gold: #d4a24b; --gold-deep: #e6b55a; }
+  body.theme-noir .cover { background: #000; }
+  body.theme-noir .prompt-body { color: #f4eddb; background: #18181a; }
+  body.theme-noir .qa-a, body.theme-noir .lesson p, body.theme-noir .tools .tool-desc, body.theme-noir p.lede, body.theme-noir .thanks-list { color: rgba(244,237,219,0.82); }
+  body.theme-bone { --paper: #ece6d6; --paper-deep: #e0d9c5; }
+
+  /* Accent color tweak */
+  body.accent-sage { --gold: #6b8e6a; --gold-deep: #4f7050; }
+  body.accent-plum { --gold: #8c5a8a; --gold-deep: #6a3f68; }
+  body.accent-ink  { --gold: #c9c3b3; --gold-deep: #8e8877; }
+
+  /* Type tweak */
+  body.type-sans { font-family: var(--sans); }
+  body.type-sans .cover-title,
+  body.type-sans h1.section-title,
+  body.type-sans h2,
+  body.type-sans h3,
+  body.type-sans .bu-title,
+  body.type-sans .tool-name,
+  body.type-sans .lesson h3,
+  body.type-sans .qa-q,
+  body.type-sans .testimonial blockquote,
+  body.type-sans .pullquote blockquote,
+  body.type-sans .sidequote,
+  body.type-sans .prompt-body,
+  body.type-sans p.lede,
+  body.type-sans .bu-body {
+    font-family: var(--sans);
+  }
+
+  /* ───────── Session Video ───────── */
+  .video-section {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: clamp(56px, 8vh, 80px) var(--gutter) 0;
+  }
+  .video-eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .video-eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule-soft);
+  }
+  .video-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(28px, 4.5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 0 20px;
+  }
+  .video-title em { font-style: italic; font-weight: 300; color: var(--gold-deep); }
+  .video-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0 0 28px;
+    max-width: 560px;
+  }
+  .video-frame {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: var(--ink);
+    border: 1px solid var(--rule-soft);
+  }
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: space-between;
+    padding: 14px 2px 0;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .video-meta a {
+    color: var(--gold-deep);
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 2px;
+  }
+
+  /* ───────── eBook CTA ───────── */
+  .ebook-cta {
+    max-width: var(--max);
+    margin: clamp(60px, 9vh, 90px) auto 0;
+    padding: 40px var(--gutter);
+    border-top: 1px solid var(--rule-soft);
+    border-bottom: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: center;
+  }
+  .ebook-cta .copy .eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 10px;
+  }
+  .ebook-cta h3 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(24px, 3.5vw, 34px);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .ebook-cta h3 em { font-style: italic; font-weight: 300; color: var(--gold-deep); }
+  .ebook-cta p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--muted);
+    margin: 0;
+    font-size: 17px;
+  }
+  .ebook-cta .download-btn {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding: 16px 28px;
+    border: 1px solid var(--ink);
+    transition: background .18s ease, color .18s ease;
+    white-space: nowrap;
+  }
+  .ebook-cta .download-btn:hover {
+    background: var(--gold-deep);
+    border-color: var(--gold-deep);
+  }
+  @media (max-width: 700px) {
+    .ebook-cta { grid-template-columns: 1fr; gap: 20px; }
+  }
+
+  /* Print */
+  @media print {
+    .tweaks-panel, .tweaks-fab { display: none !important; }
+  }
+
+  .tweaks-fab {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 48px; height: 48px;
+    background: var(--ink); color: var(--gold);
+    border: none;
+    font-family: var(--sans);
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 99;
+    box-shadow: 4px 4px 0 0 var(--gold);
+    display: none;
+  }
+  .tweaks-fab.visible { display: block; }
+
+  /* ───────── Print ───────── */
+  @media print {
+    .progress, .runhead { display: none; }
+    body { font-size: 11pt; }
+    .cover { min-height: auto; break-after: page; }
+    .section { break-inside: avoid-page; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<header class="runhead" id="runhead">
+  <a href="../past-sessions.html" style="color: inherit; text-decoration: none;">&lsaquo; Past Sessions</a>
+  <span>Masterclass Playbook &middot; Addie Agarwal</span>
+</header>
+
+<!-- ───────── COVER ───────── -->
+<section class="cover">
+  <div class="cover-head">
+    <span class="mark"><span class="dot"></span>A Masterclass Playbook</span>
+    <span>Vol. 01 &middot; April 18</span>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-eyebrow">The Playbook &middot; No. 01</div>
+    <h1 class="cover-title">
+      The AI<br/>
+      <em>Advantage.</em>
+    </h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">
+      Transforming the way we work &mdash; a recap &amp; field guide
+      from the April&nbsp;18 masterclass on enterprise-grade AI workflows,
+      autonomous agents, and the quiet art of automating the pixels.
+    </p>
+  </div>
+
+  <div class="cover-foot">
+    <div>
+      <span class="label">Written by</span>
+      <span class="val">Addie Agarwal</span>
+    </div>
+    <div>
+      <span class="label">Session</span>
+      <span class="val">April 18 &middot; Live</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── SESSION VIDEO ───────── -->
+<section class="video-section" id="recording" aria-label="Session recording">
+  <div class="video-eyebrow">The Recording &middot; April 18, 2026</div>
+  <h2 class="video-title">Watch the <em>session.</em></h2>
+  <p class="video-sub">
+    The full masterclass, unedited. Put it on while you work, or skim the playbook below
+    for the tools, prompts, and moments that landed hardest in the room.
+  </p>
+  <div class="video-frame">
+    <iframe
+      src="https://www.youtube.com/embed/reQ8hSqJoeU"
+      title="The AI Advantage — April 18, 2026"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
+  </div>
+  <div class="video-meta">
+    <span>Live session &middot; Recorded April 18, 2026</span>
+    <a href="https://youtu.be/reQ8hSqJoeU" target="_blank" rel="noopener">Open in YouTube &rsaquo;</a>
+  </div>
+</section>
+
+<!-- ───────── ARTICLE ───────── -->
+<article>
+
+  <!-- Introduction -->
+  <section class="section" id="intro" data-runhead="Introduction">
+    <div class="section-num">I &middot; Introduction</div>
+    <h1 class="section-title">Welcome to the <em>recap</em>.</h1>
+
+    <p class="lede dropcap">
+      This playbook accompanies the April&nbsp;18 AI Masterclass &mdash; a session
+      designed not just to introduce artificial intelligence, but to fundamentally
+      shift how professionals and business owners interact with technology on a
+      daily basis.
+    </p>
+
+    <aside class="sidequote">
+      If you are moving pixels, your skills might become obsolete. But if you are
+      moving atoms &mdash; shaking hands, building communities, physical construction
+      &mdash; you will be just fine.
+      <cite>&mdash; Guiding philosophy of the session</cite>
+    </aside>
+
+    <p>
+      We are undergoing a massive transition. The guiding philosophy of this
+      masterclass is simple, and it echoes throughout every prompt, every tool,
+      and every workflow that follows. This playbook is designed to help you
+      automate the <em>pixels</em> so you can focus entirely on the <em>atoms</em>.
+    </p>
+
+    <p>
+      What follows is the complete recap: the tools we explored, the exact prompts
+      that produced real business results on stage, the audience&rsquo;s sharpest
+      questions answered candidly, and the operational mindset shifts that make
+      all of it possible.
+    </p>
+  </section>
+
+  <!-- ───────── Brand Update (after intro) ───────── -->
+  <aside class="brand-update" aria-label="Important brand update">
+    <div class="bu-card">
+      <span class="bu-tape">Plot Twist</span>
+      <div class="bu-eyebrow">An important update</div>
+      <h2 class="bu-title">
+        We got <em>noticed.</em><br/>
+        And then we got a <em>cease&nbsp;&amp;&nbsp;desist.</em>
+      </h2>
+      <p class="bu-body">
+        Shortly after this masterclass wrapped, a similarly-named brand sent
+        over a polite-but-firm legal note asking us to find a new name. Translation:
+        <em>the work was visible enough to be a threat.</em> We&rsquo;ll take that
+        as a compliment &mdash; and a fresh coat of paint.
+      </p>
+
+      <div class="bu-swap" aria-label="Brand name change">
+        <span class="bu-old">The Brain Trust</span>
+        <span class="bu-arrow">&rsaquo;&rsaquo; Now</span>
+        <span class="bu-new">Ignor<span class="cap-a">A</span><span class="cap-a">I</span>nt</span>
+      </div>
+
+      <div class="bu-meta">
+        <div>
+          <span>Same person</span>
+          <span class="val">Addie Agarwal</span>
+        </div>
+        <div>
+          <span>Same playbook</span>
+          <span class="val">Zero to automated</span>
+        </div>
+        <div>
+          <span>New home</span>
+          <a class="val" href="https://ignoraint.com" target="_blank" rel="noopener">ignoraint.com</a>
+        </div>
+      </div>
+
+      <p class="bu-wink">
+        <span class="emoji">✶</span> &nbsp;If you&rsquo;re still reading,
+        you can&rsquo;t afford to be an <em>IgnorAInt</em> any longer.
+      </p>
+    </div>
+  </aside>
+
+  <section class="section" id="tools" data-runhead="Tools Discussed">
+    <div class="section-num">II &middot; Tools Discussed</div>
+    <h1 class="section-title">Beyond the <em>chatbot</em>.</h1>
+
+    <p class="lede">
+      During the masterclass, we moved beyond basic chatbots to explore
+      enterprise-grade workflows and autonomous agents. The primary focus was on
+      Anthropic&rsquo;s Claude ecosystem, with key comparisons to other market leaders.
+    </p>
+
+    <ul class="tools">
+      <li>
+        <div class="tool-name">
+          Claude Desktop App
+          <small>The operating system</small>
+        </div>
+        <div class="tool-desc">
+          The core of our AI workflow. Unlike the web version, the desktop app
+          allows Claude to interact natively with your computer, execute local
+          tasks, and keep your files secure within local or synced cloud folders
+          &mdash; iCloud, Google Drive, and the like.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Claude Co-work
+          <small>Deep research &amp; analysis</small>
+        </div>
+        <div class="tool-desc">
+          A specialized workspace for deep research and complex data analysis.
+          Keeps sensitive client and business data safe while outputting
+          professional documents &mdash; PDFs, Excel models, briefs, reports.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Claude Design
+          <small>claude.ai/design</small>
+        </div>
+        <div class="tool-desc">
+          A revolutionary tool that sent shockwaves through the design industry
+          upon launch. Upload your brand guidelines and instantly generate
+          pixel-perfect, exportable LinkedIn ads, marketing mockups, and full
+          presentation decks &mdash; no technical design skills required.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Connectors
+          <small>The hidden superpower</small>
+        </div>
+        <div class="tool-desc">
+          Connecting Claude directly to Gmail, Google Drive, Chrome, HubSpot,
+          and even TurboTax automates the mundane. A complete tax return was
+          generated and filed in eighteen minutes during the session.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Gemini vs. ChatGPT
+          <small>A brief comparison</small>
+        </div>
+        <div class="tool-desc">
+          ChatGPT can feel <em>condescending</em> or overly conversational when you
+          just need tasks done. Gemini, on the other hand, is the undisputed king
+          of multimodal inputs &mdash; video and images &mdash; due to its deep
+          integration with YouTube. More on this in upcoming sessions.
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Prompts -->
+  <section class="section" id="prompts" data-runhead="High-Impact Prompts">
+    <div class="section-num">III &middot; High-Impact Prompts</div>
+    <h1 class="section-title">Talk to it like a <em>colleague</em>.</h1>
+
+    <p class="lede">
+      The secret to great AI output is treating the agent like a highly capable
+      colleague rather than a rigid search engine. Below are the exact,
+      conversational prompts used during the live demonstrations &mdash; verbatim.
+    </p>
+
+    <div class="pullquote">
+      <span class="pq-mark">&ldquo;</span>
+      <blockquote>
+        Give it full context. Explain your goal clearly, the way you would
+        to a senior colleague. Let it reach across its knowledge organically.
+      </blockquote>
+      <cite>The core prompting principle</cite>
+    </div>
+
+    <!-- Prompt 1 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">1</span>
+        <h3>The Brand Persona Engine</h3>
+      </div>
+      <p class="prompt-desc">Used to instantly build a native understanding of your brand voice and operations.</p>
+      <div class="prompt-body">
+        I want you to study and learn everything about me and my brand from the
+        following websites and documents&hellip; and then create a skill and brand
+        setup for me. I want to use what you learn about me in all our future
+        communications and projects.
+      </div>
+    </div>
+
+    <!-- Prompt 2 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">2</span>
+        <h3>The Inbox Automator</h3>
+      </div>
+      <p class="prompt-desc">Scans past communications to match your tone, then sets up automated background drafting for new emails.</p>
+      <div class="prompt-body">
+        <span class="phase">Phase 1 &middot; Learn the voice</span>
+        Can you go into my inbox and scan my sent items and learn how I usually
+        respond.
+      </div>
+      <div class="prompt-body">
+        <span class="phase">Phase 2 &middot; Scheduled task</span>
+        Go into my inbox and scan for all new emails and overdue replies and
+        create draft replies for me. Save them in drafts. Do not send out any
+        email.
+      </div>
+    </div>
+
+    <!-- Prompt 3 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">3</span>
+        <h3>The Contract Analyzer</h3>
+      </div>
+      <p class="prompt-desc">A heavy legal review on a 1099 independent contractor agreement &mdash; saving thousands in paralegal fees.</p>
+      <div class="prompt-body">
+        Can you analyze the attached 1099 contract and tell me what are the
+        biggest red flags, what does not work in my favor, and anything else.
+      </div>
+    </div>
+
+    <!-- Prompt 4 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">4</span>
+        <h3>The Competitor Spy</h3>
+      </div>
+      <p class="prompt-desc">Deep market research on real estate competitors via the LinkedIn &amp; Chrome integration, producing a formatted Excel scorecard of their social strategy.</p>
+      <div class="prompt-body">
+        I want to know what my competitors are doing online and are they
+        succeeding on their social media outreach&hellip; especially on LinkedIn.
+        If you want to access LinkedIn, I have mine logged into Chrome.
+      </div>
+    </div>
+
+    <!-- Prompt 5 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">5</span>
+        <h3>The Real Estate Pressure Test</h3>
+      </div>
+      <p class="prompt-desc">Analysis of a single-family investment property in the Cincinnati Metro area, culminating in a fully formatted PDF executive summary.</p>
+      <div class="prompt-body">
+        I am a real estate investor and I am planning to buy a single family
+        home in Ohio&hellip; could you do a deep dive research for me and tell me
+        why I should be or should not invest. I want you to look at all possible
+        data points that pertain to this acquisition. At the end, could you
+        produce a PDF for me.
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A -->
+  <section class="section" id="qa" data-runhead="Q&amp;A Session">
+    <div class="section-num">IV &middot; Interactive Q&amp;A</div>
+    <h1 class="section-title">The audience <em>asked.</em></h1>
+
+    <p class="lede">
+      The audience asked highly insightful questions. A structured summary of
+      the key technical and strategic answers given during the session.
+    </p>
+
+    <div class="qa">
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>When providing financial documents, do you hide your account numbers to protect data privacy?</span></div>
+        <p class="qa-a">
+          Most modern bank statements already mask account numbers to the last
+          four digits. The larger philosophical point: we already trust big tech
+          &mdash; Google, Microsoft &mdash; with our passwords and financials.
+          With Claude&rsquo;s desktop environment and Co-work mode, your data and
+          instruction sets remain remarkably localized compared to standard
+          web-based AI tools.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>I use Outlook for business and Xero for accounting. How do Connectors work for these?</span></div>
+        <p class="qa-a">
+          A connector for Xero is currently in development &mdash; a beta was
+          briefly available. Microsoft has restricted read-only access for Outlook
+          to protect its own Copilot tools, meaning Claude can read and draft
+          replies, but you have to copy and paste them manually to send. HubSpot
+          and Gmail, meanwhile, have full read/write integrations.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>Should we create separate AI accounts for personal use and business use?</span></div>
+        <p class="qa-a">
+          Absolutely. Claude becomes highly personalized to your specific tone,
+          business metrics, and workflow. Keeping personal, family-oriented
+          queries separate from business operations ensures the AI doesn&rsquo;t
+          cross-contaminate your brand voice.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>I have a massive project built over months in ChatGPT. Do I have to start over in Claude?</span></div>
+        <p class="qa-a">
+          No. Export your ChatGPT files and code, drop them into a dedicated
+          folder synced to your desktop &mdash; iCloud, Google Drive &mdash; and
+          point Claude&rsquo;s Co-work to that folder. Ask Claude to learn the
+          context from those files, and you will pick up exactly where you left
+          off.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>Can Claude integrate with DuckDuckGo instead of Chrome for privacy purposes?</span></div>
+        <p class="qa-a">
+          Not natively yet. The Chrome integration is required to allow Claude
+          to visually scrape and interact with complex sites like LinkedIn on
+          your behalf. However, Claude only browses Chrome when explicitly
+          directed by your prompt &mdash; it does not passively surveil your web
+          traffic.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lessons -->
+  <section class="section" id="lessons" data-runhead="Core Lessons">
+    <div class="section-num">V &middot; Core Lessons Learnt</div>
+    <h1 class="section-title">A new operational <em>mindset</em>.</h1>
+
+    <p class="lede">
+      Implementing AI is less about learning code and more about adopting a new
+      operational mindset. Keep these four lessons top of mind as you build
+      your own workflows.
+    </p>
+
+    <div class="lessons">
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>Talk to AI like a human, not a search engine.</h3>
+          <p>
+            Avoid rigid prompts like &ldquo;Act as the Fortune 500 CEO of Pepsi.&rdquo;
+            That confines the AI to a tiny subset of its data. Instead, give it
+            full context, explain your goal clearly, and let it access its vast
+            knowledge base organically.
+          </p>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>Work locally, save globally.</h3>
+          <p>
+            Always use Claude Desktop for deep work, and explicitly assign your
+            Co-work sessions to a synced cloud folder &mdash; Google Drive,
+            OneDrive, iCloud. This guarantees you never lose your generated
+            assets, Excel models, or PDF reports if your machine crashes.
+          </p>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>Automate the inbox, save the day.</h3>
+          <p>
+            By letting Claude scan your sent items to learn your specific
+            sign-offs and tone, you can set it to auto-draft replies for
+            incoming emails every hour. You retain full control to hit
+            <em>Send</em> &mdash; the heavy lifting of composition is eliminated.
+          </p>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>The power of integrated design.</h3>
+          <p>
+            With Claude Design, the barrier to entry for high-end graphic
+            creation is gone. You no longer need to fight with alignment in
+            Canva. Simply upload your brand package and ask for a complete
+            LinkedIn campaign or slide deck &mdash; in dark and light modes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appreciation -->
+  <section class="section" id="appreciation" data-runhead="Appreciation">
+    <div class="section-num">VI &middot; Appreciation &amp; Community</div>
+    <h1 class="section-title">With <em>gratitude</em>.</h1>
+
+    <p class="lede">
+      The energy in this session was incredible, peaking at over seventy highly
+      engaged professionals. Thank you to everyone who showed up on a Saturday
+      morning to change the way they work.
+    </p>
+
+    <div class="section-num" style="margin-top:48px">From the live chat</div>
+
+    <div class="testimonials">
+      <div class="testimonial">
+        <blockquote>I feel like I just took a limitless pill.</blockquote>
+        <cite>&mdash; Derek Brown</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          This was such an eye-opening session. I&rsquo;m feeling like AddieGPT
+          right now.
+        </blockquote>
+        <cite>&mdash; Faith Ogali</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Addie, this session has been amazing. Your teaching style and flow is
+          superb. I feel like a genius &mdash; and I am not tech savvy.
+        </blockquote>
+        <cite>&mdash; Sharane Stewart</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          First of all, this is my best session I&rsquo;ve joined on AI
+          &mdash; you have explained things well.
+        </blockquote>
+        <cite>&mdash; Deepak Sharma</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Addie feeds off the energy of people. Share the wealth, don&rsquo;t
+          keep this to yourself. If we have 100+ people next time, you&rsquo;re
+          going to get even more value.
+        </blockquote>
+        <cite>&mdash; Leslie Awasom</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>Total <em>game changer.</em> Blown away.</blockquote>
+        <cite>&mdash; Leah Krebs</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Literally replacing every single app. This is really good and
+          definitely worth it.
+        </blockquote>
+        <cite>&mdash; Manny Awasom &amp; Fedna Morency</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Thank you for an exceptional session. Claude is making people level
+          up to new careers &mdash; nothing wrong with that.
+        </blockquote>
+        <cite>&mdash; Yetunde Orimoloye &amp; Fedna Morency</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>Everything you do is awesome, Addie.</blockquote>
+        <cite>&mdash; Fedna Morency</cite>
+      </div>
+    </div>
+
+    <div class="thanks-list">
+      <strong>Special thanks</strong> to Dr.&nbsp;Eric Biker, Leia, Panea, Samuel,
+      Jeremy, Anita, Arthur, Derek, Desmond, Gandhi, Taticia, Shireen &mdash; and
+      the entire <em>XSITE Capital</em> community for making this an unforgettable
+      masterclass.
+    </div>
+  </section>
+
+  <!-- eBook download -->
+  <aside class="ebook-cta" aria-label="Download the ebook">
+    <div class="copy">
+      <div class="eyebrow">Take it with you</div>
+      <h3>The <em>eBook</em> companion.</h3>
+      <p>The full playbook, formatted for offline reading.</p>
+    </div>
+    <a class="download-btn" href="AI_Masterclass_Ebook.pdf" download>Download PDF &rsaquo;</a>
+  </aside>
+
+  <!-- Colophon -->
+  <footer class="colophon">
+    <div>
+      <span class="label">Written by</span>
+      <span class="val">Addie Agarwal</span>
+    </div>
+    <div>
+      <span class="label">Session</span>
+      <span class="val">The AI Advantage &middot; April 18</span>
+    </div>
+  </footer>
+</article>
+
+<script>
+  // progress bar
+  const progress = document.getElementById('progress');
+  const runhead = document.getElementById('runhead');
+  const cover = document.querySelector('.cover');
+
+  function onScroll() {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    const y = window.scrollY;
+    progress.style.width = Math.max(0, Math.min(1, y / h)) * 100 + '%';
+
+    const coverH = cover.getBoundingClientRect().height;
+    if (y > coverH - 80) runhead.classList.add('visible');
+    else runhead.classList.remove('visible');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>

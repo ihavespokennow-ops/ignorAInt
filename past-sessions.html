@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Past Sessions — ignorAInt</title>
+  <meta name="description" content="Recaps, recordings, and playbooks from past ignorAInt AI Masterclass sessions." />
+  <link rel="icon" href="assets/mark.svg" />
+  <link rel="stylesheet" href="colors_and_type.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* ===== Past Sessions index — scoped additions ===== */
+    .ps-hero {
+      max-width: 900px;
+      margin: 80px auto 48px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .ps-hero .eyebrow {
+      font-family: var(--font-sans, "Inter", sans-serif);
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 18px;
+    }
+    .ps-hero h1 {
+      font-family: var(--font-serif, "Fraunces", serif);
+      font-weight: 400;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin: 0 0 20px;
+    }
+    .ps-hero h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--ember);
+    }
+    .ps-hero p {
+      font-family: var(--font-serif, "Fraunces", serif);
+      font-weight: 300;
+      font-style: italic;
+      font-size: clamp(18px, 2vw, 22px);
+      line-height: 1.5;
+      color: var(--ink-soft, #3C5679);
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .ps-list {
+      max-width: 900px;
+      margin: 0 auto 120px;
+      padding: 0 24px;
+      display: grid;
+      gap: 28px;
+    }
+
+    .ps-card {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 36px;
+      padding: 32px;
+      background: var(--paper-tint, #FAF6EE);
+      border: 1px solid var(--border-1, rgba(31,58,95,0.12));
+      border-radius: 20px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .ps-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(31,58,95,0.08);
+      border-color: var(--ember-soft, #E19E72);
+    }
+
+    .ps-card-date {
+      font-family: var(--font-sans, "Inter", sans-serif);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 11px;
+      color: var(--ember-deep, #A8612F);
+    }
+    .ps-card-date .day {
+      display: block;
+      font-family: var(--font-serif, "Fraunces", serif);
+      font-style: italic;
+      font-weight: 300;
+      font-size: 64px;
+      line-height: 1;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin: 10px 0 6px;
+    }
+    .ps-card-date .month-year { display: block; }
+
+    .ps-card-body .vol {
+      font-family: var(--font-sans, "Inter", sans-serif);
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 10px;
+    }
+    .ps-card-body h2 {
+      font-family: var(--font-serif, "Fraunces", serif);
+      font-weight: 500;
+      font-size: clamp(26px, 3.2vw, 36px);
+      line-height: 1.1;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin: 0 0 14px;
+    }
+    .ps-card-body h2 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--ember);
+    }
+    .ps-card-body p {
+      font-family: var(--font-serif, "Fraunces", serif);
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--char, #2A2A2A);
+      margin: 0 0 16px;
+    }
+    .ps-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-family: var(--font-sans, "Inter", sans-serif);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft, #3C5679);
+    }
+    .ps-card-meta .dot { color: var(--ember); margin: 0 6px; }
+    .ps-card-cta {
+      margin-top: 18px;
+      font-family: var(--font-sans, "Inter", sans-serif);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ember-deep, #A8612F);
+      font-weight: 600;
+    }
+
+    @media (max-width: 720px) {
+      .ps-card { grid-template-columns: 1fr; gap: 10px; }
+      .ps-card-date .day { font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="site-nav-outer">
+  <nav class="site-nav">
+    <a class="nav-word" href="index.html">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></a>
+    <div class="nav-mid">
+      <a href="past-sessions.html" style="color: var(--ember);">Past Sessions</a>
+      <a href="index.html#update">The update</a>
+      <a href="index.html#curriculum">Curriculum</a>
+      <a href="index.html#teacher">Instructor</a>
+    </div>
+    <a href="https://zoom.us/meeting/register/gRbQarQkSlC5Ik7cFGR3NA#/registration" class="btn btn-primary btn-sm">Reserve seat →</a>
+  </nav>
+</div>
+
+<main class="wrap">
+
+  <section class="ps-hero">
+    <div class="eyebrow">The Playbook Archive</div>
+    <h1>Past <em>Sessions</em>.</h1>
+    <p>Every masterclass, every recap — recordings, playbooks, and the exact prompts that moved the needle for people in the room.</p>
+  </section>
+
+  <section class="ps-list">
+
+    <a class="ps-card" href="past-sessions/the-ai-advantage.html">
+      <div class="ps-card-date">
+        <span class="month-year">April 2026</span>
+        <span class="day">18</span>
+        <span class="month-year">Vol. 01</span>
+      </div>
+      <div class="ps-card-body">
+        <div class="vol">Masterclass Playbook · No. 01</div>
+        <h2>The AI <em>Advantage</em>.</h2>
+        <p>Recap and field guide from the April 18 masterclass — enterprise-grade AI workflows, autonomous agents, the exact prompts that produced real results on stage, and the audience's sharpest questions.</p>
+        <div class="ps-card-meta">
+          <span>Live Session</span><span class="dot">·</span>
+          <span>Full Recording</span><span class="dot">·</span>
+          <span>eBook + Playbook</span>
+        </div>
+        <div class="ps-card-cta">Read the playbook →</div>
+      </div>
+    </a>
+
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-top">
+      <div>
+        <span class="footer-wordmark">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></span>
+        <p class="footer-tag">You don't have to figure this out alone.</p>
+      </div>
+      <div class="footer-contact">
+        <h4>Contact</h4>
+        <p>Questions? <a href="mailto:grow@beyond9to5club.com">grow@beyond9to5club.com</a></p>
+        <p>A community event for members &amp; invited guests · All skill levels welcome.</p>
+      </div>
+    </div>
+    <div class="footer-bot">
+      <span>© 2026 ignorAInt — The AI Masterclass by XSITE Capital</span>
+      <span>ignoraint.com</span>
+    </div>
+  </footer>
+
+</main>
+
+</body>
+</html>

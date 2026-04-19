@@ -17,3 +17,7 @@ dist/
 
 # Logs
 *.log
+
+# Claude Design handoff bundles (source material only — not part of the site)
+Past Sessions/
+
