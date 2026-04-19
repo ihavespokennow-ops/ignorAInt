@@ -94,13 +94,14 @@ supabase secrets set \
 ## 6 · Deploy the three edge functions
 
 ```sh
-supabase functions deploy send-campaign
-supabase functions deploy draft-email
-supabase functions deploy unsubscribe --no-verify-jwt
+supabase functions deploy send-campaign --no-verify-jwt
+supabase functions deploy draft-email   --no-verify-jwt
+supabase functions deploy unsubscribe   --no-verify-jwt
 ```
 
-- `send-campaign` and `draft-email` require a logged-in admin JWT (default behaviour — fine as-is).
-- `unsubscribe` must be callable by anyone clicking a link in their email, so we deploy it with `--no-verify-jwt`.
+- All three deploy with `--no-verify-jwt`. This tells the Functions gateway to pass auth headers through instead of trying to verify the JWT itself (which can mis-fire under the new publishable-key system).
+- `send-campaign` and `draft-email` still do their own auth check *inside* the function — they call `supabase.auth.getUser(jwt)` and verify the caller has an `admin` or `editor` role in `public.profiles`. The gateway flag only skips the redundant outer check.
+- `unsubscribe` is intentionally public so people clicking the link in their email can reach it.
 
 After each deploy, the CLI prints the function URL — sanity-check by running:
 

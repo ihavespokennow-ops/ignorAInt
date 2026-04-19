@@ -91,7 +91,12 @@ async function apiCall(functionName, body) {
   });
   const text = await res.text();
   let data; try { data = JSON.parse(text); } catch { data = { error: text }; }
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  if (!res.ok) {
+    // Surface whichever field is populated: our function uses `error`,
+    // the Supabase Functions runtime uses `message` (with `code`).
+    const msg = data.error || data.message || (data.code ? `${data.code}: ${data.message || ""}` : "") || `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
   return data;
 }
 
