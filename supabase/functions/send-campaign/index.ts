@@ -52,6 +52,9 @@ const CORS_HEADERS = {
 
 const RATE_LIMIT_PER_SECOND = Number(Deno.env.get("RATE_LIMIT_PER_SECOND") ?? 10);
 const UNSUBSCRIBE_BASE_URL  = Deno.env.get("UNSUBSCRIBE_BASE_URL") ?? "https://crm.ignoraint.com/unsubscribe";
+// CAN-SPAM-required physical postal address, shown in every campaign footer.
+// Override per-deploy with `supabase secrets set SENDER_POSTAL_ADDRESS="..."`.
+const SENDER_POSTAL_ADDRESS = Deno.env.get("SENDER_POSTAL_ADDRESS") ?? "Ignoraint LLC · North Carolina, USA";
 
 function json(body: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(body), {
@@ -186,10 +189,15 @@ Deno.serve(async (req) => {
       const subject = personalize(campaign.subject, contact, unsubUrl);
       const text    = personalize(campaign.body_text, contact, unsubUrl);
       const footerH = `<hr style="margin:32px 0 16px;border:0;border-top:1px solid #e0d9c5"/>
-        <p style="color:#7a7367;font-size:12px;line-height:1.5">
+        <p style="color:#7a7367;font-size:12px;line-height:1.5;margin:0 0 8px">
           You're receiving this because you registered for an IgnorAInt masterclass.
           <a href="${unsubUrl}" style="color:#A8612F">Unsubscribe</a>.
+        </p>
+        <p style="color:#7a7367;font-size:12px;line-height:1.5;margin:0">
+          ${SENDER_POSTAL_ADDRESS}
         </p>`;
+      // Plain-text footer mirrors the HTML one for clients that prefer text/plain.
+      const footerT = `\n\n----\nYou're receiving this because you registered for an IgnorAInt masterclass.\nUnsubscribe: ${unsubUrl}\n${SENDER_POSTAL_ADDRESS}\n`;
       const html = ensureHtmlShell(personalize(campaign.body_html, contact, unsubUrl), footerH);
 
       const r = await resendSend(resendKey!, {
@@ -197,7 +205,7 @@ Deno.serve(async (req) => {
         to: contact.email,
         subject,
         html,
-        text,
+        text: `${text}${footerT}`,
         reply_to: campaign.reply_to ?? undefined,
         headers: {
           "List-Unsubscribe": `<${unsubUrl}>`,

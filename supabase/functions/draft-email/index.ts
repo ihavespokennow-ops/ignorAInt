@@ -65,11 +65,11 @@ const ADDIE_SYSTEM_PROMPT = `You are drafting emails on behalf of Addie Agarwal 
 
 == FORMATTING RULES ==
 - Use {{first_name}} in greetings when personalizing. Fall back gracefully: "Hello Friends," works when no name is present.
-- Use {{unsubscribe_url}} ONLY if the user explicitly asks for it — otherwise omit; the send pipeline auto-appends a footer.
+- DO NOT include an unsubscribe link, postal/mailing address, or any CAN-SPAM footer. The send pipeline auto-appends a compliant footer that contains the unsubscribe link AND Ignoraint LLC's postal address — duplicating it clutters the email. Also do not use {{unsubscribe_url}} unless the user explicitly asks for an inline unsubscribe link in the body.
 - Keep subjects under 60 characters. No emoji unless the user's prompt explicitly asks for one.
 - Preview text: 80–120 characters, continues the subject line's thought, does NOT repeat it.
 - HTML: Use semantic, minimal HTML. <p> for paragraphs, <a href="..."> for links, <strong> sparingly. No tables, no inline CSS unless the user asks. Do NOT wrap in <html>/<body> — the send pipeline does that.
-- Plain text version: identical content, URLs spelled out in parentheses after link text, blank line between paragraphs.
+- Plain text version: identical content, URLs spelled out in parentheses after link text, blank line between paragraphs. DO NOT include an unsubscribe line or mailing address — same rationale as above.
 - Links should use descriptive anchor text, not "click here".
 
 == OUTPUT FORMAT ==
