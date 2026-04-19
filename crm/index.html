@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IgnorAInt CRM</title>
+  <link rel="icon" href="/assets/mark.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- LOGIN VIEW -->
+  <div id="view-login" class="login-wrap">
+    <div class="login-card">
+      <h1>ignor<span class="wordmark">AI</span>nt<span class="wordmark">.</span></h1>
+      <p>Sign in to the CRM.</p>
+      <form id="login-form">
+        <div class="field">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" id="login-submit">Sign in</button>
+      </form>
+      <p style="margin-top: 18px; font-size: 12px; color: var(--ink-soft);">
+        First-time setup? See <a href="../SETUP.md">SETUP.md</a> in the repo.
+      </p>
+    </div>
+  </div>
+
+  <!-- APP VIEW -->
+  <div id="view-app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">ignor<span class="ai">AI</span>nt<span class="dot">.</span></div>
+      <a class="nav-item active" data-route="dashboard" href="#dashboard">Dashboard</a>
+      <a class="nav-item"        data-route="contacts"  href="#contacts">Contacts</a>
+      <a class="nav-item"        data-route="lists"     href="#lists">Lists</a>
+      <a class="nav-item"        data-route="campaigns" href="#campaigns">Campaigns</a>
+      <div class="sidebar-footer">
+        <div id="user-email">—</div>
+        <button class="signout" id="signout">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main" id="main"></main>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Supabase JS client (loaded as ES module from esm.sh) -->
+  <script type="module" src="config.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
