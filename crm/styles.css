@@ -325,3 +325,48 @@ tr.row-clickable:hover { background: rgba(31,58,95,0.04); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .hidden { display: none !important; }
+
+/* ---------- METRIC CARDS ---------- */
+.metrics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.metric-card {
+  background: var(--paper);
+  border: 1px solid var(--border-1);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.metric-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+.metric-value {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  color: var(--ink);
+  line-height: 1;
+}
+.metric-sub {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+
+/* Metrics table — slightly tighter than the page-level data tables. */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-1);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { font-size: 13px; padding: 10px 12px; }
+.pill-pending { background: rgba(31,58,95,0.06); color: var(--ink-soft); }
+.pill-skipped { background: rgba(31,58,95,0.06); color: var(--ink-soft); }
+.pill-bounced { background: rgba(176,65,62,0.15); color: var(--danger); }

@@ -1005,6 +1005,13 @@ async function renderCampaignEditor(id) {
   main.appendChild(grid);
   renderPreview();
 
+  // Metrics dashboard — only meaningful once at least one send has happened.
+  if (c.status === "sent" || c.status === "sending" || c.status === "failed") {
+    const metricsHost = el("section", { id: "metrics-host", style: { marginTop: "32px" } });
+    main.appendChild(metricsHost);
+    renderCampaignMetrics(id, metricsHost);
+  }
+
   async function save(silent) {
     const { error } = await sb.from("campaigns").update({
       name: nameI.value,
@@ -1138,6 +1145,122 @@ async function renderCampaignEditor(id) {
       }}, "Confirm & send"),
     ));
   }
+}
+
+// ---------------------------------------------------------------------------
+// Campaign metrics dashboard
+// Reads from campaign_metrics (aggregate) + campaign_send_details (per recipient).
+// Resend webhook events populate these tables in near-real-time.
+// ---------------------------------------------------------------------------
+async function renderCampaignMetrics(campaignId, host) {
+  host.innerHTML = "";
+  host.appendChild(el("div", { class: "page-head", style: { marginTop: 0 } },
+    el("h2", { style: { margin: 0 } }, "Engagement"),
+    el("div", { class: "actions" },
+      el("button", { class: "btn-ghost btn-sm", id: "metrics-refresh",
+        onClick: () => renderCampaignMetrics(campaignId, host) }, "Refresh"),
+    ),
+  ));
+  const body = el("div", {});
+  host.appendChild(body);
+  body.innerHTML = '<p class="muted">Loading metrics…</p>';
+
+  const [aggRes, rowsRes] = await Promise.all([
+    sb.from("campaign_metrics").select("*").eq("campaign_id", campaignId).maybeSingle(),
+    sb.from("campaign_send_details").select("*")
+      .eq("campaign_id", campaignId)
+      .order("last_event_at", { ascending: false, nullsFirst: false }),
+  ]);
+
+  if (aggRes.error) { body.innerHTML = `<p class="muted">Couldn't load metrics: ${esc(aggRes.error.message)}</p>`; return; }
+  const m = aggRes.data || {};
+  const rows = rowsRes.data || [];
+
+  const sent      = Number(m.sent_count || 0);
+  const delivered = Number(m.delivered_count || 0);
+  const opened    = Number(m.opened_count || 0);
+  const clicked   = Number(m.clicked_count || 0);
+  const bounced   = Number(m.bounced_count || 0);
+  const complained = Number(m.complained_count || 0);
+  const failed    = Number(m.failed_count || 0);
+  const unsub     = Number(m.unsubscribed_count || 0);
+
+  const pct = (n, d) => (d > 0 ? `${((n / d) * 100).toFixed(1)}%` : "—");
+
+  body.innerHTML = "";
+  const cards = el("div", { class: "metrics-cards" });
+  const card = (label, value, sub) =>
+    el("div", { class: "metric-card" },
+      el("div", { class: "metric-label" }, label),
+      el("div", { class: "metric-value" }, String(value)),
+      sub ? el("div", { class: "metric-sub" }, sub) : null,
+    );
+  cards.appendChild(card("Sent",        sent,      failed ? `${failed} failed` : ""));
+  cards.appendChild(card("Delivered",   delivered, pct(delivered, sent) + " of sent"));
+  cards.appendChild(card("Opened",      opened,    pct(opened, delivered || sent) + " open rate"));
+  cards.appendChild(card("Clicked",     clicked,   pct(clicked, delivered || sent) + " click rate"));
+  cards.appendChild(card("Bounced",     bounced,   pct(bounced, sent) + " bounce"));
+  cards.appendChild(card("Complained",  complained, complained ? "spam reports" : ""));
+  cards.appendChild(card("Unsubscribed", unsub,    unsub ? "from this campaign" : ""));
+  body.appendChild(cards);
+
+  const totalOpens  = Number(m.total_opens || 0);
+  const totalClicks = Number(m.total_clicks || 0);
+  if (totalOpens > opened || totalClicks > clicked) {
+    body.appendChild(el("p", { class: "muted", style: { marginTop: "8px", fontSize: "13px" } },
+      `${totalOpens} total opens across ${opened} openers · ${totalClicks} total clicks across ${clicked} clickers.`));
+  }
+
+  // Per-recipient table
+  const tableWrap = el("div", { class: "table-wrap", style: { marginTop: "24px" } });
+  const table = el("table", { class: "data-table" });
+  table.appendChild(el("thead", {}, el("tr", {},
+    el("th", {}, "Recipient"),
+    el("th", {}, "Status"),
+    el("th", {}, "Delivered"),
+    el("th", {}, "Opened"),
+    el("th", {}, "Clicked"),
+    el("th", {}, "Last activity"),
+  )));
+
+  const tbody = el("tbody", {});
+  if (!rows.length) {
+    tbody.appendChild(el("tr", {}, el("td", { colspan: 6, class: "muted", style: { textAlign: "center", padding: "18px" } },
+      "No recipients yet.")));
+  } else {
+    for (const r of rows) {
+      const name = [r.first_name, r.last_name].filter(Boolean).join(" ");
+      const statusPill = el("span", { class: `pill pill-${r.status || "pending"}` }, r.status || "pending");
+      tbody.appendChild(el("tr", {},
+        el("td", {},
+          el("div", { style: { fontWeight: 500 } }, r.email || "—"),
+          name ? el("div", { class: "muted", style: { fontSize: "12px" } }, name) : null),
+        el("td", {},
+          statusPill,
+          r.bounced_at  ? el("div", { class: "muted", style: { fontSize: "11px" } }, "bounced") : null,
+          r.complained_at ? el("div", { class: "muted", style: { fontSize: "11px" } }, "complained") : null,
+        ),
+        el("td", {}, r.delivered_at ? fmtDateTime(r.delivered_at) : "—"),
+        el("td", {},
+          r.first_opened_at ? fmtDateTime(r.first_opened_at) : "—",
+          (r.open_count || 0) > 1
+            ? el("div", { class: "muted", style: { fontSize: "11px" } }, `${r.open_count} opens`)
+            : null),
+        el("td", {},
+          r.first_clicked_at ? fmtDateTime(r.first_clicked_at) : "—",
+          (r.click_count || 0) > 1
+            ? el("div", { class: "muted", style: { fontSize: "11px" } }, `${r.click_count} clicks`)
+            : null),
+        el("td", { class: "muted" }, r.last_event_at ? fmtDateTime(r.last_event_at) : "—"),
+      ));
+    }
+  }
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  body.appendChild(tableWrap);
+
+  body.appendChild(el("p", { class: "muted", style: { marginTop: "12px", fontSize: "12px" } },
+    "Open & click tracking only works for contacts on HTML-friendly clients. Apple Mail's privacy protection inflates opens; use clicks as the stronger signal."));
 }
 
 // ---------------------------------------------------------------------------
