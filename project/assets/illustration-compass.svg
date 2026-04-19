@@ -1,0 +1,38 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Compass">
+  <rect width="800" height="500" fill="#EDE4D4"></rect>
+
+  
+  <g stroke="#1F3A5F" stroke-width="0.5" opacity="0.15">
+    <line x1="400" y1="20" x2="400" y2="480"></line>
+    <line x1="100" y1="250" x2="700" y2="250"></line>
+  </g>
+
+  <g transform="translate(400 260)">
+    
+    <circle r="160" fill="none" stroke="#1F3A5F" stroke-width="2"></circle>
+    <circle r="146" fill="#FAF6EE" stroke="#1F3A5F" stroke-width="1"></circle>
+
+    
+    <g stroke="#1F3A5F" stroke-width="1.5">
+      <line x1="0" y1="-146" x2="0" y2="-132"></line>
+      <line x1="146" y1="0" x2="132" y2="0"></line>
+      <line x1="0" y1="146" x2="0" y2="132"></line>
+      <line x1="-146" y1="0" x2="-132" y2="0"></line>
+    </g>
+
+    
+    <text x="0" y="-108" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="20" fill="#1F3A5F" font-style="italic">N</text>
+    <text x="108" y="8" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="16" fill="#1F3A5F" opacity="0.5">E</text>
+    <text x="0" y="118" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="16" fill="#1F3A5F" opacity="0.5">S</text>
+    <text x="-108" y="8" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="16" fill="#1F3A5F" opacity="0.5">W</text>
+
+    
+    <polygon points="0,-90 8,0 0,90 -8,0" fill="#1F3A5F"></polygon>
+    <polygon points="0,-90 8,0 -8,0" fill="#C97B4A"></polygon>
+
+    
+    <circle r="10" fill="#F5EFE6" stroke="#1F3A5F" stroke-width="2"></circle>
+    <circle r="3" fill="#C97B4A"></circle>
+  </g>
+</svg>

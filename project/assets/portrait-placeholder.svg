@@ -1,0 +1,12 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+  <rect width="400" height="500" fill="#EDE4D4"></rect>
+  
+  <path d="M 50 500 Q 50 360 200 360 Q 350 360 350 500 Z" fill="#1F3A5F"></path>
+  
+  <circle cx="200" cy="240" r="100" fill="#C97B4A"></circle>
+  
+  <path d="M 120 220 Q 130 140 200 138 Q 275 140 282 230 Q 260 170 200 170 Q 140 170 120 220 Z" fill="#1F3A5F"></path>
+  
+  <rect width="400" height="500" fill="#000" opacity="0.02"></rect>
+</svg>

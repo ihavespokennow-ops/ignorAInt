@@ -1,0 +1,25 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Conversation">
+  <rect width="800" height="500" fill="#F5EFE6"></rect>
+
+  
+  <g transform="translate(220 220)">
+    <path d="M -140 -90 Q -160 -90 -160 -70 L -160 50 Q -160 70 -140 70 L 100 70 L 130 100 L 120 70 L 140 70 Q 160 70 160 50 L 160 -70 Q 160 -90 140 -90 Z" fill="#FAF6EE" stroke="#1F3A5F" stroke-width="2"></path>
+    
+    <rect x="-130" y="-60" width="230" height="6" rx="3" fill="#1F3A5F" opacity="0.35"></rect>
+    <rect x="-130" y="-38" width="200" height="6" rx="3" fill="#1F3A5F" opacity="0.35"></rect>
+    <rect x="-130" y="-16" width="180" height="6" rx="3" fill="#1F3A5F" opacity="0.35"></rect>
+    <rect x="-130" y="20" width="100" height="20" rx="10" fill="#C97B4A"></rect>
+  </g>
+
+  
+  <g transform="translate(580 300)">
+    <path d="M 140 -90 Q 160 -90 160 -70 L 160 50 Q 160 70 140 70 L -100 70 L -130 100 L -120 70 L -140 70 Q -160 70 -160 50 L -160 -70 Q -160 -90 -140 -90 Z" fill="#1F3A5F"></path>
+    <rect x="-130" y="-60" width="230" height="6" rx="3" fill="#F5EFE6" opacity="0.7"></rect>
+    <rect x="-130" y="-38" width="200" height="6" rx="3" fill="#F5EFE6" opacity="0.7"></rect>
+    <rect x="-130" y="-16" width="240" height="6" rx="3" fill="#F5EFE6" opacity="0.7"></rect>
+    <rect x="-130" y="6" width="140" height="6" rx="3" fill="#F5EFE6" opacity="0.7"></rect>
+    
+    <circle cx="120" cy="42" r="6" fill="#C97B4A"></circle>
+  </g>
+</svg>

@@ -1,0 +1,52 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="The Arch">
+  <defs>
+    <pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100">
+      <rect width="100" height="100" fill="#F5EFE6"></rect>
+      <circle cx="10" cy="20" r="0.6" fill="#C97B4A" opacity="0.2"></circle>
+      <circle cx="40" cy="60" r="0.5" fill="#1F3A5F" opacity="0.15"></circle>
+      <circle cx="75" cy="15" r="0.5" fill="#C97B4A" opacity="0.2"></circle>
+      <circle cx="85" cy="85" r="0.6" fill="#1F3A5F" opacity="0.15"></circle>
+      <circle cx="22" cy="80" r="0.4" fill="#1F3A5F" opacity="0.2"></circle>
+    </pattern>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#EDE4D4"></stop>
+      <stop offset="1" stop-color="#F5EFE6"></stop>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#skyGrad)"></rect>
+  <rect width="800" height="500" fill="url(#grain)"></rect>
+
+  
+  <line x1="0" y1="360" x2="800" y2="360" stroke="#1F3A5F" stroke-width="1" opacity="0.3"></line>
+
+  
+  <circle cx="400" cy="180" r="52" fill="#C97B4A" opacity="0.92"></circle>
+  <circle cx="400" cy="180" r="52" fill="none" stroke="#1F3A5F" stroke-width="1" opacity="0.3"></circle>
+
+  
+  <g transform="translate(400 360)">
+    
+    <path d="M -180 0 L -180 -40 A 180 180 0 0 1 180 -40 L 180 0 Z" fill="#1F3A5F"></path>
+    
+    <path d="M -120 0 L -120 -40 A 120 120 0 0 1 120 -40 L 120 0 Z" fill="#F5EFE6"></path>
+    
+    <rect x="-18" y="-220" width="36" height="46" fill="#C97B4A"></rect>
+    
+    <g stroke="#F5EFE6" stroke-width="1" opacity="0.35">
+      <line x1="-150" y1="0" x2="-150" y2="-90"></line>
+      <line x1="150" y1="0" x2="150" y2="-90"></line>
+    </g>
+  </g>
+
+  
+  <g fill="#1F3A5F" transform="translate(340 358)">
+    <circle cx="0" cy="-10" r="3"></circle>
+    <rect x="-1.2" y="-7" width="2.4" height="9"></rect>
+  </g>
+  <g fill="#1F3A5F" transform="translate(460 358)">
+    <circle cx="0" cy="-10" r="3"></circle>
+    <rect x="-1.2" y="-7" width="2.4" height="9"></rect>
+  </g>
+</svg>

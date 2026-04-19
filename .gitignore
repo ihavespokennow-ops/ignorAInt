@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node / build artifacts (in case you add tooling later)
+node_modules/
+dist/
+.cache/
+
+# Logs
+*.log
