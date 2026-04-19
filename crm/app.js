@@ -815,9 +815,15 @@ async function renderCampaigns() {
   host.innerHTML = "";
   const tbl = el("table", {});
   tbl.appendChild(el("thead", {}, el("tr", {},
-    el("th", {}, "Name"), el("th", {}, "Subject"), el("th", {}, "Status"), el("th", {}, "List"), el("th", {}, "Sent"), el("th", {}, "Updated"))));
+    el("th", {}, "Name"), el("th", {}, "Subject"), el("th", {}, "Status"), el("th", {}, "List"), el("th", {}, "Sent"), el("th", {}, "Updated"), el("th", { style: { textAlign: "right" } }, "Actions"))));
   const tb = el("tbody", {});
   data.forEach((c) => {
+    // Stop the row-click from firing when an action button inside the row is clicked.
+    const stop = (fn) => (ev) => { ev.stopPropagation(); fn(); };
+    const actions = el("td", { style: { textAlign: "right", whiteSpace: "nowrap" } },
+      el("button", { class: "btn-ghost btn-sm", onClick: stop(() => cloneCampaign(c.id)), title: "Make a duplicate draft" }, "Clone"),
+      el("button", { class: "btn-danger btn-sm", onClick: stop(() => confirmDeleteCampaign(c)), title: "Delete this campaign and its send history", style: { marginLeft: "6px" } }, "Delete"),
+    );
     tb.appendChild(el("tr", { class: "row-clickable", onClick: () => { location.hash = `#campaigns/${c.id}`; } },
       el("td", {}, c.name),
       el("td", {}, c.subject || "—"),
@@ -825,10 +831,55 @@ async function renderCampaigns() {
       el("td", {}, c.list_name || "—"),
       el("td", {}, String(c.sent_count ?? 0)),
       el("td", {}, fmtDateTime(c.sent_at || c.created_at)),
+      actions,
     ));
   });
   tbl.appendChild(tb);
   host.appendChild(tbl);
+}
+
+// Clone a campaign: copy content fields into a new draft row and open it.
+async function cloneCampaign(id) {
+  const { data: src, error } = await sb.from("campaigns")
+    .select("name, subject, preview_text, from_name, from_email, reply_to, body_html, body_text, list_id")
+    .eq("id", id).single();
+  if (error || !src) { toast(error?.message || "Campaign not found.", "error"); return; }
+  const { data: created, error: insErr } = await sb.from("campaigns").insert({
+    name: `${src.name} (Copy)`,
+    subject: src.subject,
+    preview_text: src.preview_text,
+    from_name: src.from_name,
+    from_email: src.from_email,
+    reply_to: src.reply_to,
+    body_html: src.body_html,
+    body_text: src.body_text,
+    list_id: src.list_id,
+    status: "draft",
+    created_by: currentUser.id,
+  }).select("id").single();
+  if (insErr) { toast(insErr.message, "error"); return; }
+  toast("Cloned. Opening the copy…", "success");
+  location.hash = `#campaigns/${created.id}`;
+}
+
+// Delete a campaign. CASCADE handles campaign_sends + email_drafts.
+function confirmDeleteCampaign(c) {
+  const box = el("div", {},
+    el("h2", {}, "Delete this campaign?"),
+    el("p", {}, `This permanently removes "${c.name}" along with its send history and AI drafts. This cannot be undone.`),
+  );
+  const { close } = openModal(box);
+  box.appendChild(el("div", { class: "modal-actions" },
+    el("button", { class: "btn-ghost", onClick: close }, "Cancel"),
+    el("button", { class: "btn-danger", onClick: async (e) => {
+      const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spinner"></span> Deleting…';
+      const { error } = await sb.from("campaigns").delete().eq("id", c.id);
+      if (error) { toast(error.message, "error"); b.disabled = false; b.textContent = "Delete campaign"; return; }
+      close();
+      toast("Campaign deleted.", "success");
+      renderCampaigns();
+    }}, "Delete campaign"),
+  ));
 }
 
 async function openNewCampaign() {
@@ -1014,21 +1065,69 @@ async function renderCampaignEditor(id) {
   async function openSendConfirm() {
     if (!(await save(true))) return;
     if (!listSel.value) { toast("Pick a list first.", "error"); return; }
-    const { data: count } = await sb.rpc("list_subscribed_count", { p_list_id: listSel.value });
-    if (!count) { toast("That list has no subscribed contacts.", "error"); return; }
+
+    // Run the two counts in parallel: total subscribed on the list, and how
+    // many on that list already received this campaign successfully.
+    const [{ data: listCount }, { count: alreadySent }] = await Promise.all([
+      sb.rpc("list_subscribed_count", { p_list_id: listSel.value }),
+      sb.from("campaign_sends").select("id", { count: "exact", head: true })
+        .eq("campaign_id", id).eq("status", "sent"),
+    ]);
+    const totalOnList = Number(listCount || 0);
+    const alreadyCount = Number(alreadySent || 0);
+    if (!totalOnList) { toast("That list has no subscribed contacts.", "error"); return; }
+
+    const hasPrior = alreadyCount > 0;
+    const skipCheckbox = el("input", { type: "checkbox", id: "skip-already-sent" });
+    // Default ON whenever anyone on the list has already received this campaign —
+    // that's the common safety case (resuming a partial send after a rate-limit).
+    skipCheckbox.checked = hasPrior;
+
+    const summary = el("p", { id: "send-summary" });
+    const newTargets = Math.max(0, totalOnList - alreadyCount);
+
+    function updateSummary() {
+      if (skipCheckbox.checked && hasPrior) {
+        summary.innerHTML = `This will send to <strong>${newTargets}</strong> subscriber${newTargets === 1 ? "" : "s"} — skipping <strong>${alreadyCount}</strong> who already received this campaign.`;
+      } else {
+        summary.innerHTML = `This will send to <strong>${totalOnList}</strong> subscriber${totalOnList === 1 ? "" : "s"}${hasPrior ? ` — including <strong>${alreadyCount}</strong> who already received it once` : ""}.`;
+      }
+    }
+    skipCheckbox.addEventListener("change", updateSummary);
 
     const box = el("div", {},
       el("h2", {}, "Send to the whole list?"),
-      el("p", {}, `This will send to ${count} subscribed contact${count === 1 ? "" : "s"}. Are you sure?`),
+      summary,
     );
+
+    // Only show the checkbox when there are prior sends to skip — otherwise it's
+    // confusing to present an option that has no effect.
+    if (hasPrior) {
+      box.appendChild(el("div", { class: "field", style: { marginTop: "12px" } },
+        el("label", { for: "skip-already-sent", style: { display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" } },
+          skipCheckbox,
+          el("span", {}, `Skip the ${alreadyCount} contact${alreadyCount === 1 ? "" : "s"} who already received this campaign`),
+        ),
+        el("small", { class: "muted", style: { display: "block", marginTop: "4px" } },
+          "Safe to leave on when you're retrying a campaign that partially completed."),
+      ));
+    }
+
+    updateSummary();
+
     const { close } = openModal(box);
     box.appendChild(el("div", { class: "modal-actions" },
       el("button", { class: "btn-ghost", onClick: close }, "Cancel"),
       el("button", { class: "btn-ember", onClick: async (e) => {
+        const willSend = skipCheckbox.checked ? newTargets : totalOnList;
+        if (willSend === 0) { toast("Nothing to send — everyone on the list already got this one.", "error"); return; }
         const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spinner"></span> Sending…';
         try {
-          const r = await apiCall("send-campaign", { campaign_id: id });
-          toast(`Sent ${r.sent}/${r.total}. ${r.failed ? r.failed + " failed." : ""}`, r.failed ? "error" : "success");
+          const r = await apiCall("send-campaign", { campaign_id: id, skip_already_sent: skipCheckbox.checked });
+          const parts = [`Sent ${r.sent}/${r.total}.`];
+          if (r.failed)  parts.push(`${r.failed} failed.`);
+          if (r.skipped) parts.push(`${r.skipped} skipped (already received).`);
+          toast(parts.join(" "), r.failed ? "error" : "success");
           close();
           renderCampaignEditor(id);
         } catch (err) { toast(err.message, "error"); b.disabled = false; b.textContent = "Confirm & send"; }

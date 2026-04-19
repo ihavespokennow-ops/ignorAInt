@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
   }
 
   // --- input ---
-  let payload: { campaign_id?: string; test_email?: string } = {};
+  let payload: { campaign_id?: string; test_email?: string; skip_already_sent?: boolean } = {};
   try { payload = await req.json(); } catch { return json({ error: "Invalid JSON" }, { status: 400 }); }
   if (!payload.campaign_id) return json({ error: "campaign_id is required" }, { status: 400 });
 
@@ -228,6 +228,34 @@ Deno.serve(async (req) => {
   }
 
   if (contacts.length === 0) return json({ error: "No subscribed contacts in the list" }, { status: 400 });
+
+  // Optional: filter out anyone who already received this campaign successfully.
+  // This is what lets the user safely re-run a campaign that partially completed
+  // (e.g., due to rate-limit errors) without double-emailing the people who got it.
+  let skippedAlreadySent = 0;
+  if (!payload.test_email && payload.skip_already_sent) {
+    const { data: prior, error: prErr } = await admin
+      .from("campaign_sends")
+      .select("contact_id")
+      .eq("campaign_id", campaign.id)
+      .eq("status", "sent");
+    if (prErr) return json({ error: `Failed to load prior sends: ${prErr.message}` }, { status: 500 });
+    const alreadySent = new Set((prior ?? []).map((r: { contact_id: string }) => r.contact_id));
+    const before = contacts.length;
+    contacts = contacts.filter((c) => !alreadySent.has(c.id));
+    skippedAlreadySent = before - contacts.length;
+    if (contacts.length === 0) {
+      return json({
+        ok: true,
+        campaign_id: campaign.id,
+        sent: 0,
+        failed: 0,
+        skipped: skippedAlreadySent,
+        total: 0,
+        message: `All ${skippedAlreadySent} subscribed contact(s) on this list have already received this campaign — nothing to send.`,
+      });
+    }
+  }
 
   // Mark campaign as sending
   if (!payload.test_email) {
@@ -329,5 +357,5 @@ Deno.serve(async (req) => {
     }).eq("id", campaign.id);
   }
 
-  return json({ ok: true, campaign_id: campaign.id, sent, failed, total: contacts.length, results });
+  return json({ ok: true, campaign_id: campaign.id, sent, failed, skipped: skippedAlreadySent, total: contacts.length, results });
 });
