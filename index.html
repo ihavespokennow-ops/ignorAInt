@@ -1965,8 +1965,8 @@ body {
           <input id="su-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com"/>
         </div>
         <div class="signup-field">
-          <label for="su-phone">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(31,58,95,0.4);">— optional</span></label>
-          <input id="su-phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 (555) 123-4567"/>
+          <label for="su-phone">Phone</label>
+          <input id="su-phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 (555) 123-4567" required minlength="7"/>
         </div>
         <div class="signup-honey" aria-hidden="true">
           <label>Don't fill this out: <input type="text" name="honey" tabindex="-1" autocomplete="off"/></label>
@@ -2052,8 +2052,12 @@ body {
       source:     window.location.hostname,
     };
 
-    if (!data.first_name || !data.last_name || !data.email) {
-      showError('Please fill in your name and email.');
+    if (!data.first_name || !data.last_name || !data.email || !data.phone) {
+      showError('Please fill in your name, email, and phone number.');
+      return;
+    }
+    if (data.phone.replace(/\D/g, '').length < 7) {
+      showError('Please enter a valid phone number.');
       return;
     }
 

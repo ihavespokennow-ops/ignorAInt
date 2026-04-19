@@ -207,8 +207,9 @@ function validate(p: Payload): string | null {
   if (!p.first_name || !p.first_name.trim()) return "First name is required";
   if (!p.last_name  || !p.last_name.trim())  return "Last name is required";
   if (!p.email      || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.email.trim())) return "A valid email is required";
+  if (!p.phone      || p.phone.replace(/\D/g, "").length < 7) return "A valid phone number is required";
   if (p.first_name.length > 64 || p.last_name.length > 64 || p.email.length > 254) return "Inputs too long";
-  if (p.phone && p.phone.length > 32) return "Phone number too long";
+  if (p.phone.length > 32) return "Phone number too long";
   return null;
 }
 
