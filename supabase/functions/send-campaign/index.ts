@@ -44,6 +44,7 @@ type Campaign = {
   body_html: string | null;
   body_text: string | null;
   list_id: string | null;
+  list_ids: string[] | null;
   status: string;
 };
 
@@ -204,12 +205,21 @@ Deno.serve(async (req) => {
   // --- load campaign ---
   const { data: campaign, error: cErr } = await admin
     .from("campaigns")
-    .select("id, name, subject, preview_text, from_name, from_email, reply_to, body_html, body_text, list_id, status")
+    .select("id, name, subject, preview_text, from_name, from_email, reply_to, body_html, body_text, list_id, list_ids, status")
     .eq("id", payload.campaign_id).single<Campaign>();
   if (cErr || !campaign)      return json({ error: "Campaign not found" }, { status: 404 });
   if (!campaign.subject)      return json({ error: "Campaign is missing a subject" }, { status: 400 });
   if (!campaign.body_html && !campaign.body_text) return json({ error: "Campaign has no body" }, { status: 400 });
-  if (!payload.test_email && !campaign.list_id)   return json({ error: "Campaign has no list_id" }, { status: 400 });
+
+  // Effective list IDs: prefer the array (multi-list); fall back to legacy list_id
+  // so older campaigns keep working exactly as before.
+  const effectiveListIds: string[] = (campaign.list_ids && campaign.list_ids.length > 0)
+    ? campaign.list_ids
+    : (campaign.list_id ? [campaign.list_id] : []);
+
+  if (!payload.test_email && effectiveListIds.length === 0) {
+    return json({ error: "Campaign has no recipient list" }, { status: 400 });
+  }
   // If the campaign is already marked sent, only allow a resend when the caller
   // has explicitly opted into skip-already-sent — otherwise we'd double-email
   // every recipient. This is the safety guardrail; the skip flag + the batch
@@ -223,17 +233,26 @@ Deno.serve(async (req) => {
   if (payload.test_email) {
     contacts = [{ id: "00000000-0000-0000-0000-000000000000", email: payload.test_email, first_name: null, last_name: null, unsubscribe_token: "test" }];
   } else {
+    // Pull contacts across every selected list. `.in("list_id", ids)` handles
+    // single and multi-list cases in one query; we then dedupe by contact.id
+    // so someone on two of the chosen lists only receives one email.
     const { data: lcs, error: lcErr } = await admin
       .from("list_contacts")
       .select("contact_id, contacts!inner(id, email, first_name, last_name, subscribed, unsubscribe_token)")
-      .eq("list_id", campaign.list_id!)
+      .in("list_id", effectiveListIds)
       .eq("contacts.subscribed", true);
     if (lcErr) return json({ error: `Failed to load contacts: ${lcErr.message}` }, { status: 500 });
+    const seen = new Set<string>();
     // deno-lint-ignore no-explicit-any
-    contacts = (lcs ?? []).map((r: any) => r.contacts);
+    for (const row of (lcs ?? []) as any[]) {
+      const c = row.contacts as Contact;
+      if (!c || seen.has(c.id)) continue;
+      seen.add(c.id);
+      contacts.push(c);
+    }
   }
 
-  if (contacts.length === 0) return json({ error: "No subscribed contacts in the list" }, { status: 400 });
+  if (contacts.length === 0) return json({ error: "No subscribed contacts on the selected list(s)" }, { status: 400 });
 
   // Optional: filter out anyone who already received this campaign successfully.
   // This is what lets the user safely re-run a campaign that partially completed

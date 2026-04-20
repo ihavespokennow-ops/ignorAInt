@@ -77,6 +77,84 @@ function openModal(node) {
   return { close, modal };
 }
 
+// ---------------------------------------------------------------------------
+// User preferences (localStorage). Keyed so future prefs land in the same bag.
+// ---------------------------------------------------------------------------
+const PREFS_KEY = "ignoraint_crm_prefs_v1";
+function prefsGet() {
+  try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}"); }
+  catch { return {}; }
+}
+function prefsSet(patch) {
+  const next = { ...prefsGet(), ...patch };
+  localStorage.setItem(PREFS_KEY, JSON.stringify(next));
+  return next;
+}
+// The reply-to default: prefer the per-browser override saved by "Set as
+// default"; fall back to the value baked into config.js.
+function defaultReplyTo() {
+  return prefsGet().defaultReplyTo || cfg.DEFAULT_REPLY_TO;
+}
+
+// ---------------------------------------------------------------------------
+// Multi-list picker — a small popover that wraps a checkbox list so it looks
+// native to the CRM. Used on new-campaign + campaign-edit + send-confirm.
+// Returns {element, getSelected, setSelected, onChange} so callers can bind it
+// into their form flow.
+// ---------------------------------------------------------------------------
+function buildMultiListPicker(lists, initialIds = []) {
+  let selected = new Set((initialIds || []).filter(Boolean));
+  let changeCb = null;
+
+  const trigger = el("button", { type: "button", class: "ml-trigger" }, "Pick lists");
+  const popover = el("div", { class: "ml-pop", style: { display: "none" } });
+  const summary = el("div", { class: "ml-summary muted" }, "No lists selected");
+
+  function summaryText() {
+    const sz = selected.size;
+    if (sz === 0) return "No lists selected";
+    if (sz === 1) {
+      const l = lists.find((x) => selected.has(x.id));
+      return l ? l.name : "1 list selected";
+    }
+    return `${sz} lists selected`;
+  }
+  function refresh() {
+    summary.textContent = summaryText();
+    trigger.textContent = selected.size ? `${selected.size} list${selected.size === 1 ? "" : "s"} ▾` : "Pick lists ▾";
+  }
+
+  lists.forEach((l) => {
+    const cb = el("input", { type: "checkbox" });
+    cb.checked = selected.has(l.id);
+    cb.addEventListener("change", () => {
+      if (cb.checked) selected.add(l.id); else selected.delete(l.id);
+      refresh();
+      changeCb?.(Array.from(selected));
+    });
+    popover.appendChild(el("label", { class: "ml-row" }, cb, el("span", {}, l.name)));
+  });
+  if (!lists.length) popover.appendChild(el("p", { class: "muted", style: { padding: "12px" } }, "No lists yet."));
+
+  trigger.addEventListener("click", (e) => {
+    e.preventDefault();
+    popover.style.display = popover.style.display === "none" ? "block" : "none";
+  });
+  document.addEventListener("click", (e) => {
+    if (!wrap.contains(e.target)) popover.style.display = "none";
+  });
+
+  const wrap = el("div", { class: "ml-wrap" }, trigger, popover, summary);
+  refresh();
+
+  return {
+    element: wrap,
+    getSelected: () => Array.from(selected),
+    setSelected: (ids) => { selected = new Set(ids || []); refresh(); },
+    onChange: (fn) => { changeCb = fn; },
+  };
+}
+
 async function apiCall(functionName, body) {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { toast("Session expired. Please sign in again.", "error"); showLogin(); throw new Error("no session"); }
@@ -665,6 +743,8 @@ async function renderLists() {
         el("td", {},
           el("button", { class: "btn-ghost btn-sm", onClick: () => openListDetail(l) }, "View"),
           " ",
+          el("button", { class: "btn-ghost btn-sm", onClick: () => openMergeList(l, data, load) }, "Merge"),
+          " ",
           el("button", { class: "btn-danger btn-sm", onClick: async () => {
             if (!confirmDialog(`Delete list "${l.name}"? Contacts aren't deleted.`)) return;
             const { error } = await sb.from("lists").delete().eq("id", l.id);
@@ -677,6 +757,48 @@ async function renderLists() {
     host.appendChild(tbl);
   }
   load();
+}
+
+// Merge SOURCE list into a chosen destination — copies contacts, rewires any
+// campaigns that referenced the source, then deletes the source list.
+function openMergeList(source, allLists, onDone) {
+  const otherLists = allLists.filter((l) => l.id !== source.id);
+
+  const box = el("div", {}, el("h2", {}, `Merge "${source.name}" into…`));
+
+  if (!otherLists.length) {
+    box.appendChild(el("p", { class: "muted" }, "You need at least one other list to merge into."));
+    const { close } = openModal(box);
+    box.appendChild(el("div", { class: "modal-actions" }, el("button", { class: "btn-ghost", onClick: close }, "Close")));
+    return;
+  }
+
+  box.appendChild(el("p", { class: "muted" },
+    `Every contact on "${source.name}" will be added to the destination list (duplicates are skipped). Any campaign that referenced "${source.name}" will be rewired to the destination. Then "${source.name}" will be deleted.`));
+
+  const destSel = el("select", {});
+  destSel.appendChild(el("option", { value: "" }, "— Pick a destination list —"));
+  otherLists.forEach((l) => destSel.appendChild(el("option", { value: l.id }, l.name)));
+  box.appendChild(el("div", { class: "field" }, el("label", {}, "Destination"), destSel));
+
+  const { close } = openModal(box);
+  box.appendChild(el("div", { class: "modal-actions" },
+    el("button", { class: "btn-ghost", onClick: close }, "Cancel"),
+    el("button", { class: "btn-danger", onClick: async (e) => {
+      if (!destSel.value) { toast("Pick a destination.", "error"); return; }
+      const destName = otherLists.find((l) => l.id === destSel.value)?.name || "destination";
+      if (!confirmDialog(`Merge "${source.name}" into "${destName}"? The source list will be deleted.`)) return;
+      const b = e.currentTarget; b.disabled = true; b.innerHTML = '<span class="spinner"></span> Merging…';
+      const { data, error } = await sb.rpc("merge_lists", { p_source: source.id, p_dest: destSel.value });
+      if (error) { toast(error.message, "error"); b.disabled = false; b.textContent = "Merge lists"; return; }
+      const row = Array.isArray(data) ? data[0] : data;
+      const moved = row?.moved ?? 0;
+      const already = row?.already_in_dest ?? 0;
+      close();
+      toast(`Merged. ${moved} added to "${destName}"${already ? `, ${already} were already there` : ""}.`, "success");
+      onDone?.();
+    }}, "Merge lists"),
+  ));
 }
 
 function openNewList() {
@@ -841,7 +963,7 @@ async function renderCampaigns() {
 // Clone a campaign: copy content fields into a new draft row and open it.
 async function cloneCampaign(id) {
   const { data: src, error } = await sb.from("campaigns")
-    .select("name, subject, preview_text, from_name, from_email, reply_to, body_html, body_text, list_id")
+    .select("name, subject, preview_text, from_name, from_email, reply_to, body_html, body_text, list_id, list_ids")
     .eq("id", id).single();
   if (error || !src) { toast(error?.message || "Campaign not found.", "error"); return; }
   const { data: created, error: insErr } = await sb.from("campaigns").insert({
@@ -854,6 +976,7 @@ async function cloneCampaign(id) {
     body_html: src.body_html,
     body_text: src.body_text,
     list_id: src.list_id,
+    list_ids: src.list_ids || [],
     status: "draft",
     created_by: currentUser.id,
   }).select("id").single();
@@ -885,25 +1008,28 @@ function confirmDeleteCampaign(c) {
 async function openNewCampaign() {
   const box = el("div", {}, el("h2", {}, "New campaign"));
   const name = el("input", { type: "text", placeholder: "Internal label, e.g. April 26 follow-up" });
-  const listSel = el("select", {});
-  listSel.appendChild(el("option", { value: "" }, "— Pick a list —"));
   const { data: lists } = await sb.from("lists").select("id, name").order("name");
-  (lists || []).forEach((l) => listSel.appendChild(el("option", { value: l.id }, l.name)));
+  const picker = buildMultiListPicker(lists || [], []);
 
   box.appendChild(el("div", { class: "field" }, el("label", {}, "Campaign name"), name));
-  box.appendChild(el("div", { class: "field" }, el("label", {}, "Recipient list"), listSel));
+  box.appendChild(el("div", { class: "field" },
+    el("label", {}, "Recipient list(s)"),
+    picker.element,
+    el("small", { class: "muted" }, "Pick one or more. Contacts on multiple selected lists only receive the email once.")));
 
   const { close } = openModal(box);
   box.appendChild(el("div", { class: "modal-actions" },
     el("button", { class: "btn-ghost", onClick: close }, "Cancel"),
     el("button", { class: "btn-ember", onClick: async () => {
       if (!name.value.trim()) { toast("Name required.", "error"); return; }
+      const ids = picker.getSelected();
       const { data, error } = await sb.from("campaigns").insert({
         name: name.value.trim(),
-        list_id: listSel.value || null,
+        list_id: ids[0] || null,         // keep legacy column in sync with first pick
+        list_ids: ids,
         from_name: cfg.DEFAULT_FROM_NAME,
         from_email: cfg.DEFAULT_FROM_EMAIL,
-        reply_to: cfg.DEFAULT_REPLY_TO,
+        reply_to: defaultReplyTo(),
         created_by: currentUser.id,
       }).select("id").single();
       if (error) { toast(error.message, "error"); return; }
@@ -944,13 +1070,44 @@ async function renderCampaignEditor(id) {
   const fromName = el("input", { type: "text", value: c.from_name });
   const fromEmail= el("input", { type: "text", value: c.from_email });
   const replyTo  = el("input", { type: "text", value: c.reply_to || "" });
-  const listSel  = el("select", {});
-  listSel.appendChild(el("option", { value: "" }, "— No list —"));
-  (lists || []).forEach((l) => {
-    const o = el("option", { value: l.id }, l.name);
-    if (l.id === c.list_id) o.selected = true;
-    listSel.appendChild(o);
+
+  // Reply-to default toggle. Clicking "Set as default" persists the current
+  // reply-to to localStorage so future new campaigns prefill with it.
+  const replyDefaultBtn = el("button", { type: "button", class: "inline-link" }, "Set as default");
+  function syncDefaultLabel() {
+    const isDefault = replyTo.value.trim() === defaultReplyTo();
+    if (isDefault) {
+      replyDefaultBtn.textContent = "✓ Default";
+      replyDefaultBtn.classList.add("is-default");
+      replyDefaultBtn.disabled = true;
+    } else {
+      replyDefaultBtn.textContent = "Set as default";
+      replyDefaultBtn.classList.remove("is-default");
+      replyDefaultBtn.disabled = false;
+    }
+  }
+  replyDefaultBtn.addEventListener("click", () => {
+    const v = replyTo.value.trim();
+    if (!v) { toast("Type a reply-to first.", "error"); return; }
+    prefsSet({ defaultReplyTo: v });
+    toast(`Default reply-to set to ${v}.`, "success");
+    syncDefaultLabel();
   });
+  replyTo.addEventListener("input", syncDefaultLabel);
+
+  const replyToField = el("div", { class: "field" },
+    el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px" } },
+      el("label", { style: { margin: 0 } }, "Reply-to"),
+      replyDefaultBtn,
+    ),
+    replyTo);
+
+  // Multi-list picker replaces the old single <select>. Keeps list_ids as the
+  // source of truth; legacy list_id is stored as the first pick for anything
+  // that still reads the singular column.
+  const initialListIds = (c.list_ids && c.list_ids.length) ? c.list_ids : (c.list_id ? [c.list_id] : []);
+  const listPicker = buildMultiListPicker(lists || [], initialListIds);
+
   const bodyHtmlI = el("textarea", { style: { minHeight: "260px", fontFamily: "ui-monospace, SFMono-Regular, monospace", fontSize: "13px" } });
   bodyHtmlI.value = c.body_html || "";
   const bodyTextI = el("textarea", { style: { minHeight: "160px", fontFamily: "ui-monospace, SFMono-Regular, monospace", fontSize: "13px" } });
@@ -958,8 +1115,9 @@ async function renderCampaignEditor(id) {
 
   form.appendChild(el("div", { class: "field" }, el("label", {}, "Campaign name"), nameI));
   form.appendChild(el("div", { class: "row row-2" },
-    el("div", { class: "field" }, el("label", {}, "Recipient list"), listSel),
-    el("div", { class: "field" }, el("label", {}, "Reply-to"), replyTo)));
+    el("div", { class: "field" }, el("label", {}, "Recipient list(s)"), listPicker.element),
+    replyToField));
+  syncDefaultLabel();
   form.appendChild(el("div", { class: "row row-2" },
     el("div", { class: "field" }, el("label", {}, "From name"), fromName),
     el("div", { class: "field" }, el("label", {}, "From email"), fromEmail)));
@@ -1013,6 +1171,7 @@ async function renderCampaignEditor(id) {
   }
 
   async function save(silent) {
+    const ids = listPicker.getSelected();
     const { error } = await sb.from("campaigns").update({
       name: nameI.value,
       subject: subjectI.value || null,
@@ -1020,7 +1179,8 @@ async function renderCampaignEditor(id) {
       from_name: fromName.value,
       from_email: fromEmail.value,
       reply_to: replyTo.value || null,
-      list_id: listSel.value || null,
+      list_id: ids[0] || null,   // keep legacy column in sync
+      list_ids: ids,
       body_html: bodyHtmlI.value || null,
       body_text: bodyTextI.value || null,
     }).eq("id", id);
@@ -1075,18 +1235,19 @@ async function renderCampaignEditor(id) {
 
   async function openSendConfirm() {
     if (!(await save(true))) return;
-    if (!listSel.value) { toast("Pick a list first.", "error"); return; }
+    const selectedIds = listPicker.getSelected();
+    if (!selectedIds.length) { toast("Pick at least one list first.", "error"); return; }
 
-    // Run the two counts in parallel: total subscribed on the list, and how
-    // many on that list already received this campaign successfully.
+    // Run the two counts in parallel: total distinct subscribers across all
+    // selected lists, and how many already received this campaign.
     const [{ data: listCount }, { count: alreadySent }] = await Promise.all([
-      sb.rpc("list_subscribed_count", { p_list_id: listSel.value }),
+      sb.rpc("list_subscribed_count_multi", { p_list_ids: selectedIds }),
       sb.from("campaign_sends").select("id", { count: "exact", head: true })
         .eq("campaign_id", id).eq("status", "sent"),
     ]);
     const totalOnList = Number(listCount || 0);
     const alreadyCount = Number(alreadySent || 0);
-    if (!totalOnList) { toast("That list has no subscribed contacts.", "error"); return; }
+    if (!totalOnList) { toast("The selected list(s) have no subscribed contacts.", "error"); return; }
 
     const hasPrior = alreadyCount > 0;
     const skipCheckbox = el("input", { type: "checkbox", id: "skip-already-sent" });
@@ -1106,8 +1267,11 @@ async function renderCampaignEditor(id) {
     }
     skipCheckbox.addEventListener("change", updateSummary);
 
+    const listLabel = selectedIds.length === 1
+      ? `the list "${(lists || []).find((l) => l.id === selectedIds[0])?.name || "this list"}"`
+      : `${selectedIds.length} lists`;
     const box = el("div", {},
-      el("h2", {}, "Send to the whole list?"),
+      el("h2", {}, `Send to ${listLabel}?`),
       summary,
     );
 

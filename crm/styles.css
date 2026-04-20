@@ -287,6 +287,64 @@ tr.row-clickable:hover { background: rgba(31,58,95,0.04); }
 
 .search-bar { margin-bottom: 16px; max-width: 360px; }
 
+/* ---------- MULTI-LIST PICKER ---------- */
+.ml-wrap { position: relative; display: inline-block; }
+.ml-trigger {
+  background: #fff;
+  border: 1px solid var(--border-1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  color: var(--ink);
+  cursor: pointer;
+  min-width: 220px;
+  text-align: left;
+}
+.ml-trigger:hover { border-color: var(--ember); }
+.ml-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: #fff;
+  border: 1px solid var(--border-1);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  min-width: 260px;
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 50;
+  padding: 6px;
+}
+.ml-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.ml-row:hover { background: rgba(214,113,45,0.08); }
+.ml-row input { margin: 0; }
+.ml-summary { font-size: 12px; margin-top: 4px; }
+
+/* "Set as default" link next to reply-to input */
+.inline-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ember);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.inline-link:hover { opacity: 0.8; }
+.inline-link.is-default {
+  color: var(--leaf);
+  text-decoration: none;
+  cursor: default;
+}
+
 /* ---------- CAMPAIGN EDITOR ---------- */
 .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 @media (max-width: 1000px) { .editor-grid { grid-template-columns: 1fr; } }
