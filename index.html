@@ -1237,6 +1237,86 @@ body {
 .price-cta-note a { color: var(--ember-soft); border-bottom: 1px solid var(--ember); text-decoration: none; }
 
 /* ============ FOOTER ============ */
+/* ===== Newsletter band (above footer) ===== */
+.newsletter-band {
+  margin-top: 96px;
+  background: var(--ink, #1F3A5F);
+  color: var(--paper, #F5EFE6);
+  border-radius: 20px;
+  padding: 48px 56px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.newsletter-band .nb-eyebrow {
+  font-family: var(--font-sans, sans-serif);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ember-soft, #E19E72);
+  margin: 0 0 12px;
+}
+.newsletter-band h3 {
+  font-family: var(--font-serif, serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 2vw + 0.5rem, 2rem);
+  line-height: 1.15;
+  color: var(--paper, #F5EFE6);
+  letter-spacing: -0.015em;
+  margin: 0 0 12px;
+  text-wrap: balance;
+}
+.newsletter-band .nb-sub {
+  font-family: var(--font-sans, sans-serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(245, 239, 230, 0.72);
+  margin: 0;
+  max-width: 26em;
+}
+.newsletter-band form { display: flex; flex-direction: column; gap: 10px; }
+.newsletter-band .nb-row {
+  display: flex; gap: 8px;
+  background: rgba(245, 239, 230, 0.08);
+  border: 1px solid rgba(245, 239, 230, 0.18);
+  border-radius: 999px;
+  padding: 6px 6px 6px 20px;
+  transition: border-color .2s;
+}
+.newsletter-band .nb-row:focus-within { border-color: var(--ember-soft, #E19E72); }
+.newsletter-band .nb-row input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--paper, #F5EFE6);
+  font-family: inherit; font-size: 15px; padding: 8px 0;
+}
+.newsletter-band .nb-row input::placeholder { color: rgba(245, 239, 230, 0.5); }
+.newsletter-band .nb-btn {
+  background: var(--ember, #C97B4A); color: var(--paper, #F5EFE6);
+  border: none; border-radius: 999px;
+  padding: 10px 20px;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background .2s;
+}
+.newsletter-band .nb-btn:hover:not(:disabled) { background: var(--ember-deep, #A8612F); }
+.newsletter-band .nb-btn:disabled { opacity: .7; cursor: default; }
+.newsletter-band .nb-foot {
+  font-family: inherit; font-size: 12px;
+  color: rgba(245, 239, 230, 0.55); margin: 0;
+}
+
+@media (max-width: 780px) {
+  .newsletter-band {
+    grid-template-columns: 1fr;
+    padding: 36px 24px;
+    gap: 24px;
+    margin-top: 64px;
+  }
+}
+
 .site-footer {
   margin-top: 80px;
   padding: 56px 0 36px;
@@ -1414,6 +1494,7 @@ body {
   <nav class="site-nav">
     <a class="nav-word" href="#top">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></a>
     <div class="nav-mid">
+      <a href="blog/">Blog</a>
       <a href="past-sessions.html">Past Sessions</a>
       <a href="#update">The update</a>
       <a href="#curriculum">Curriculum</a>
@@ -1425,6 +1506,7 @@ body {
     <button type="button" data-signup-trigger class="btn btn-primary btn-sm">Reserve seat →</button>
   </nav>
   <div class="nav-drawer" id="nav-drawer">
+    <a href="blog/">Blog</a>
     <a href="past-sessions.html">Past Sessions</a>
     <a href="#update">The update</a>
     <a href="#curriculum">Curriculum</a>
@@ -1767,6 +1849,22 @@ body {
   </section>
 
   <!-- ======= FOOTER ======= -->
+  <section class="newsletter-band" id="newsletter" aria-label="Subscribe to the newsletter">
+    <div>
+      <p class="nb-eyebrow">The newsletter</p>
+      <h3>You don't have to figure this out alone.</h3>
+      <p class="nb-sub">One considered essay a week on using AI well — written for people who learn by doing. No hype, no hot takes, no "10x your life." Just the work.</p>
+    </div>
+    <form data-subscribe-form data-source="home-footer">
+      <div class="nb-row">
+        <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required>
+        <button type="submit" class="nb-btn">Subscribe</button>
+      </div>
+      <label style="position:absolute;left:-9999px;" aria-hidden="true">Don't fill this: <input type="text" name="honey" tabindex="-1" autocomplete="off"></label>
+      <p class="nb-foot">Free. Unsubscribe any time.</p>
+    </form>
+  </section>
+
   <footer class="site-footer">
     <div class="footer-top">
       <div>
@@ -1781,7 +1879,7 @@ body {
     </div>
     <div class="footer-bot">
       <span>© 2026 ignorAInt — The AI Masterclass by XSITE Capital</span>
-      <span>ignoraint.com</span>
+      <span><a href="blog/" style="color:inherit;">Blog</a> · <a href="#newsletter" style="color:inherit;">Newsletter</a> · ignoraint.com</span>
     </div>
   </footer>
 </main>
@@ -2116,6 +2214,48 @@ body {
       submit.disabled = false;
       subLabel.innerHTML = 'Reserve my seat';
     }
+  });
+})();
+</script>
+
+<script>
+/* ===== Newsletter subscribe handler ===== */
+(function () {
+  var ENDPOINT = 'https://qphagqshsrdeefspxhss.supabase.co/functions/v1/subscribe';
+  document.querySelectorAll('form[data-subscribe-form]').forEach(function (form) {
+    var btn   = form.querySelector('button[type="submit"]');
+    var input = form.querySelector('input[name="email"]');
+    var foot  = form.querySelector('.nb-foot') || form.querySelector('.cta-foot');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!input || !input.value) return;
+      var body = {
+        email:  input.value.trim(),
+        source: form.dataset.source || 'home-footer',
+        honey:  (form.querySelector('[name="honey"]') || {}).value || ''
+      };
+      if (btn) { btn.disabled = true; btn.textContent = 'Subscribing…'; }
+      fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (r) {
+        if (!r.ok || r.body.error) {
+          if (foot) foot.textContent = r.body.error || 'Something went wrong — please try again.';
+          if (btn) { btn.disabled = false; btn.textContent = 'Subscribe'; }
+          return;
+        }
+        if (input) input.value = '';
+        if (foot) foot.textContent = r.body.message || 'Thanks — a welcome note is on its way.';
+        if (btn) { btn.disabled = true; btn.textContent = 'Subscribed ✓'; }
+      })
+      .catch(function () {
+        if (foot) foot.textContent = 'Network error — please try again.';
+        if (btn) { btn.disabled = false; btn.textContent = 'Subscribe'; }
+      });
+    });
   });
 })();
 </script>

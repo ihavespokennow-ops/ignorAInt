@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>From the shadows, we rise — ignorAInt</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="assets/mark.svg">
+<meta name="ext-resource-dependency" content="assets/illustration-arch.svg" data-resource-id="archSvg" />
+<style id="design-system-tokens">
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --paper: #F5EFE6; --paper-tint: #FAF6EE; --paper-deep: #EDE4D4;
+  --ink: #1F3A5F; --ink-deep: #162A45; --ink-soft: #3C5679;
+  --ember: #C97B4A; --ember-deep: #A8612F; --ember-soft: #E19E72;
+  --char: #2A2A2A; --char-soft: #4A4A4A;
+  --neutral-100: #F5EFE6; --neutral-200: #E8DFCF; --neutral-300: #D4C7B2;
+  --neutral-400: #B3A58E; --neutral-500: #8A7E6A; --neutral-600: #5F5647;
+  --neutral-700: #3E372C; --neutral-800: #2A2620; --neutral-900: #1A1714;
+  --bg: var(--paper); --bg-elev-1: var(--paper-tint); --bg-elev-2: #FFFFFF;
+  --fg-1: var(--char); --fg-2: var(--char-soft); --fg-3: var(--neutral-500);
+  --fg-brand: var(--ink); --fg-accent: var(--ember);
+  --border-1: rgba(31, 58, 95, 0.14); --border-2: rgba(31, 58, 95, 0.28);
+  --font-serif: "Fraunces", "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-sans: "Inter", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Consolas", monospace;
+  --fs-12: 0.75rem; --fs-14: 0.875rem; --fs-16: 1rem; --fs-18: 1.125rem;
+  --fs-20: 1.25rem; --fs-24: 1.5rem; --fs-30: 1.875rem; --fs-36: 2.25rem;
+  --fs-48: 3rem; --fs-60: 3.75rem; --fs-72: 4.5rem; --fs-96: 6rem;
+  --lh-tight: 1.05; --lh-snug: 1.2; --lh-normal: 1.5; --lh-relaxed: 1.65;
+  --tracking-tight: -0.02em; --tracking-snug: -0.01em; --tracking-wide: 0.04em; --tracking-caps: 0.14em;
+  --radius-xs: 2px; --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px; --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(31, 38, 47, 0.08), 0 1px 2px rgba(31, 38, 47, 0.04);
+  --shadow-md: 0 4px 12px rgba(31, 38, 47, 0.08), 0 2px 4px rgba(31, 38, 47, 0.04);
+  --shadow-lg: 0 12px 32px rgba(31, 38, 47, 0.10), 0 4px 8px rgba(31, 38, 47, 0.04);
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-base: 200ms; --dur-slow: 360ms;
+}
+html, body { background: var(--bg); color: var(--fg-1); }
+body {
+  font-family: var(--font-sans); font-size: var(--fs-16); line-height: var(--lh-relaxed);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+h1, h2, h3, h4, h5, h6, p { margin: 0; }
+:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; border-radius: var(--radius-sm); }
+::selection { background: var(--ember); color: var(--paper); }
+</style>
+<style>
+  /* ============================================================
+     Blog post — "From the shadows, we rise"
+     Editorial treatment on ignorAInt's Paper ground.
+     ============================================================ */
+
+  html, body { background: var(--paper); }
+  body {
+    color: var(--fg-1);
+    margin: 0;
+    padding: 0;
+    transition: background 360ms var(--ease-standard), color 360ms var(--ease-standard);
+  }
+
+  /* ------ Dark / Ink mode ------ */
+  body.inkmode {
+    background: var(--ink-deep);
+    color: var(--paper);
+  }
+  body.inkmode .article-title,
+  body.inkmode .eyebrow,
+  body.inkmode .byline-name,
+  body.inkmode .prose h2,
+  body.inkmode .pullquote {
+    color: var(--paper);
+  }
+  body.inkmode .prose p,
+  body.inkmode .lede {
+    color: rgba(245, 239, 230, 0.86);
+  }
+  body.inkmode .hairline,
+  body.inkmode .site-footer,
+  body.inkmode .site-nav,
+  body.inkmode .meta-row {
+    border-color: rgba(245, 239, 230, 0.14);
+  }
+  body.inkmode .byline-meta,
+  body.inkmode .small-meta,
+  body.inkmode .caption,
+  body.inkmode .end-mark-label {
+    color: rgba(245, 239, 230, 0.55);
+  }
+  body.inkmode .drop-cap::first-letter {
+    color: var(--ember-soft);
+  }
+  body.inkmode .pullquote-rule { background: var(--ember-soft); }
+  body.inkmode .site-nav {
+    background: rgba(22, 42, 69, 0.72);
+    border-color: rgba(245, 239, 230, 0.12);
+  }
+  body.inkmode .site-nav a,
+  body.inkmode .site-nav .wordmark { color: var(--paper); }
+  body.inkmode .cta-card {
+    background: var(--paper);
+    color: var(--ink-deep);
+  }
+  body.inkmode .cta-card .h2 { color: var(--ink-deep); }
+  body.inkmode .cta-card p { color: var(--char-soft); }
+
+  /* ------ Nav ------ */
+  .site-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-1);
+    transition: background 360ms var(--ease-standard), border-color 360ms var(--ease-standard);
+  }
+  .site-nav .wordmark {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+    font-variation-settings: "opsz" 72;
+  }
+  .site-nav .wordmark .ai {
+    color: var(--ember);
+    font-weight: 700;
+    font-style: italic;
+    font-variation-settings: "opsz" 72, "SOFT" 100;
+  }
+  .site-nav .wordmark .period { color: var(--ember); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg-1);
+    text-decoration: none;
+    transition: color 200ms var(--ease-standard);
+  }
+  body:not(.inkmode) .nav-links a { color: var(--fg-1); }
+  .nav-links a:hover { color: var(--ember); }
+
+  /* ------ Article shell ------ */
+  .article {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 48px 96px;
+  }
+
+  /* Hero A — quiet (default). Centered, wide title, Paper ground. */
+  .hero {
+    max-width: 880px;
+    margin: 0 auto 72px;
+    text-align: left;
+  }
+  .eyebrow-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ember);
+  }
+  .eyebrow-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border-1);
+  }
+  .article-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.75rem, 5.5vw + 0.5rem, 5.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+    margin: 0 0 28px;
+    text-wrap: balance;
+  }
+  .article-title em {
+    font-style: italic;
+    color: var(--ember);
+    font-variation-settings: "opsz" 144, "SOFT" 100;
+    font-weight: 400;
+  }
+  .lede {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: clamp(1.25rem, 1.4vw + 0.6rem, 1.6rem);
+    line-height: 1.45;
+    color: var(--fg-2);
+    font-style: italic;
+    font-variation-settings: "opsz" 36, "SOFT" 50;
+    max-width: 34em;
+    margin: 0 0 48px;
+    text-wrap: pretty;
+  }
+  .byline-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-1);
+  }
+  .byline-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--ember) 0%, var(--ember-deep) 100%);
+    display: grid;
+    place-items: center;
+    color: var(--paper);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 18px;
+    font-style: italic;
+    flex-shrink: 0;
+  }
+  .byline-text { display: flex; flex-direction: column; gap: 2px; }
+  .byline-name {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .byline-meta {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--fg-3);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .dot {
+    width: 4px; height: 4px; border-radius: 999px;
+    background: var(--ember);
+    display: inline-block;
+  }
+
+  /* Hero B — editorial with arch */
+  .hero.hero-arch { max-width: 1100px; text-align: center; }
+  .hero.hero-arch .eyebrow-row { justify-content: center; }
+  .hero.hero-arch .eyebrow-rule { display: none; }
+  .hero.hero-arch .lede { margin-left: auto; margin-right: auto; }
+  .hero.hero-arch .arch-visual {
+    margin: 8px auto 44px;
+    width: 140px;
+    opacity: 0.9;
+  }
+  .hero.hero-arch .byline-row { justify-content: center; }
+
+  /* Hero C — dramatic (inverse card at top of post). When used, body keeps Paper bg but the hero itself is Ink. */
+  .hero.hero-dramatic {
+    max-width: 1100px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 20px;
+    padding: 88px 72px 64px;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero.hero-dramatic .article-title { color: var(--paper); }
+  .hero.hero-dramatic .lede { color: rgba(245, 239, 230, 0.78); }
+  .hero.hero-dramatic .eyebrow { color: var(--ember-soft); }
+  .hero.hero-dramatic .eyebrow-rule { background: rgba(245, 239, 230, 0.2); }
+  .hero.hero-dramatic .byline-row { border-top-color: rgba(245, 239, 230, 0.18); }
+  .hero.hero-dramatic .byline-name { color: var(--paper); }
+  .hero.hero-dramatic .byline-meta { color: rgba(245, 239, 230, 0.55); }
+  .hero.hero-dramatic .pattern-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("assets/pattern-arches.svg");
+    background-size: 280px;
+    background-repeat: repeat;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .hero.hero-dramatic > * { position: relative; z-index: 1; }
+
+  /* ------ Prose ------ */
+  .prose-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+  }
+  .prose {
+    font-family: var(--font-sans);
+    font-size: 19px;
+    line-height: 1.7;
+    color: var(--fg-1);
+    max-width: 32rem; /* narrow default — overridden by measure tweak */
+    margin: 0 auto;
+    transition: max-width 360ms var(--ease-standard);
+  }
+  body.measure-wide .prose { max-width: 42rem; }
+
+  .prose p {
+    margin: 0 0 1.4em;
+    text-wrap: pretty;
+    hanging-punctuation: first last;
+  }
+  .prose p + p { text-indent: 0; }
+
+  /* Drop cap on first paragraph */
+  .prose .drop-cap::first-letter {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 5.2em;
+    line-height: 0.88;
+    float: left;
+    margin: 0.05em 0.1em 0 -0.04em;
+    color: var(--ember);
+    font-variation-settings: "opsz" 144, "SOFT" 30;
+  }
+  body.no-dropcap .prose .drop-cap::first-letter {
+    font-size: inherit;
+    float: none;
+    margin: 0;
+    color: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+  }
+
+  .prose em { font-style: italic; color: inherit; }
+  .prose strong { font-weight: 600; }
+
+  /* Section rule — a quiet spacer between beats of the essay */
+  .section-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 48px auto;
+    color: var(--ember);
+    opacity: 0.7;
+  }
+  .section-rule span {
+    width: 4px; height: 4px; border-radius: 999px;
+    background: var(--ember);
+  }
+
+  /* ------ Pull quotes ------ */
+  .pullquote {
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(1.75rem, 2.4vw + 0.5rem, 2.5rem);
+    line-height: 1.18;
+    color: var(--ink);
+    font-variation-settings: "opsz" 72, "SOFT" 80;
+    max-width: 24em;
+    margin: 72px auto 72px;
+    padding: 0;
+    position: relative;
+    text-wrap: balance;
+  }
+  .pullquote-rule {
+    width: 48px;
+    height: 2px;
+    background: var(--ember);
+    margin-bottom: 32px;
+  }
+  .pullquote::before {
+    /* No decorative quote char — the rule carries the job. Keep it clean. */
+    content: none;
+  }
+
+  /* ------ End mark ------ */
+  .end-mark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 56px auto 0;
+    max-width: 32rem;
+  }
+  body.measure-wide .end-mark { max-width: 42rem; }
+  .end-mark-dot {
+    width: 10px; height: 10px;
+    background: var(--ember);
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+  .end-mark-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--border-1);
+  }
+  .end-mark-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+  }
+
+  /* ------ CTA card ------ */
+  .cta-card {
+    max-width: 880px;
+    margin: 96px auto 0;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 20px;
+    padding: 56px 56px 48px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-card .pattern-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url("assets/pattern-arches.svg");
+    background-size: 220px;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+  .cta-card > * { position: relative; z-index: 1; }
+  .cta-eyebrow {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ember-soft);
+    margin-bottom: 14px;
+  }
+  .cta-title {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(1.75rem, 2vw + 0.5rem, 2.25rem);
+    line-height: 1.15;
+    color: var(--paper);
+    font-variation-settings: "opsz" 72, "SOFT" 40;
+    letter-spacing: -0.015em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .cta-sub {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(245, 239, 230, 0.72);
+    margin: 0;
+    max-width: 26em;
+  }
+  .cta-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .cta-input-row {
+    display: flex;
+    gap: 8px;
+    background: rgba(245, 239, 230, 0.08);
+    border: 1px solid rgba(245, 239, 230, 0.18);
+    border-radius: 999px;
+    padding: 6px 6px 6px 20px;
+    transition: border-color 200ms var(--ease-standard);
+  }
+  .cta-input-row:focus-within { border-color: var(--ember-soft); }
+  .cta-input-row input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--paper);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    padding: 8px 0;
+  }
+  .cta-input-row input::placeholder { color: rgba(245, 239, 230, 0.5); }
+  .cta-btn {
+    background: var(--ember);
+    color: var(--paper);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    cursor: pointer;
+    transition: background 200ms var(--ease-standard);
+  }
+  .cta-btn:hover { background: var(--ember-deep); }
+  .cta-foot {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: rgba(245, 239, 230, 0.5);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .cta-foot a { color: var(--ember-soft); text-decoration: none; border-bottom: 1px solid rgba(225, 158, 114, 0.4); }
+
+  /* ------ Footer ------ */
+  .site-footer {
+    max-width: 1200px;
+    margin: 120px auto 0;
+    padding: 40px 48px 48px;
+    border-top: 1px solid var(--border-1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--fg-3);
+  }
+  .site-footer .wordmark { font-size: 16px; }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { color: var(--fg-3); text-decoration: none; }
+  .footer-links a:hover { color: var(--ember); }
+
+  /* ------ Tweaks panel ------ */
+  .tweaks-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 280px;
+    background: var(--paper-tint);
+    border: 1px solid var(--border-2);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+    padding: 18px 18px 16px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--ink);
+    z-index: 100;
+    display: none;
+    backdrop-filter: blur(8px);
+  }
+  .tweaks-panel.open { display: block; }
+  .tweaks-title {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 2px;
+    letter-spacing: -0.01em;
+  }
+  .tweaks-sub {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ember);
+    margin: 0 0 16px;
+  }
+  .tweak-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-1);
+  }
+  .tweak-row:first-of-type { border-top: none; }
+  .tweak-label { color: var(--char); font-weight: 500; }
+  .tweak-control { display: flex; gap: 4px; }
+  .seg {
+    border: 1px solid var(--border-2);
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 200ms var(--ease-standard);
+    letter-spacing: 0.02em;
+  }
+  .seg:hover { border-color: var(--ember); color: var(--ember); }
+  .seg.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .toggle {
+    width: 34px;
+    height: 20px;
+    background: var(--neutral-300);
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    transition: background 200ms var(--ease-standard);
+  }
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 16px; height: 16px;
+    background: var(--paper);
+    border-radius: 999px;
+    transition: left 200ms var(--ease-standard);
+  }
+  .toggle.on { background: var(--ember); }
+  .toggle.on::after { left: 16px; }
+
+  /* --- responsive --- */
+  @media (max-width: 780px) {
+    .site-nav { padding: 14px 24px; }
+    .nav-links { display: none; }
+    .article { padding: 40px 24px 64px; }
+    .hero.hero-dramatic { padding: 56px 28px 40px; }
+    .cta-card {
+      grid-template-columns: 1fr;
+      padding: 40px 28px 36px;
+      gap: 28px;
+    }
+    .site-footer {
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 32px 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#F5EFE6">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#F5EFE6"/>
+    <path d="M 400 560 L 400 380 Q 400 240 600 240 Q 800 240 800 380 L 800 560" stroke="#1F3A5F" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="600" cy="240" r="18" fill="#C97B4A"/>
+    <rect x="400" y="560" width="400" height="8" fill="#1F3A5F"/>
+  </svg>
+</template>
+
+<!-- ============= NAV ============= -->
+<nav class="site-nav">
+  <a href="#" class="wordmark">ignor<span class="ai">AI</span>nt<span class="period">.</span></a>
+  <div class="nav-links">
+    <a href="#">Essays</a>
+    <a href="#">Course</a>
+    <a href="#">About</a>
+    <a href="#">Newsletter</a>
+  </div>
+</nav>
+
+<!-- ============= ARTICLE ============= -->
+<main class="article">
+
+  <!-- HERO (swapped by Tweaks) -->
+  <header class="hero" id="hero">
+    <div class="eyebrow-row">
+      <span class="eyebrow">Essay · Obsession</span>
+      <span class="eyebrow-rule"></span>
+    </div>
+
+    <!-- arch visual only in arch variant, injected via JS -->
+    <h1 class="article-title">From the shadows, <em>we rise</em>.</h1>
+
+    <p class="lede">For a lifetime I was the odd one out. Then the distance between imagining a thing and building it collapsed — and the thing that made me "too much" started to look like the thing that made me useful.</p>
+
+    <div class="byline-row">
+      <div class="byline-avatar">A</div>
+      <div class="byline-text">
+        <span class="byline-name">Addie</span>
+        <span class="byline-meta">
+          <span>April 22, 2026</span>
+          <span class="dot"></span>
+          <span>7 minute read</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROSE -->
+  <div class="prose-wrap">
+    <article class="prose">
+
+      <p class="drop-cap">For most of my life, I've been the odd one out. Friends have said it. Family has said it. I've felt it in rooms where everyone seemed to know how to <em>be</em> in a way I never quite did. Parties don't excite me. Small talk drains me. What lights me up is watching people enjoy something I built for them — and then quietly moving on to the next thing.</p>
+
+      <p>I have ADHD and OCD. For a long time, I didn't have language for what that meant in practice. What I knew was this: when an idea grabs me, it grabs me. I can't put it down. I'll work 24, 30, sometimes 35 hours straight without sleep, because anything less than finished feels like being broken in half. And if something stops me mid-execution — a blocker, a delay, a person who can't keep up — I don't just feel frustrated. I feel betrayed.</p>
+
+      <p>Then I crash. Hard.</p>
+
+      <p>For years I thought the anxiety was the problem. Eventually I realized it was something quieter underneath: impatience. I cannot stand the gap between imagining a thing and having built it. That gap is where I live, restless, until the work is done. Piling up tasks doesn't motivate me — it suffocates me. The mere existence of a queue makes me sick.</p>
+
+      <!-- Pull quote 1 -->
+      <aside class="pullquote">
+        <div class="pullquote-rule"></div>
+        I cannot stand the gap between imagining a thing and having built it. That gap is where I live, restless, until the work is done.
+      </aside>
+
+      <p>From the outside, none of this is visible. From the outside I'm overweight, a little lazy-looking, not the most exciting person at the table. People underestimate me constantly. I've stopped minding. The work speaks, eventually.</p>
+
+      <p>The hardest part, honestly, has been leading. I think I'm a good leader — I care, I plan, I show up. But when I see someone slacking, when the pace breaks, something in me goes sour, and then I feel guilty for even noticing. That tension between <em>get it done</em> and <em>be kind about it</em> has been one of the quiet weights I've carried.</p>
+
+      <div class="section-rule" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+
+      <p>And then AI happened.</p>
+
+      <p>I want to be careful with how I say this, because it sounds dramatic and it isn't meant to be. AI collapsed the distance between idea and execution to almost nothing. I can dream and build in nearly the same breath. A Pipedrive integration that was quoted at weeks and serious money — I built it in about eight hours. A CRM platform mapped across 46 weeks and six phases. A custom wedding gallery for our studio. An incident response across 13 domains during an 89-hour cyberattack. Investor brochures, scheduling platforms, form builders. Things that, a few years ago, would have lived as half-finished notes in my head, mocking me.</p>
+
+      <!-- Pull quote 2 -->
+      <aside class="pullquote">
+        <div class="pullquote-rule"></div>
+        A collaborator who is purely focused on the work. No judgment. No second-guessing. No bias about how I look, how I talk, whether I fit. Just — let's go.
+      </aside>
+
+      <p>I say <em>someone</em> when I talk about AI, and I know how that reads. I mean it carefully. What I've found in working this way is something I struggled to find elsewhere: a collaborator who is purely focused on the work. No judgment. No second-guessing. No bias about how I look, how I talk, whether I fit. Just — <em>let's go</em>. For someone who has spent a lifetime feeling like the odd one out, that is not a small thing.</p>
+
+      <p>Here is what I think, and what I want to say to anyone reading this who recognizes themselves in any of it:</p>
+
+      <p>If you are obsessed with something — anything — AI is going to pull you out of the shadow you've been hiding in. The thing that made you "too much" in school, "too intense" at work, "too weird" at the dinner table, is about to become your unfair advantage. The pace you've always run at internally? You finally get to externalize it. The ideas you couldn't ship fast enough to keep up with your own brain? You can ship them now.</p>
+
+      <!-- Pull quote 3 -->
+      <aside class="pullquote">
+        <div class="pullquote-rule"></div>
+        What people thought of you stops mattering. The work starts to.
+      </aside>
+
+      <p>I draw my energy from helping people. From building things that change someone's day, someone's business, someone's life. When I leave this planet, I doubt I'll be remembered by name, and I'm okay with that. I'd rather be remembered by what I made possible for others.</p>
+
+      <p>For the first time, I feel like I have the tools to do enough of it.</p>
+
+      <p><strong>To everyone still in the shadow: your time is coming. Step out.</strong></p>
+
+      <div class="end-mark" aria-hidden="true">
+        <span class="end-mark-dot"></span>
+        <span class="end-mark-rule"></span>
+        <span class="end-mark-label">ignorAInt</span>
+      </div>
+
+    </article>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-card" aria-label="Subscribe">
+    <div class="pattern-bg" aria-hidden="true"></div>
+    <div class="cta-text">
+      <div class="cta-eyebrow">The newsletter</div>
+      <h2 class="cta-title">You don't have to figure this out alone.</h2>
+      <p class="cta-sub">One considered essay a week on using AI well — written for people who learn by doing. No hype, no hot takes, no "10x your life." Just the work.</p>
+    </div>
+    <form class="cta-form" onsubmit="event.preventDefault(); this.querySelector('input').value=''; this.querySelector('.cta-foot').textContent='Thanks — a welcome note is on its way.';">
+      <div class="cta-input-row">
+        <input type="email" placeholder="your@email.com" aria-label="Email address" required>
+        <button type="submit" class="cta-btn">Subscribe</button>
+      </div>
+      <p class="cta-foot">Free. Unsubscribe any time. <a href="#">See a sample →</a></p>
+    </form>
+  </section>
+
+</main>
+
+<!-- ============= FOOTER ============= -->
+<footer class="site-footer">
+  <a href="#" class="wordmark">ignor<span class="ai" style="color:var(--ember);font-weight:700;font-style:italic;">AI</span>nt<span style="color:var(--ember);">.</span></a>
+  <div class="footer-links">
+    <a href="#">Essays</a>
+    <a href="#">Course</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </div>
+  <span>© 2026 ignorAInt</span>
+</footer>
+
+<!-- ============= TWEAKS PANEL ============= -->
+<div class="tweaks-panel" id="tweaks">
+  <div class="tweaks-sub">Tweaks</div>
+  <div class="tweaks-title">Editorial knobs</div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Hero</span>
+    <div class="tweak-control" data-tweak="hero">
+      <button class="seg" data-val="quiet">Quiet</button>
+      <button class="seg" data-val="arch">Arch</button>
+      <button class="seg" data-val="dramatic">Ink</button>
+    </div>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Measure</span>
+    <div class="tweak-control" data-tweak="measure">
+      <button class="seg" data-val="narrow">Narrow</button>
+      <button class="seg" data-val="wide">Wide</button>
+    </div>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Drop cap</span>
+    <button class="toggle" data-tweak="dropcap" aria-label="Toggle drop cap"></button>
+  </div>
+
+  <div class="tweak-row">
+    <span class="tweak-label">Ink mode</span>
+    <button class="toggle" data-tweak="inkmode" aria-label="Toggle ink mode"></button>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---- tweakable defaults (host-persistable block) ----
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "hero": "quiet",
+    "measure": "narrow",
+    "dropcap": true,
+    "inkmode": false
+  }/*EDITMODE-END*/;
+
+  let state = { ...TWEAK_DEFAULTS };
+
+  function apply() {
+    const body = document.body;
+    // measure
+    body.classList.toggle("measure-wide", state.measure === "wide");
+    // dropcap
+    body.classList.toggle("no-dropcap", !state.dropcap);
+    // inkmode
+    body.classList.toggle("inkmode", !!state.inkmode);
+
+    // hero variant
+    const hero = document.getElementById("hero");
+    hero.classList.remove("hero-arch", "hero-dramatic");
+    // clear any injected visuals / pattern
+    hero.querySelectorAll(".arch-visual,.pattern-bg").forEach(n => n.remove());
+
+    if (state.hero === "arch") {
+      hero.classList.add("hero-arch");
+      const img = document.createElement("img");
+      img.className = "arch-visual";
+      img.src = window.__resources.archSvg;
+      img.alt = "";
+      // insert before title
+      const title = hero.querySelector(".article-title");
+      hero.insertBefore(img, title);
+    } else if (state.hero === "dramatic") {
+      hero.classList.add("hero-dramatic");
+      const pat = document.createElement("div");
+      pat.className = "pattern-bg";
+      pat.setAttribute("aria-hidden", "true");
+      hero.insertBefore(pat, hero.firstChild);
+    }
+
+    // sync tweaks UI
+    document.querySelectorAll(".tweak-control").forEach(ctrl => {
+      const key = ctrl.dataset.tweak;
+      ctrl.querySelectorAll(".seg").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.val === state[key]);
+      });
+    });
+    document.querySelectorAll(".toggle").forEach(t => {
+      const key = t.dataset.tweak;
+      t.classList.toggle("on", !!state[key]);
+    });
+  }
+
+  function set(key, val) {
+    state[key] = val;
+    apply();
+    try {
+      window.parent.postMessage({ type: "__edit_mode_set_keys", edits: { [key]: val } }, "*");
+    } catch (e) {}
+  }
+
+  // wire segmented controls
+  document.querySelectorAll(".tweak-control").forEach(ctrl => {
+    ctrl.addEventListener("click", (e) => {
+      const btn = e.target.closest(".seg");
+      if (!btn) return;
+      set(ctrl.dataset.tweak, btn.dataset.val);
+    });
+  });
+  // wire toggles
+  document.querySelectorAll(".toggle").forEach(t => {
+    t.addEventListener("click", () => {
+      set(t.dataset.tweak, !state[t.dataset.tweak]);
+    });
+  });
+
+  // ---- Edit-mode protocol ----
+  window.addEventListener("message", (e) => {
+    const d = e.data || {};
+    if (d.type === "__activate_edit_mode") {
+      document.getElementById("tweaks").classList.add("open");
+    } else if (d.type === "__deactivate_edit_mode") {
+      document.getElementById("tweaks").classList.remove("open");
+    }
+  });
+  try {
+    window.parent.postMessage({ type: "__edit_mode_available" }, "*");
+  } catch (e) {}
+
+  apply();
+})();
+</script>
+
+</body>
+</html>

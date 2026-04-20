@@ -1,0 +1,311 @@
+/* ignorAInt — Colors & Type
+   ----------------------------------
+   A bridge between yesterday and tomorrow.
+   Editorial, considered, warm-but-modern.
+*/
+
+/* Fonts loaded from Google Fonts — see fonts.css for local substitutions */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ---------- PALETTE ---------- */
+  /* Paper — warm off-white. The page itself. */
+  --paper:            #F5EFE6;
+  --paper-tint:       #FAF6EE;
+  --paper-deep:       #EDE4D4;
+
+  /* Ink — deep navy. The primary brand color. */
+  --ink:              #1F3A5F;
+  --ink-deep:         #162A45;
+  --ink-soft:         #3C5679;
+
+  /* Ember — terracotta/burnt-orange accent. Used sparingly, for emphasis. */
+  --ember:            #C97B4A;
+  --ember-deep:       #A8612F;
+  --ember-soft:       #E19E72;
+
+  /* Char — near-black for body text. Softer than pure black. */
+  --char:             #2A2A2A;
+  --char-soft:        #4A4A4A;
+
+  /* Neutrals — warm-greys */
+  --neutral-100:      #F5EFE6;
+  --neutral-200:      #E8DFCF;
+  --neutral-300:      #D4C7B2;
+  --neutral-400:      #B3A58E;
+  --neutral-500:      #8A7E6A;
+  --neutral-600:      #5F5647;
+  --neutral-700:      #3E372C;
+  --neutral-800:      #2A2620;
+  --neutral-900:      #1A1714;
+
+  /* Semantic */
+  --success:          #4F7A4E;
+  --warning:          #C79440;
+  --danger:           #A94A3F;
+  --info:             var(--ink);
+
+  /* Foreground / Background semantic tokens */
+  --bg:               var(--paper);
+  --bg-elev-1:        var(--paper-tint);
+  --bg-elev-2:        #FFFFFF;
+  --bg-inverse:       var(--ink);
+  --bg-inverse-deep:  var(--ink-deep);
+
+  --fg-1:             var(--char);      /* primary text */
+  --fg-2:             var(--char-soft); /* secondary text */
+  --fg-3:             var(--neutral-500); /* tertiary / muted */
+  --fg-inverse:       var(--paper);
+  --fg-brand:         var(--ink);
+  --fg-accent:        var(--ember);
+
+  --border-1:         rgba(31, 58, 95, 0.14);  /* hairline */
+  --border-2:         rgba(31, 58, 95, 0.28);  /* stronger */
+  --border-ink:       var(--ink);
+
+  /* Focus ring */
+  --ring:             rgba(201, 123, 74, 0.45);
+
+  /* ---------- TYPE FAMILIES ---------- */
+  --font-serif:       "Fraunces", "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-sans:        "Inter", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --font-mono:        "JetBrains Mono", "SF Mono", "Consolas", monospace;
+
+  /* ---------- TYPE SCALE (1.25 modular-ish, refined) ---------- */
+  --fs-12:            0.75rem;    /* 12 */
+  --fs-14:            0.875rem;   /* 14 */
+  --fs-16:            1rem;       /* 16 */
+  --fs-18:            1.125rem;   /* 18 */
+  --fs-20:            1.25rem;    /* 20 */
+  --fs-24:            1.5rem;     /* 24 */
+  --fs-30:            1.875rem;   /* 30 */
+  --fs-36:            2.25rem;    /* 36 */
+  --fs-48:            3rem;       /* 48 */
+  --fs-60:            3.75rem;    /* 60 */
+  --fs-72:            4.5rem;     /* 72 */
+  --fs-96:            6rem;       /* 96 */
+
+  /* Line heights */
+  --lh-tight:         1.05;
+  --lh-snug:          1.2;
+  --lh-normal:        1.5;
+  --lh-relaxed:       1.65;
+
+  /* Letter spacing */
+  --tracking-tight:   -0.02em;
+  --tracking-snug:    -0.01em;
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-caps:    0.14em;
+
+  /* ---------- SPACING (4px base) ---------- */
+  --space-1:          4px;
+  --space-2:          8px;
+  --space-3:          12px;
+  --space-4:          16px;
+  --space-5:          20px;
+  --space-6:          24px;
+  --space-8:          32px;
+  --space-10:         40px;
+  --space-12:         48px;
+  --space-16:         64px;
+  --space-20:         80px;
+  --space-24:         96px;
+  --space-32:         128px;
+
+  /* ---------- RADII ---------- */
+  --radius-xs:        2px;
+  --radius-sm:        4px;
+  --radius-md:        8px;
+  --radius-lg:        14px;
+  --radius-xl:        20px;
+  --radius-pill:      999px;
+
+  /* ---------- SHADOWS (warm) ---------- */
+  --shadow-xs:        0 1px 2px rgba(31, 38, 47, 0.05);
+  --shadow-sm:        0 1px 3px rgba(31, 38, 47, 0.08), 0 1px 2px rgba(31, 38, 47, 0.04);
+  --shadow-md:        0 4px 12px rgba(31, 38, 47, 0.08), 0 2px 4px rgba(31, 38, 47, 0.04);
+  --shadow-lg:        0 12px 32px rgba(31, 38, 47, 0.10), 0 4px 8px rgba(31, 38, 47, 0.04);
+  --shadow-xl:        0 24px 64px rgba(31, 38, 47, 0.14);
+  --shadow-inset:     inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* ---------- MOTION ---------- */
+  --ease-standard:    cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-emphasis:    cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-gentle:      cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:         120ms;
+  --dur-base:         200ms;
+  --dur-slow:         360ms;
+
+  /* ---------- LAYOUT ---------- */
+  --max-width-prose:  68ch;
+  --max-width-wide:   1200px;
+  --max-width-full:   1440px;
+}
+
+/* ============================================================
+   SEMANTIC TYPE ROLES
+   Use these class names anywhere text appears.
+   ============================================================ */
+
+.display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(3rem, 6vw + 1rem, var(--fs-96));
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-brand);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+
+.h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 4vw + 0.5rem, var(--fs-72));
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-brand);
+  font-variation-settings: "opsz" 96;
+}
+
+.h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.75rem, 2.5vw + 0.5rem, var(--fs-48));
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-snug);
+  color: var(--fg-brand);
+  font-variation-settings: "opsz" 48;
+}
+
+.h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: var(--fs-30);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-snug);
+  color: var(--fg-brand);
+  font-variation-settings: "opsz" 30;
+}
+
+.h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--fs-20);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-snug);
+  color: var(--fg-1);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--fs-12);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--fg-accent);
+}
+
+.lede {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--fs-24);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-2);
+  font-style: italic;
+  font-variation-settings: "opsz" 24, "SOFT" 50;
+}
+
+.body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--fs-16);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-1);
+}
+
+.body-lg {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--fs-18);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-1);
+}
+
+.small {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  color: var(--fg-2);
+}
+
+.caption {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--fs-12);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--tracking-wide);
+  color: var(--fg-3);
+}
+
+.code, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+  background: var(--paper-deep);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-xs);
+  color: var(--ink-deep);
+}
+
+.quote {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: var(--fs-30);
+  line-height: var(--lh-snug);
+  color: var(--fg-brand);
+  font-variation-settings: "opsz" 36, "SOFT" 80;
+}
+
+/* A utility: the signature ignorAInt wordmark treatment.
+   Use on any text — but mainly the logo. */
+.wordmark {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 72;
+}
+.wordmark .ai {
+  color: var(--ember);
+  font-weight: 700;
+  font-style: italic;
+  font-variation-settings: "opsz" 72, "SOFT" 100;
+}
+
+/* Default base styles for a clean document */
+html, body { background: var(--bg); color: var(--fg-1); }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  line-height: var(--lh-relaxed);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 { margin: 0; }
+p { margin: 0; }
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Selection color */
+::selection {
+  background: var(--ember);
+  color: var(--paper);
+}

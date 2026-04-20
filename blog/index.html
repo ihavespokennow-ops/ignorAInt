@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>You don't have to figure this out alone — IgnorAInt Blog</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Essays on using AI well — written for people who learn by doing. No hype, no hot takes. Just the work.">
+<link rel="icon" href="../assets/mark.svg">
+<style id="design-system-tokens">
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --paper: #F5EFE6; --paper-tint: #FAF6EE; --paper-deep: #EDE4D4;
+  --ink: #1F3A5F; --ink-deep: #162A45; --ink-soft: #3C5679;
+  --ember: #C97B4A; --ember-deep: #A8612F; --ember-soft: #E19E72;
+  --char: #2A2A2A; --char-soft: #4A4A4A;
+  --neutral-500: #8A7E6A;
+  --border-1: rgba(31, 58, 95, 0.14); --border-2: rgba(31, 58, 95, 0.28);
+  --font-serif: "Fraunces", "Charter", "Iowan Old Style", "Georgia", serif;
+  --font-sans: "Inter", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --radius-md: 8px; --radius-lg: 14px; --radius-xl: 20px;
+  --shadow-sm: 0 1px 3px rgba(31, 38, 47, 0.08), 0 1px 2px rgba(31, 38, 47, 0.04);
+  --shadow-md: 0 4px 12px rgba(31, 38, 47, 0.08), 0 2px 4px rgba(31, 38, 47, 0.04);
+  --ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+* { box-sizing: border-box; }
+html, body { background: var(--paper); color: var(--char); margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; }
+
+/* ----- Nav (matches blog post) ----- */
+.site-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-1);
+}
+.site-nav .wordmark {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.site-nav .wordmark .ai { color: var(--ember); font-weight: 700; font-style: italic; }
+.site-nav .wordmark .period { color: var(--ember); }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--char);
+  text-decoration: none;
+  transition: color 200ms var(--ease-standard);
+}
+.nav-links a:hover { color: var(--ember); }
+.nav-links a.active { color: var(--ember); }
+
+/* ----- Masthead ----- */
+.masthead {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 48px 48px;
+  border-bottom: 1px solid var(--border-1);
+}
+.masthead .eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin: 0 0 20px;
+}
+.masthead h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw + 0.5rem, 5rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  margin: 0 0 24px;
+  max-width: 18ch;
+  text-wrap: balance;
+}
+.masthead h1 em {
+  font-style: italic;
+  color: var(--ember);
+  font-weight: 400;
+}
+.masthead .lede {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.125rem, 1vw + 0.6rem, 1.4rem);
+  line-height: 1.45;
+  color: var(--char-soft);
+  max-width: 38em;
+  margin: 0;
+}
+
+/* ----- Posts list ----- */
+.posts {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 48px 40px;
+}
+.posts-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 32px;
+}
+.posts-head h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.posts-head .count {
+  font-size: 13px;
+  color: var(--neutral-500);
+  letter-spacing: 0.02em;
+}
+.post-card {
+  display: block;
+  padding: 28px 0;
+  border-top: 1px solid var(--border-1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 200ms var(--ease-standard);
+}
+.post-card:last-child { border-bottom: 1px solid var(--border-1); }
+.post-card:hover { transform: translateX(4px); }
+.post-card:hover .post-title { color: var(--ember); }
+
+.post-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: 10px;
+}
+.post-meta .dot { width: 4px; height: 4px; border-radius: 999px; background: var(--ember); }
+.post-meta .muted { color: var(--neutral-500); text-transform: none; letter-spacing: 0.02em; }
+
+.post-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.625rem, 1.8vw + 0.5rem, 2.25rem);
+  line-height: 1.15;
+  color: var(--ink);
+  margin: 0 0 10px;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  transition: color 200ms var(--ease-standard);
+}
+.post-title em { font-style: italic; color: var(--ember); }
+.post-dek {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--char-soft);
+  margin: 0;
+  max-width: 40em;
+}
+
+/* ----- Subscribe CTA ----- */
+.cta-card {
+  max-width: 880px;
+  margin: 72px auto 0;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 20px;
+  padding: 56px 56px 48px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-card .pattern-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url("../assets/pattern-arches.svg");
+  background-size: 220px;
+  opacity: 0.06;
+  pointer-events: none;
+}
+.cta-card > * { position: relative; z-index: 1; }
+.cta-eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ember-soft);
+  margin-bottom: 14px;
+}
+.cta-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 1.8vw + 0.5rem, 2.1rem);
+  line-height: 1.15;
+  color: var(--paper);
+  letter-spacing: -0.015em;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+.cta-sub {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: rgba(245, 239, 230, 0.72);
+  margin: 0;
+  max-width: 26em;
+}
+.cta-form { display: flex; flex-direction: column; gap: 12px; }
+.cta-input-row {
+  display: flex; gap: 8px;
+  background: rgba(245, 239, 230, 0.08);
+  border: 1px solid rgba(245, 239, 230, 0.18);
+  border-radius: 999px;
+  padding: 6px 6px 6px 20px;
+  transition: border-color 200ms var(--ease-standard);
+}
+.cta-input-row:focus-within { border-color: var(--ember-soft); }
+.cta-input-row input {
+  flex: 1; background: transparent; border: none; outline: none;
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  padding: 8px 0;
+}
+.cta-input-row input::placeholder { color: rgba(245, 239, 230, 0.5); }
+.cta-btn {
+  background: var(--ember); color: var(--paper);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 200ms var(--ease-standard);
+}
+.cta-btn:hover:not(:disabled) { background: var(--ember-deep); }
+.cta-btn:disabled { opacity: 0.7; cursor: default; }
+.cta-foot {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: rgba(245, 239, 230, 0.5);
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+/* ----- Footer ----- */
+.site-footer {
+  max-width: 1200px;
+  margin: 80px auto 0;
+  padding: 40px 48px 48px;
+  border-top: 1px solid var(--border-1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--neutral-500);
+}
+.site-footer .wordmark { font-size: 16px; color: var(--ink); text-decoration: none; font-family: var(--font-serif); font-weight: 500; }
+.site-footer .wordmark .ai { color: var(--ember); font-weight: 700; font-style: italic; }
+.site-footer .wordmark .period { color: var(--ember); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { color: var(--neutral-500); text-decoration: none; }
+.footer-links a:hover { color: var(--ember); }
+
+@media (max-width: 780px) {
+  .site-nav { padding: 14px 24px; }
+  .nav-links { gap: 18px; }
+  .masthead { padding: 56px 24px 36px; }
+  .posts { padding: 40px 24px 28px; }
+  .cta-card {
+    grid-template-columns: 1fr;
+    padding: 40px 28px 36px;
+    gap: 28px;
+  }
+  .site-footer {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 32px 24px;
+  }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="../index.html" class="wordmark">ignor<span class="ai">AI</span>nt<span class="period">.</span></a>
+  <div class="nav-links">
+    <a href="index.html" class="active">Blog</a>
+    <a href="../past-sessions.html">Past Sessions</a>
+    <a href="../index.html#curriculum">Course</a>
+    <a href="#subscribe">Newsletter</a>
+  </div>
+</nav>
+
+<header class="masthead">
+  <p class="eyebrow">The blog</p>
+  <h1>You don't have to figure this <em>out alone</em>.</h1>
+  <p class="lede">Essays on using AI well — written for people who learn by doing. No hype, no hot takes, no "10x your life." Just the work, and what I'm learning as I go.</p>
+</header>
+
+<section class="posts">
+  <div class="posts-head">
+    <h2>Latest</h2>
+    <span class="count">1 essay</span>
+  </div>
+
+  <a class="post-card" href="from-the-shadows-we-rise.html">
+    <div class="post-meta">
+      <span>Essay · Obsession</span>
+      <span class="dot"></span>
+      <span class="muted">April 22, 2026 · 7 min read</span>
+    </div>
+    <h3 class="post-title">From the shadows, <em>we rise</em>.</h3>
+    <p class="post-dek">For a lifetime I was the odd one out. Then the distance between imagining a thing and building it collapsed — and the thing that made me "too much" started to look like the thing that made me useful.</p>
+  </a>
+</section>
+
+<section class="cta-card" id="subscribe" aria-label="Subscribe">
+  <div class="pattern-bg" aria-hidden="true"></div>
+  <div class="cta-text">
+    <div class="cta-eyebrow">The newsletter</div>
+    <h2 class="cta-title">You don't have to figure this out alone.</h2>
+    <p class="cta-sub">One considered essay a week on using AI well — written for people who learn by doing. No hype, no hot takes, no "10x your life." Just the work.</p>
+  </div>
+  <form class="cta-form" data-subscribe-form data-source="blog-index-cta">
+    <div class="cta-input-row">
+      <input type="email" name="email" placeholder="your@email.com" aria-label="Email address" required>
+      <button type="submit" class="cta-btn">Subscribe</button>
+    </div>
+    <label style="position:absolute;left:-9999px;" aria-hidden="true">Don't fill this: <input type="text" name="honey" tabindex="-1" autocomplete="off"></label>
+    <p class="cta-foot">Free. Unsubscribe any time.</p>
+  </form>
+</section>
+
+<footer class="site-footer">
+  <a href="../index.html" class="wordmark">ignor<span class="ai">AI</span>nt<span class="period">.</span></a>
+  <div class="footer-links">
+    <a href="index.html">Blog</a>
+    <a href="../past-sessions.html">Past Sessions</a>
+    <a href="../index.html#curriculum">Course</a>
+    <a href="mailto:grow@beyond9to5club.com">Contact</a>
+  </div>
+  <span>© 2026 ignorAInt</span>
+</footer>
+
+<script>
+(function () {
+  var ENDPOINT = 'https://qphagqshsrdeefspxhss.supabase.co/functions/v1/subscribe';
+  document.querySelectorAll('form[data-subscribe-form]').forEach(function (form) {
+    var btn   = form.querySelector('button[type="submit"]');
+    var input = form.querySelector('input[name="email"]');
+    var foot  = form.querySelector('.cta-foot');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!input || !input.value) return;
+      var body = {
+        email:  input.value.trim(),
+        source: form.dataset.source || 'blog-cta',
+        honey:  (form.querySelector('[name="honey"]') || {}).value || ''
+      };
+      if (btn) { btn.disabled = true; btn.textContent = 'Subscribing…'; }
+      fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, body: j }; }); })
+      .then(function (r) {
+        if (!r.ok || r.body.error) {
+          if (foot) foot.textContent = r.body.error || 'Something went wrong — please try again.';
+          if (btn) { btn.disabled = false; btn.textContent = 'Subscribe'; }
+          return;
+        }
+        if (input) input.value = '';
+        if (foot) foot.textContent = r.body.message || 'Thanks — a welcome note is on its way.';
+        if (btn) { btn.disabled = true; btn.textContent = 'Subscribed ✓'; }
+      })
+      .catch(function () {
+        if (foot) foot.textContent = 'Network error — please try again.';
+        if (btn) { btn.disabled = false; btn.textContent = 'Subscribe'; }
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
