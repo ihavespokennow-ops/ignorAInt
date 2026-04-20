@@ -297,7 +297,7 @@ h1, h2, h3, h4, h5, h6, p { margin: 0; }
     font-size: 19px;
     line-height: 1.7;
     color: var(--fg-1);
-    max-width: 32rem; /* narrow default — overridden by measure tweak */
+    max-width: 32rem;
     margin: 0 auto;
     transition: max-width 360ms var(--ease-standard);
   }
@@ -554,7 +554,6 @@ h1, h2, h3, h4, h5, h6, p { margin: 0; }
   <div class="nav-links">
     <a href="index.html">Blog</a>
     <a href="../past-sessions.html">Past Sessions</a>
-    <a href="../index.html#curriculum">Course</a>
     <a href="#subscribe">Newsletter</a>
   </div>
 </nav>
@@ -562,7 +561,7 @@ h1, h2, h3, h4, h5, h6, p { margin: 0; }
 <!-- ============= ARTICLE ============= -->
 <main class="article">
 
-  <!-- HERO (swapped by Tweaks) -->
+  <!-- HERO -->
   <header class="hero" id="hero">
     <div class="eyebrow-row">
       <span class="eyebrow">Essay · Obsession</span>
@@ -677,33 +676,11 @@ h1, h2, h3, h4, h5, h6, p { margin: 0; }
   <div class="footer-links">
     <a href="index.html">Blog</a>
     <a href="../past-sessions.html">Past Sessions</a>
-    <a href="../index.html#curriculum">Course</a>
+    <a href="#subscribe">Newsletter</a>
     <a href="mailto:grow@beyond9to5club.com">Contact</a>
   </div>
   <span>© 2026 ignorAInt</span>
 </footer>
-
-  <div class="tweak-row">
-    <span class="tweak-label">Measure</span>
-    <div class="tweak-control" data-tweak="measure">
-      <button class="seg" data-val="narrow">Narrow</button>
-      <button class="seg" data-val="wide">Wide</button>
-    </div>
-  </div>
-
-  <div class="tweak-row">
-    <span class="tweak-label">Drop cap</span>
-    <button class="toggle" data-tweak="dropcap" aria-label="Toggle drop cap"></button>
-  </div>
-
-  <div class="tweak-row">
-    <span class="tweak-label">Ink mode</span>
-    <button class="toggle" data-tweak="inkmode" aria-label="Toggle ink mode"></button>
-  </div>
-</div>
-
-
-
 
 <script>
 (function () {

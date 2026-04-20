@@ -78,17 +78,24 @@ async function sendWelcomeEmail(params: { to: string; firstName: string | null; 
   const html = `
 <p>Hi ${escapeHtml(safe)},</p>
 
-<p>You just subscribed to <strong>You don't have to figure this out alone</strong> — the newsletter from IgnorAInt.</p>
+<p>Welcome. I'm so glad you're here.</p>
 
-<p>One considered essay a week on using AI well, written for people who learn by doing. No hype, no hot takes, no "10x your life." Just the work.</p>
+<p>You just subscribed to <strong>You don't have to figure this out alone</strong> — and I want to tell you, for a second, why that title is the whole point.</p>
 
-<p>If you ever want to reply with a question, a struggle, or something you're trying to build, do. I read everything.</p>
+<p>For most of my life I was the odd one out. The kid who asked too many questions. The adult who cared about things more intensely than anyone around me seemed to. The professional who'd go home at night and keep building long after the workday was done. For a long time, that felt like a problem to hide.</p>
 
-<p>See you in your inbox.</p>
+<p>Then AI arrived — and something quietly changed. The distance between <em>imagining</em> a thing and <em>building</em> it collapsed. The way I worked stopped feeling like too much and started to feel like… finally enough. Useful, even. And I realised a lot of people I know — smart, curious, capable people — were staring at the same set of tools and feeling lost, or behind, or quietly afraid they were the only ones who didn't "get it."</p>
 
-<p>Addie Agarwal<br/>
-Host — IgnorAInt<br/>
-CTO &amp; Director of Marketing — XSITE Capital</p>
+<p>I started this blog for them. For you.</p>
+
+<p>Once a week, I'll send you one considered essay on using AI well — written for people who learn by doing. No hype. No hot takes. No "10x your life." Just the actual work, and what I'm learning as I do it, in the open.</p>
+
+<p>If you ever want to reply with a question, a struggle, or something you're trying to build, please do. I read every email. That's not a template line — I really do.</p>
+
+<p>See you soon.</p>
+
+<p>— Addie<br/>
+<span style="color:#888;font-size:13px">Host, IgnorAInt · CTO &amp; Director of Marketing, XSITE Capital</span></p>
 
 <hr style="border:none;border-top:1px solid #e5e5e5;margin:32px 0 16px"/>
 <p style="color:#888;font-size:12px;line-height:1.5">
@@ -99,17 +106,24 @@ CTO &amp; Director of Marketing — XSITE Capital</p>
 
   const text = `Hi ${safe},
 
-You just subscribed to "You don't have to figure this out alone" — the newsletter from IgnorAInt.
+Welcome. I'm so glad you're here.
 
-One considered essay a week on using AI well, written for people who learn by doing. No hype, no hot takes, no "10x your life." Just the work.
+You just subscribed to "You don't have to figure this out alone" — and I want to tell you, for a second, why that title is the whole point.
 
-If you ever want to reply with a question, a struggle, or something you're trying to build, do. I read everything.
+For most of my life I was the odd one out. The kid who asked too many questions. The adult who cared about things more intensely than anyone around me seemed to. The professional who'd go home at night and keep building long after the workday was done. For a long time, that felt like a problem to hide.
 
-See you in your inbox.
+Then AI arrived — and something quietly changed. The distance between imagining a thing and building it collapsed. The way I worked stopped feeling like too much and started to feel like… finally enough. Useful, even. And I realised a lot of people I know — smart, curious, capable people — were staring at the same set of tools and feeling lost, or behind, or quietly afraid they were the only ones who didn't "get it."
 
-Addie Agarwal
-Host — IgnorAInt
-CTO & Director of Marketing — XSITE Capital
+I started this blog for them. For you.
+
+Once a week, I'll send you one considered essay on using AI well — written for people who learn by doing. No hype. No hot takes. No "10x your life." Just the actual work, and what I'm learning as I do it, in the open.
+
+If you ever want to reply with a question, a struggle, or something you're trying to build, please do. I read every email. That's not a template line — I really do.
+
+See you soon.
+
+— Addie
+Host, IgnorAInt · CTO & Director of Marketing, XSITE Capital
 
 --
 ${addr}
@@ -122,7 +136,7 @@ Unsubscribe: ${unsubUrl}`;
     body: JSON.stringify({
       from,
       to: params.to,
-      subject: "You're in — welcome to IgnorAInt.",
+      subject: "Welcome — why I started this blog.",
       html,
       text,
     }),
