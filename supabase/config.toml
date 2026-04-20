@@ -1,0 +1,32 @@
+# Supabase project config
+# Only the bits we need to pin per-function. Everything else uses the
+# project defaults from the dashboard.
+#
+# Why verify_jwt = false on authenticated functions:
+# Supabase now signs user-session JWTs with ES256 (asymmetric keys), but the
+# Edge Functions runtime's pre-handler JWT verifier doesn't support ES256 on
+# older deployments and throws "Unsupported JWT algorithm ES256". These
+# functions do their own auth internally via supabase.auth.getUser(jwt) +
+# role check against the profiles table, so disabling the runtime pre-check
+# is safe and equivalent.
+
+project_id = "qphagqshsrdeefspxhss"
+
+[functions.send-campaign]
+verify_jwt = false
+
+[functions.draft-email]
+verify_jwt = false
+
+# Public/webhook functions — already deployed with --no-verify-jwt.
+[functions.subscribe]
+verify_jwt = false
+
+[functions.unsubscribe]
+verify_jwt = false
+
+[functions.resend-webhook]
+verify_jwt = false
+
+[functions.zoom-register]
+verify_jwt = false
