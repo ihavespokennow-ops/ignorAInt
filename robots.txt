@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# CRM admin pages — not for search engines
+Disallow: /crm/
+Disallow: /ADHD, OCD and AI - Blog Post/
+Disallow: /Past Sessions/
+
+Sitemap: https://ignoraint.com/sitemap.xml
