@@ -66,14 +66,17 @@ function validate(p: Payload): string | null {
 }
 
 // ----- Welcome email ---------------------------------------------------------
-async function sendWelcomeEmail(params: { to: string; firstName: string | null; listName: string; unsubToken: string }) {
+async function sendWelcomeEmail(params: { to: string; firstName: string | null; listName: string; contactId: string; unsubToken: string }) {
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const from   = Deno.env.get("SENDER_FROM") ?? "Addie Agarwal <addie@blog.ignoraint.com>";
   const addr   = Deno.env.get("SENDER_POSTAL_ADDRESS") ?? "Ignoraint LLC · North Carolina, USA";
   if (!apiKey) throw new Error("RESEND_API_KEY missing");
 
   const safe = params.firstName?.trim() || "friend";
-  const unsubUrl = `https://ignoraint.com/crm/unsubscribe.html?token=${params.unsubToken}`;
+  // Unsub page expects ?c=<contact_id>&t=<token> — keep this shape in sync with
+  // crm/unsubscribe.html and the `unsubscribe` edge function.
+  const unsubUrl = `https://ignoraint.com/crm/unsubscribe.html?c=${params.contactId}&t=${params.unsubToken}`;
+  const unsubMailto = `mailto:addie+unsubscribe@ignoraint.com?subject=unsubscribe:${params.contactId}:${params.unsubToken}`;
 
   const html = `
 <p>Hi ${escapeHtml(safe)},</p>
@@ -139,6 +142,15 @@ Unsubscribe: ${unsubUrl}`;
       subject: "Welcome — why I started this blog.",
       html,
       text,
+      // Deliverability headers — required by Apple/Gmail 2024 bulk-sender rules.
+      // mailto: + https gives both "one-click" (Post) and Apple-preferred mailto
+      // variants. Feedback-ID is used by Gmail Postmaster Tools and Apple for
+      // complaint/bounce segmentation.
+      headers: {
+        "List-Unsubscribe": `<${unsubMailto}>, <${unsubUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        "Feedback-ID": `welcome:${params.contactId}:transactional:ignoraint`,
+      },
     }),
   });
   if (!res.ok) {
@@ -229,7 +241,7 @@ Deno.serve(async (req) => {
 
     // Fire welcome email (best-effort — don't block the response on delivery).
     try {
-      await sendWelcomeEmail({ to: email, firstName, listName, unsubToken });
+      await sendWelcomeEmail({ to: email, firstName, listName, contactId, unsubToken });
     } catch (e) {
       console.error("Welcome email failed:", e);
     }

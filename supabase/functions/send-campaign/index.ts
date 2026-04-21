@@ -294,6 +294,9 @@ Deno.serve(async (req) => {
   // whether we're sending via /emails or /emails/batch).
   const buildPayload = (contact: Contact): EmailPayload => {
     const unsubUrl = buildUnsubscribeUrl(contact);
+    // Apple-Mail-preferred mailto variant for List-Unsubscribe. Uses a Google
+    // Workspace plus-alias so replies land in addie@ingoraint.com automatically.
+    const unsubMailto = `mailto:addie+unsubscribe@ignoraint.com?subject=unsubscribe:${contact.id}:${contact.unsubscribe_token}`;
     const subject  = personalize(campaign.subject,   contact, unsubUrl);
     const bodyText = personalize(campaign.body_text, contact, unsubUrl);
     const footerH  = `<hr style="margin:32px 0 16px;border:0;border-top:1px solid #e0d9c5"/>
@@ -315,8 +318,12 @@ Deno.serve(async (req) => {
       text: `${bodyText}${footerT}`,
       reply_to: campaign.reply_to ?? undefined,
       headers: {
-        "List-Unsubscribe": `<${unsubUrl}>`,
+        // Both mailto: (Apple-preferred) and https (one-click POST) variants.
+        "List-Unsubscribe": `<${unsubMailto}>, <${unsubUrl}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        // Feedback-ID format: <campaign>:<contact>:<mail-type>:<sender>.
+        // Used by Gmail Postmaster + Apple for complaint/bounce segmentation.
+        "Feedback-ID": `campaign-${campaign.id}:${contact.id}:newsletter:ignoraint`,
       },
     };
   };
