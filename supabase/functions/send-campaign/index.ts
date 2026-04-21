@@ -324,6 +324,9 @@ Deno.serve(async (req) => {
         // Feedback-ID format: <campaign>:<contact>:<mail-type>:<sender>.
         // Used by Gmail Postmaster + Apple for complaint/bounce segmentation.
         "Feedback-ID": `campaign-${campaign.id}:${contact.id}:newsletter:ignoraint`,
+        // O365/EOP rewards identifiable sender software + stable entity refs.
+        "X-Mailer": "IgnorAInt-CRM",
+        "X-Entity-Ref-ID": `campaign-${campaign.id}-${contact.id}`,
       },
     };
   };

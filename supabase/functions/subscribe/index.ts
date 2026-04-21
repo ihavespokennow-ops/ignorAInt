@@ -150,6 +150,9 @@ Unsubscribe: ${unsubUrl}`;
         "List-Unsubscribe": `<${unsubMailto}>, <${unsubUrl}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         "Feedback-ID": `welcome:${params.contactId}:transactional:ignoraint`,
+        // O365/EOP rewards identifiable sender software + stable entity refs.
+        "X-Mailer": "IgnorAInt-CRM",
+        "X-Entity-Ref-ID": `welcome-${params.contactId}`,
       },
     }),
   });
