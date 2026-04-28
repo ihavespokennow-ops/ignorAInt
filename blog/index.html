@@ -86,37 +86,100 @@ body {
 }
 a { color: inherit; }
 
-/* ----- Nav (matches blog post) ----- */
+/* ----- Nav — matches site standard ----- */
+.site-nav-outer {
+  position: sticky;
+  top: 16px;
+  z-index: 50;
+  padding: 0 24px;
+  margin-top: 16px;
+}
 .site-nav {
-  max-width: 1200px;
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 18px 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-1);
+  padding: 12px 20px 12px 22px;
+  background: rgba(245,239,230,0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(31,58,95,0.14);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(31,38,47,.08), 0 1px 2px rgba(31,38,47,.04);
 }
-.site-nav .wordmark {
+.nav-word {
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: 22px;
   letter-spacing: -0.02em;
   color: var(--ink);
   text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
 }
-.site-nav .wordmark .ai { color: var(--ember); font-weight: 700; font-style: italic; }
-.site-nav .wordmark .period { color: var(--ember); }
-.nav-links { display: flex; gap: 32px; }
-.nav-links a {
+.nav-word .ai { color: var(--ember); font-weight: 700; font-style: italic; }
+.nav-word .dot-period { color: var(--ember); margin-left: 1px; }
+.nav-mid {
+  display: flex;
+  gap: 28px;
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
-  color: var(--char);
-  text-decoration: none;
-  transition: color 200ms var(--ease-standard);
 }
-.nav-links a:hover { color: var(--ember); }
-.nav-links a.active { color: var(--ember); }
+.nav-mid a { color: var(--fg-1); text-decoration: none; transition: color 200ms; }
+.nav-mid a:hover { color: var(--ember); }
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px; height: 40px;
+  background: transparent; border: none;
+  cursor: pointer; border-radius: 8px; position: relative;
+}
+.nav-toggle span {
+  position: absolute; width: 20px; height: 1.5px;
+  background: var(--ink); transition: all 200ms;
+}
+.nav-toggle span:nth-child(1) { top: 13px; }
+.nav-toggle span:nth-child(2) { top: 19px; }
+.nav-toggle span:nth-child(3) { top: 25px; }
+.nav-toggle[aria-expanded="true"] span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+.nav-drawer {
+  display: none; flex-direction: column;
+  background: var(--paper-tint);
+  border: 1px solid rgba(31,58,95,.1);
+  border-radius: 16px; margin-top: 8px;
+  padding: 8px 0;
+  box-shadow: 0 4px 12px rgba(31,38,47,.08);
+}
+.nav-drawer.open { display: flex; }
+.nav-drawer a {
+  font-size: 15px; font-weight: 500; color: var(--fg-1);
+  text-decoration: none; padding: 14px 22px;
+  border-bottom: 1px solid rgba(31,58,95,.06); transition: color 180ms;
+}
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: var(--ember); }
+.btn {
+  font-family: var(--font-sans); font-size: 15px; font-weight: 500;
+  padding: 12px 22px; border-radius: 999px; border: none; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center;
+  gap: 8px; transition: all 200ms; white-space: nowrap;
+}
+.btn-sm { font-size: 13px; padding: 9px 17px; }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: var(--ink-deep); transform: translateY(-1px); }
+@media (max-width: 800px) {
+  .nav-mid { display: none; }
+  .nav-toggle { display: flex; }
+  .site-nav-outer { padding: 0 16px; }
+  .site-nav { padding: 10px 14px 10px 18px; }
+  .nav-word { font-size: 19px; }
+}
 
 /* ----- Masthead ----- */
 .masthead {
@@ -345,8 +408,6 @@ a { color: inherit; }
 .footer-links a:hover { color: var(--ember); }
 
 @media (max-width: 780px) {
-  .site-nav { padding: 14px 24px; }
-  .nav-links { gap: 18px; }
   .masthead { padding: 56px 24px 36px; }
   .posts { padding: 40px 24px 28px; }
   .cta-card {
@@ -365,16 +426,43 @@ a { color: inherit; }
 </head>
 <body>
 
-<nav class="site-nav">
-  <a href="../index.html" class="wordmark">ignor<span class="ai">AI</span>nt<span class="period">.</span></a>
-  <div class="nav-links">
-    <a href="index.html" class="active">Blog</a>
+<div class="site-nav-outer">
+  <nav class="site-nav">
+    <a class="nav-word" href="../index.html">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></a>
+    <div class="nav-mid">
+      <a href="index.html" style="color:var(--ember);">Blog</a>
+      <a href="../masterclass-series.html">Masterclass Series</a>
+      <a href="../past-sessions.html">Past Sessions</a>
+      <a href="../index.html#instructor">Instructor</a>
+      <a href="#subscribe">Newsletter</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-controls="nav-drawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="../masterclass-series.html" class="btn btn-primary btn-sm">Join the series →</a>
+  </nav>
+  <div class="nav-drawer" id="nav-drawer">
+    <a href="index.html" style="color:var(--ember);">Blog</a>
     <a href="../masterclass-series.html">Masterclass Series</a>
     <a href="../past-sessions.html">Past Sessions</a>
     <a href="../index.html#instructor">Instructor</a>
     <a href="#subscribe">Newsletter</a>
   </div>
-</nav>
+</div>
+
+<script>
+  (function(){
+    var t = document.getElementById('nav-toggle');
+    var d = document.getElementById('nav-drawer');
+    if (!t || !d) return;
+    function close(){ d.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+    t.addEventListener('click', function(){
+      var open = d.classList.toggle('open');
+      t.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    d.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+  })();
+</script>
 
 <header class="masthead">
   <p class="eyebrow">The blog</p>

@@ -398,10 +398,13 @@ p { margin: 0; }
   border-top: 1px solid rgba(31,58,95,0.08);
   border-bottom: 1px solid rgba(31,58,95,0.08);
 }
+.story-header {
+  margin-bottom: 56px;
+}
 .story-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 80px;
+  gap: 72px;
   align-items: start;
 }
 .story-text p {
@@ -430,43 +433,87 @@ p { margin: 0; }
   margin: 0;
   font-variation-settings: "opsz" 24, "SOFT" 60;
 }
-.story-visual {
+/* Timeline */
+.story-timeline {
+  padding-top: 4px;
+}
+.timeline-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--fg-3);
+  margin-bottom: 28px;
+}
+.tl-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   position: relative;
-  padding-top: 40px;
 }
-.story-img {
-  width: 100%;
-  border-radius: 16px;
-  display: block;
-  object-fit: cover;
-  aspect-ratio: 4/5;
-  object-position: top center;
-  box-shadow: 0 12px 32px rgba(31,38,47,.1);
-}
-.story-caption-card {
+.tl-items::before {
+  content: '';
   position: absolute;
-  bottom: -24px;
-  right: -20px;
-  background: var(--ink);
-  color: var(--paper);
-  border-radius: 14px;
-  padding: 20px 24px;
-  max-width: 220px;
-  box-shadow: 0 8px 24px rgba(31,38,47,.2);
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(31,58,95,0.12), var(--ember), rgba(31,58,95,0.12));
 }
-.story-caption-card .num {
+.tl-item {
+  padding: 0 0 32px 28px;
+  position: relative;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--paper-tint);
+  border: 2px solid rgba(31,58,95,0.25);
+}
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item-now::before {
+  background: var(--ember);
+  border-color: var(--ember);
+  width: 12px;
+  height: 12px;
+  left: -5px;
+  top: 7px;
+  box-shadow: 0 0 0 4px rgba(201,123,74,0.15);
+}
+.tl-era {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--fg-3);
+  margin-bottom: 4px;
+}
+.tl-item-now .tl-era { color: var(--ember); }
+.tl-title {
   font-family: var(--font-serif);
-  font-size: 2.5rem;
   font-weight: 500;
-  color: var(--ember-soft);
-  line-height: 1;
-  font-variation-settings: "opsz" 36;
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin-bottom: 6px;
+  font-variation-settings: "opsz" 18;
 }
-.story-caption-card .label {
-  font-size: 13px;
-  color: rgba(245,239,230,0.7);
-  margin-top: 4px;
+.tl-item-now .tl-title {
+  font-size: 1.2rem;
+  font-weight: 600;
 }
+.tl-desc {
+  font-size: 14px;
+  color: var(--fg-2);
+  line-height: 1.6;
+}
+.tl-item-now .tl-desc { color: var(--fg-1); font-weight: 500; }
 
 /* ============ ABOUT / INSTRUCTOR ============ */
 .instructor-section {
@@ -918,8 +965,7 @@ p { margin: 0; }
   .hero-grid { grid-template-columns: 1fr; gap: 48px; }
   .hero-portrait-wrap { max-width: 360px; margin: 0 auto; }
   .story-grid { grid-template-columns: 1fr; }
-  .story-visual { padding-top: 0; }
-  .story-caption-card { right: 0; }
+  .tl-items::before { left: 0; }
   .instructor-grid { grid-template-columns: 1fr; }
   .instructor-portrait-wrap { max-width: 360px; position: static; }
   .testimonials-masonry { column-count: 2; }
@@ -1032,11 +1078,14 @@ p { margin: 0; }
 <!-- ============ STORY ============ -->
 <section id="story" class="section story-section">
   <div class="section-inner">
+
+    <div class="story-header">
+      <span class="eyebrow-inline">The story</span>
+      <h2 class="section-title">Thirty-five years<br>of <em>watching it change.</em></h2>
+    </div>
+
     <div class="story-grid">
       <div class="story-text">
-        <span class="eyebrow-inline">The story</span>
-        <h2 class="section-title">Thirty-five years<br>of <em>watching it change.</em></h2>
-
         <p>I've been in the room for every major technology wave — from the early days of computing to the rise of the internet, from mobile-first to cloud-first, from social media disruption to the automation era. Each wave rewrote the rules of business. Each time, the people who moved early won.</p>
 
         <p>This one is different. <strong>Not in kind, but in speed.</strong> AI is compressing years of change into months. What took a team of ten can now be done by one person with the right tools. What required a consultant, an agency, and a budget now takes a well-crafted prompt and a Saturday morning.</p>
@@ -1052,14 +1101,38 @@ p { margin: 0; }
         <p>That's when I knew this couldn't be a one-time event. <strong>IgnorAInt became a series.</strong> And I'm not stopping until every business owner I can reach knows how to use these tools — before someone who does takes their place.</p>
       </div>
 
-      <div class="story-visual">
-        <img src="assets/addie.jpg" alt="Addie Agarwal" class="story-img" />
-        <div class="story-caption-card">
-          <div class="num">15+</div>
-          <div class="label">years partnering with businesses to implement smart automations</div>
+      <div class="story-timeline">
+        <div class="timeline-label">35 years of technology waves</div>
+        <div class="tl-items">
+          <div class="tl-item">
+            <div class="tl-era">Early 1990s</div>
+            <div class="tl-title">Personal computing</div>
+            <div class="tl-desc">The desktop revolution. Businesses that adopted early outpaced everyone else within a decade.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-era">Late 1990s – 2000s</div>
+            <div class="tl-title">The internet era</div>
+            <div class="tl-desc">The web rewrote commerce, communication, and marketing overnight. The playbook changed permanently.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-era">2000s – 2010s</div>
+            <div class="tl-title">Mobile &amp; social</div>
+            <div class="tl-desc">Every business became a media company. Reach, speed, and personal branding became non-negotiable.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-era">2010s – 2020s</div>
+            <div class="tl-title">Cloud &amp; automation</div>
+            <div class="tl-desc">Small teams started operating at enterprise scale. Tools got smarter. The gap between fast and slow widened.</div>
+          </div>
+          <div class="tl-item tl-item-now">
+            <div class="tl-era">Now</div>
+            <div class="tl-title">Artificial intelligence</div>
+            <div class="tl-desc">The biggest shift yet — and the fastest. One person with the right AI tools can move like a team of ten. This is the wave. Don't miss it.</div>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </section>
 
