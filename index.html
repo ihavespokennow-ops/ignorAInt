@@ -197,9 +197,8 @@ p { margin: 0; }
 
 /* ============ HERO ============ */
 .hero-outer {
-  background: var(--ink);
   color: var(--paper);
-  min-height: 92vh;
+  min-height: 80vh;
   display: flex;
   align-items: center;
   position: relative;
@@ -960,10 +959,63 @@ p { margin: 0; }
 .footer-bot a { color: inherit; text-decoration: none; }
 .footer-bot a:hover { color: var(--ember); }
 
+/* ============ DARK TOP WRAP — nav sits inside blue hero ============ */
+.page-hero-wrap {
+  background: var(--ink);
+  position: relative;
+}
+/* Nav overrides inside the dark hero */
+.page-hero-wrap .site-nav-outer {
+  margin-top: 0;
+  padding-top: 20px;
+}
+.page-hero-wrap .site-nav {
+  background: rgba(20, 40, 72, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: rgba(245, 239, 230, 0.1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.page-hero-wrap .nav-word { color: var(--paper); }
+.page-hero-wrap .nav-word .ai { color: var(--ember-soft); }
+.page-hero-wrap .nav-word .dot-period { color: var(--ember-soft); }
+.page-hero-wrap .nav-mid a { color: rgba(245,239,230,0.75); }
+.page-hero-wrap .nav-mid a:hover { color: var(--ember-soft); }
+.page-hero-wrap .nav-toggle span { background: var(--paper); }
+.page-hero-wrap .btn-primary {
+  background: var(--ember);
+  color: var(--paper);
+}
+.page-hero-wrap .btn-primary:hover { background: var(--ember-deep); }
+/* Drawer stays readable */
+.page-hero-wrap .nav-drawer {
+  background: rgba(20,40,72,0.96);
+  border-color: rgba(245,239,230,0.1);
+}
+.page-hero-wrap .nav-drawer a { color: rgba(245,239,230,0.8); border-bottom-color: rgba(245,239,230,0.07); }
+.page-hero-wrap .nav-drawer a:hover { color: var(--ember-soft); }
+
+/* ============ ARCH ANIMATION FRAME ============ */
+.hero-arch-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-arch-frame {
+  width: 100%;
+  aspect-ratio: 3/2;
+  border: none;
+  display: block;
+  background: transparent;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr; gap: 48px; }
-  .hero-portrait-wrap { max-width: 360px; margin: 0 auto; }
+  .hero-arch-wrap { max-width: 480px; margin: 0 auto; }
   .story-grid { grid-template-columns: 1fr; }
   .tl-items::before { left: 0; }
   .instructor-grid { grid-template-columns: 1fr; }
@@ -988,6 +1040,9 @@ p { margin: 0; }
 </style>
 </head>
 <body>
+
+<!-- ============ DARK HERO WRAP (nav + hero share the blue) ============ -->
+<div class="page-hero-wrap">
 
 <!-- ============ NAV ============ -->
 <div class="site-nav-outer">
@@ -1046,14 +1101,19 @@ p { margin: 0; }
       </div>
       <p class="hero-note">Free for members &amp; invited guests · New sessions announced regularly</p>
     </div>
-    <div class="hero-portrait-wrap">
-      <img src="assets/addie.jpg" alt="Addie Agarwal — AI Instructor" class="hero-portrait" />
-      <div class="hero-portrait-label">Your instructor</div>
+    <div class="hero-arch-wrap">
+      <iframe
+        src="Arch Animation _offline_.html"
+        class="hero-arch-frame"
+        scrolling="no"
+        title="The IgnorAInt arch"
+        loading="eager"
+      ></iframe>
     </div>
   </div>
 </section>
 
-<!-- ============ STAT BAR ============ -->
+<!-- ============ STAT BAR (still inside dark wrap — acts as transition) ============ -->
 <div class="stat-bar">
   <div class="stat-bar-inner">
     <div class="stat-item">
@@ -1074,6 +1134,8 @@ p { margin: 0; }
     </div>
   </div>
 </div>
+
+</div><!-- /page-hero-wrap -->
 
 <!-- ============ STORY ============ -->
 <section id="story" class="section story-section">
