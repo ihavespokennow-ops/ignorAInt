@@ -1083,7 +1083,11 @@ p { margin: 0; }
     function updateNav() {
       if (!nav) return;
       var wrap = document.getElementById('page-hero-wrap');
-      var bottom = wrap ? wrap.getBoundingClientRect().bottom : 0;
+      /* If the wrap isn't in the DOM yet (this script runs inline before the
+         hero is parsed), leave the initial .nav-on-dark from the HTML alone —
+         otherwise we'd flash the cream body background above the pill on load. */
+      if (!wrap) return;
+      var bottom = wrap.getBoundingClientRect().bottom;
       if (bottom > 60) {
         nav.classList.add('nav-on-dark');
       } else {
@@ -1091,7 +1095,12 @@ p { margin: 0; }
       }
     }
     window.addEventListener('scroll', updateNav, { passive: true });
-    updateNav();
+    /* Defer first run until after the hero wrap is parsed. */
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateNav);
+    } else {
+      updateNav();
+    }
   })();
 </script>
 
