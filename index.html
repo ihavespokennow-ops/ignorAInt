@@ -72,10 +72,11 @@ p { margin: 0; }
 /* ============ NAV ============ */
 .site-nav-outer {
   position: sticky;
-  top: 16px;
+  top: 0;
   z-index: 50;
-  padding: 0 24px;
-  margin-top: 16px;
+  padding: 16px 24px 0;
+  /* padding-top replaces margin-top so the outer div starts at page top,
+     eliminating the gap where body background would bleed through */
 }
 .site-nav {
   max-width: 1160px;
@@ -968,6 +969,9 @@ p { margin: 0; }
 /* ============ NAV — scroll-based dark/light ============ */
 /* Default: light (cream pill) — already defined above.
    When .nav-on-dark is added by JS (over the dark hero): */
+.site-nav-outer.nav-on-dark {
+  background: var(--ink); /* fills the padding area above the pill with dark blue */
+}
 .site-nav-outer.nav-on-dark .site-nav {
   background: rgba(20, 40, 72, 0.55);
   backdrop-filter: blur(20px);
@@ -992,7 +996,7 @@ p { margin: 0; }
 }
 .site-nav-outer.nav-on-dark .nav-drawer a:hover { color: var(--ember-soft); }
 
-/* ============ ARCH ANIMATION (inline SVG) ============ */
+/* ============ ARCH SVG (static, blends into hero background) ============ */
 .hero-arch-wrap {
   position: relative;
   display: flex;
@@ -1002,91 +1006,8 @@ p { margin: 0; }
   width: 100%;
   display: block;
   overflow: visible;
+  /* SVG has no background rect — fully transparent, blends with .page-hero-wrap */
 }
-
-/* Stars */
-@keyframes star-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0.28; }
-  50% { opacity: 0.08; }
-}
-.arch-star {
-  opacity: 0;
-  animation: star-in 0.6s ease-out forwards;
-}
-.arch-star.tw { animation: star-in 0.6s ease-out forwards, star-twinkle 3s ease-in-out 1.8s infinite; }
-
-/* Horizon */
-@keyframes horizon-in {
-  from { opacity: 0; }
-  to { opacity: 0.3; }
-}
-.arch-horizon { animation: horizon-in 0.5s ease-out 0.3s forwards; opacity: 0; }
-
-/* Columns */
-@keyframes col-rise {
-  from { transform: scaleY(0); }
-  to   { transform: scaleY(1); }
-}
-.arch-col {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  transform: scaleY(0);
-}
-.arch-col-l { animation: col-rise 0.7s cubic-bezier(0.4,0,0.2,1) 0.5s forwards; }
-.arch-col-r { animation: col-rise 0.7s cubic-bezier(0.4,0,0.2,1) 0.65s forwards; }
-
-/* Arch body */
-@keyframes arch-rise {
-  from { transform: scaleY(0); opacity: 0; }
-  to   { transform: scaleY(1); opacity: 1; }
-}
-.arch-body {
-  transform-box: fill-box;
-  transform-origin: center bottom;
-  transform: scaleY(0);
-  opacity: 0;
-  animation: arch-rise 0.5s cubic-bezier(0.4,0,0.2,1) 1.0s forwards;
-}
-
-/* Keystone glow */
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.12; }
-  50%       { opacity: 0.32; }
-}
-.arch-glow {
-  opacity: 0;
-  animation: horizon-in 0.4s ease-out 1.35s forwards, glow-pulse 2.8s ease-in-out 1.8s infinite;
-}
-
-/* Keystone */
-@keyframes keystone-drop {
-  0%   { transform: translateY(-50px) scale(0.3); opacity: 0; }
-  70%  { transform: translateY(5px) scale(1.06); opacity: 1; }
-  100% { transform: translateY(0) scale(1); opacity: 1; }
-}
-.arch-keystone {
-  transform-box: fill-box;
-  transform-origin: center;
-  opacity: 0;
-  animation: keystone-drop 0.55s cubic-bezier(0.34,1.56,0.64,1) 1.3s forwards;
-}
-.arch-keystone-hi {
-  transform-box: fill-box;
-  transform-origin: center;
-  opacity: 0;
-  animation: keystone-drop 0.5s cubic-bezier(0.34,1.56,0.64,1) 1.42s forwards;
-}
-
-/* Whole SVG gentle float after build-in */
-@keyframes arch-float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
-}
-.hero-arch-svg { animation: arch-float 6s ease-in-out 2.2s infinite; }
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 960px) {
@@ -1197,46 +1118,46 @@ p { margin: 0; }
     </div>
     <div class="hero-arch-wrap">
       <svg class="hero-arch-svg" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <!-- Sky background -->
-        <rect width="1200" height="800" fill="#1F3A5F"/>
+        <!-- No background rect — SVG is fully transparent, blends into the dark hero -->
 
-        <!-- Stars (twinkling) -->
-        <circle class="arch-star tw" style="animation-delay:0.05s" cx="180"  cy="80"  r="1.8" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.15s" cx="320"  cy="55"  r="1.4" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.25s" cx="490"  cy="95"  r="1.6" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.10s" cx="650"  cy="40"  r="2.0" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.30s" cx="820"  cy="70"  r="1.5" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.20s" cx="970"  cy="55"  r="1.7" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.35s" cx="1080" cy="110" r="1.3" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star"    style="animation-delay:0.40s" cx="240"  cy="200" r="1.2" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star"    style="animation-delay:0.45s" cx="900"  cy="160" r="1.4" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.50s" cx="130"  cy="300" r="1.6" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star tw" style="animation-delay:0.55s" cx="1050" cy="250" r="1.3" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star"    style="animation-delay:0.60s" cx="380"  cy="160" r="1.1" fill="#F5EFE6" opacity="0"/>
-        <circle class="arch-star"    style="animation-delay:0.65s" cx="760"  cy="130" r="1.5" fill="#F5EFE6" opacity="0"/>
+        <!-- Stars (static) -->
+        <circle cx="180"  cy="80"  r="1.8" fill="#F5EFE6" opacity="0.35"/>
+        <circle cx="320"  cy="55"  r="1.4" fill="#F5EFE6" opacity="0.25"/>
+        <circle cx="490"  cy="95"  r="1.6" fill="#F5EFE6" opacity="0.30"/>
+        <circle cx="650"  cy="40"  r="2.0" fill="#F5EFE6" opacity="0.40"/>
+        <circle cx="820"  cy="70"  r="1.5" fill="#F5EFE6" opacity="0.28"/>
+        <circle cx="970"  cy="55"  r="1.7" fill="#F5EFE6" opacity="0.32"/>
+        <circle cx="1080" cy="110" r="1.3" fill="#F5EFE6" opacity="0.22"/>
+        <circle cx="240"  cy="200" r="1.2" fill="#F5EFE6" opacity="0.20"/>
+        <circle cx="900"  cy="160" r="1.4" fill="#F5EFE6" opacity="0.25"/>
+        <circle cx="130"  cy="300" r="1.6" fill="#F5EFE6" opacity="0.28"/>
+        <circle cx="1050" cy="250" r="1.3" fill="#F5EFE6" opacity="0.22"/>
+        <circle cx="380"  cy="160" r="1.1" fill="#F5EFE6" opacity="0.18"/>
+        <circle cx="760"  cy="130" r="1.5" fill="#F5EFE6" opacity="0.30"/>
 
         <!-- Horizon line -->
-        <line class="arch-horizon" x1="100" y1="600" x2="1100" y2="600"
-              stroke="#F5EFE6" stroke-width="1.5" opacity="0"/>
+        <line x1="100" y1="600" x2="1100" y2="600"
+              stroke="#F5EFE6" stroke-width="1.5" opacity="0.22"/>
 
         <!-- Left column -->
-        <rect class="arch-col arch-col-l" x="430" y="350" width="36" height="250" fill="#F5EFE6"/>
+        <rect x="430" y="350" width="36" height="250" fill="#F5EFE6"/>
         <!-- Right column -->
-        <rect class="arch-col arch-col-r" x="734" y="350" width="36" height="250" fill="#F5EFE6"/>
+        <rect x="734" y="350" width="36" height="250" fill="#F5EFE6"/>
 
         <!-- Arch body: outer r=170, inner r=134, center (600,350) -->
-        <path class="arch-body"
-              d="M 430 350 A 170 170 0 0 1 770 350 L 734 350 A 134 134 0 0 0 466 350 Z"
+        <path d="M 430 350 A 170 170 0 0 1 770 350 L 734 350 A 134 134 0 0 0 466 350 Z"
               fill="#F5EFE6"/>
 
-        <!-- Keystone glow halo -->
-        <circle class="arch-glow" cx="600" cy="180" r="56" fill="#C97B4A" opacity="0"/>
+        <!-- Keystone outer glow (large, soft) -->
+        <circle cx="600" cy="180" r="90" fill="#C97B4A" opacity="0.18"/>
+        <!-- Keystone mid glow -->
+        <circle cx="600" cy="180" r="56" fill="#C97B4A" opacity="0.28"/>
 
         <!-- Keystone -->
-        <circle class="arch-keystone"    cx="600" cy="180" r="32" fill="#C97B4A"/>
+        <circle cx="600" cy="180" r="32" fill="#C97B4A"/>
 
         <!-- Keystone highlight -->
-        <circle class="arch-keystone-hi" cx="590" cy="170" r="11" fill="#E19E72" opacity="0"/>
+        <circle cx="590" cy="170" r="11" fill="#E19E72" opacity="0.65"/>
       </svg>
     </div>
   </div>
