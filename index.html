@@ -959,58 +959,134 @@ p { margin: 0; }
 .footer-bot a { color: inherit; text-decoration: none; }
 .footer-bot a:hover { color: var(--ember); }
 
-/* ============ DARK TOP WRAP — nav sits inside blue hero ============ */
+/* ============ DARK HERO WRAP ============ */
 .page-hero-wrap {
   background: var(--ink);
   position: relative;
 }
-/* Nav overrides inside the dark hero */
-.page-hero-wrap .site-nav-outer {
-  margin-top: 0;
-  padding-top: 20px;
-}
-.page-hero-wrap .site-nav {
+
+/* ============ NAV — scroll-based dark/light ============ */
+/* Default: light (cream pill) — already defined above.
+   When .nav-on-dark is added by JS (over the dark hero): */
+.site-nav-outer.nav-on-dark .site-nav {
   background: rgba(20, 40, 72, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-color: rgba(245, 239, 230, 0.1);
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
-.page-hero-wrap .nav-word { color: var(--paper); }
-.page-hero-wrap .nav-word .ai { color: var(--ember-soft); }
-.page-hero-wrap .nav-word .dot-period { color: var(--ember-soft); }
-.page-hero-wrap .nav-mid a { color: rgba(245,239,230,0.75); }
-.page-hero-wrap .nav-mid a:hover { color: var(--ember-soft); }
-.page-hero-wrap .nav-toggle span { background: var(--paper); }
-.page-hero-wrap .btn-primary {
-  background: var(--ember);
-  color: var(--paper);
-}
-.page-hero-wrap .btn-primary:hover { background: var(--ember-deep); }
-/* Drawer stays readable */
-.page-hero-wrap .nav-drawer {
+.site-nav-outer.nav-on-dark .nav-word { color: var(--paper); }
+.site-nav-outer.nav-on-dark .nav-word .ai { color: var(--ember-soft); }
+.site-nav-outer.nav-on-dark .nav-word .dot-period { color: var(--ember-soft); }
+.site-nav-outer.nav-on-dark .nav-mid a { color: rgba(245,239,230,0.75); }
+.site-nav-outer.nav-on-dark .nav-mid a:hover { color: var(--ember-soft); }
+.site-nav-outer.nav-on-dark .nav-toggle span { background: var(--paper); }
+.site-nav-outer.nav-on-dark .btn-primary { background: var(--ember); }
+.site-nav-outer.nav-on-dark .nav-drawer {
   background: rgba(20,40,72,0.96);
   border-color: rgba(245,239,230,0.1);
 }
-.page-hero-wrap .nav-drawer a { color: rgba(245,239,230,0.8); border-bottom-color: rgba(245,239,230,0.07); }
-.page-hero-wrap .nav-drawer a:hover { color: var(--ember-soft); }
+.site-nav-outer.nav-on-dark .nav-drawer a {
+  color: rgba(245,239,230,0.8);
+  border-bottom-color: rgba(245,239,230,0.07);
+}
+.site-nav-outer.nav-on-dark .nav-drawer a:hover { color: var(--ember-soft); }
 
-/* ============ ARCH ANIMATION FRAME ============ */
+/* ============ ARCH ANIMATION (inline SVG) ============ */
 .hero-arch-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
-.hero-arch-frame {
+.hero-arch-svg {
   width: 100%;
-  aspect-ratio: 3/2;
-  border: none;
   display: block;
-  background: transparent;
-  border-radius: 20px;
-  overflow: hidden;
+  overflow: visible;
 }
+
+/* Stars */
+@keyframes star-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.28; }
+  50% { opacity: 0.08; }
+}
+.arch-star {
+  opacity: 0;
+  animation: star-in 0.6s ease-out forwards;
+}
+.arch-star.tw { animation: star-in 0.6s ease-out forwards, star-twinkle 3s ease-in-out 1.8s infinite; }
+
+/* Horizon */
+@keyframes horizon-in {
+  from { opacity: 0; }
+  to { opacity: 0.3; }
+}
+.arch-horizon { animation: horizon-in 0.5s ease-out 0.3s forwards; opacity: 0; }
+
+/* Columns */
+@keyframes col-rise {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+.arch-col {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transform: scaleY(0);
+}
+.arch-col-l { animation: col-rise 0.7s cubic-bezier(0.4,0,0.2,1) 0.5s forwards; }
+.arch-col-r { animation: col-rise 0.7s cubic-bezier(0.4,0,0.2,1) 0.65s forwards; }
+
+/* Arch body */
+@keyframes arch-rise {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+.arch-body {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transform: scaleY(0);
+  opacity: 0;
+  animation: arch-rise 0.5s cubic-bezier(0.4,0,0.2,1) 1.0s forwards;
+}
+
+/* Keystone glow */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.12; }
+  50%       { opacity: 0.32; }
+}
+.arch-glow {
+  opacity: 0;
+  animation: horizon-in 0.4s ease-out 1.35s forwards, glow-pulse 2.8s ease-in-out 1.8s infinite;
+}
+
+/* Keystone */
+@keyframes keystone-drop {
+  0%   { transform: translateY(-50px) scale(0.3); opacity: 0; }
+  70%  { transform: translateY(5px) scale(1.06); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+.arch-keystone {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: keystone-drop 0.55s cubic-bezier(0.34,1.56,0.64,1) 1.3s forwards;
+}
+.arch-keystone-hi {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: keystone-drop 0.5s cubic-bezier(0.34,1.56,0.64,1) 1.42s forwards;
+}
+
+/* Whole SVG gentle float after build-in */
+@keyframes arch-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+.hero-arch-svg { animation: arch-float 6s ease-in-out 2.2s infinite; }
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 960px) {
@@ -1041,11 +1117,8 @@ p { margin: 0; }
 </head>
 <body>
 
-<!-- ============ DARK HERO WRAP (nav + hero share the blue) ============ -->
-<div class="page-hero-wrap">
-
-<!-- ============ NAV ============ -->
-<div class="site-nav-outer">
+<!-- ============ NAV (lives at body level so sticky works across whole page) ============ -->
+<div class="site-nav-outer nav-on-dark" id="site-nav-outer">
   <nav class="site-nav">
     <a class="nav-word" href="index.html">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></a>
     <div class="nav-mid">
@@ -1073,15 +1146,36 @@ p { margin: 0; }
   (function(){
     var t = document.getElementById('nav-toggle');
     var d = document.getElementById('nav-drawer');
-    if (!t || !d) return;
-    function close(){ d.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
-    t.addEventListener('click', function(){
-      var open = d.classList.toggle('open');
-      t.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    d.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+    var nav = document.getElementById('site-nav-outer');
+
+    /* Hamburger toggle */
+    if (t && d) {
+      function closeDrawer(){ d.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+      t.addEventListener('click', function(){
+        var open = d.classList.toggle('open');
+        t.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      d.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeDrawer); });
+    }
+
+    /* Dark/light nav: add .nav-on-dark while the dark hero wrap is visible */
+    function updateNav() {
+      if (!nav) return;
+      var wrap = document.getElementById('page-hero-wrap');
+      var bottom = wrap ? wrap.getBoundingClientRect().bottom : 0;
+      if (bottom > 60) {
+        nav.classList.add('nav-on-dark');
+      } else {
+        nav.classList.remove('nav-on-dark');
+      }
+    }
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
   })();
 </script>
+
+<!-- ============ DARK HERO WRAP ============ -->
+<div class="page-hero-wrap" id="page-hero-wrap">
 
 <!-- ============ HERO ============ -->
 <section class="hero-outer">
@@ -1102,18 +1196,53 @@ p { margin: 0; }
       <p class="hero-note">Free for members &amp; invited guests · New sessions announced regularly</p>
     </div>
     <div class="hero-arch-wrap">
-      <iframe
-        src="Arch Animation _offline_.html"
-        class="hero-arch-frame"
-        scrolling="no"
-        title="The IgnorAInt arch"
-        loading="eager"
-      ></iframe>
+      <svg class="hero-arch-svg" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Sky background -->
+        <rect width="1200" height="800" fill="#1F3A5F"/>
+
+        <!-- Stars (twinkling) -->
+        <circle class="arch-star tw" style="animation-delay:0.05s" cx="180"  cy="80"  r="1.8" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.15s" cx="320"  cy="55"  r="1.4" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.25s" cx="490"  cy="95"  r="1.6" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.10s" cx="650"  cy="40"  r="2.0" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.30s" cx="820"  cy="70"  r="1.5" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.20s" cx="970"  cy="55"  r="1.7" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.35s" cx="1080" cy="110" r="1.3" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star"    style="animation-delay:0.40s" cx="240"  cy="200" r="1.2" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star"    style="animation-delay:0.45s" cx="900"  cy="160" r="1.4" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.50s" cx="130"  cy="300" r="1.6" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star tw" style="animation-delay:0.55s" cx="1050" cy="250" r="1.3" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star"    style="animation-delay:0.60s" cx="380"  cy="160" r="1.1" fill="#F5EFE6" opacity="0"/>
+        <circle class="arch-star"    style="animation-delay:0.65s" cx="760"  cy="130" r="1.5" fill="#F5EFE6" opacity="0"/>
+
+        <!-- Horizon line -->
+        <line class="arch-horizon" x1="100" y1="600" x2="1100" y2="600"
+              stroke="#F5EFE6" stroke-width="1.5" opacity="0"/>
+
+        <!-- Left column -->
+        <rect class="arch-col arch-col-l" x="430" y="350" width="36" height="250" fill="#F5EFE6"/>
+        <!-- Right column -->
+        <rect class="arch-col arch-col-r" x="734" y="350" width="36" height="250" fill="#F5EFE6"/>
+
+        <!-- Arch body: outer r=170, inner r=134, center (600,350) -->
+        <path class="arch-body"
+              d="M 430 350 A 170 170 0 0 1 770 350 L 734 350 A 134 134 0 0 0 466 350 Z"
+              fill="#F5EFE6"/>
+
+        <!-- Keystone glow halo -->
+        <circle class="arch-glow" cx="600" cy="180" r="56" fill="#C97B4A" opacity="0"/>
+
+        <!-- Keystone -->
+        <circle class="arch-keystone"    cx="600" cy="180" r="32" fill="#C97B4A"/>
+
+        <!-- Keystone highlight -->
+        <circle class="arch-keystone-hi" cx="590" cy="170" r="11" fill="#E19E72" opacity="0"/>
+      </svg>
     </div>
   </div>
 </section>
 
-<!-- ============ STAT BAR (still inside dark wrap — acts as transition) ============ -->
+<!-- ============ STAT BAR (inside dark wrap — acts as transition) ============ -->
 <div class="stat-bar">
   <div class="stat-bar-inner">
     <div class="stat-item">
