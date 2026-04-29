@@ -1,0 +1,1708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Automation Edge — Masterclass Playbook & Recap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #0b0b0c;
+    --paper:      #f6f2ea;
+    --paper-deep: #efe9dd;
+    --rule:       #1a1a1c;
+    --rule-soft:  rgba(11,11,12,0.12);
+    --muted:      #5a564e;
+    --muted-2:    #7a7367;
+    --gold:       #b58a3a;
+    --gold-deep:  #8a6620;
+    --accent-bg:  #0b0b0c;
+
+    --serif: "Fraunces", "Cormorant Garamond", "Times New Roman", serif;
+    --sans:  "Inter", "Helvetica Neue", Arial, sans-serif;
+
+    --max: 760px;
+    --gutter: clamp(20px, 4vw, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 19px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "ss02", "liga", "onum";
+  }
+
+  ::selection { background: var(--gold); color: var(--ink); }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ───────── Cover ───────── */
+  .cover {
+    background: var(--ink);
+    color: var(--paper);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: clamp(28px, 5vw, 56px) var(--gutter);
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: "";
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(181,138,58,0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(181,138,58,0.08), transparent 60%);
+    pointer-events: none;
+  }
+  .cover-head, .cover-body, .cover-foot { position: relative; }
+
+  .cover-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.6);
+  }
+  .cover-head .mark {
+    display: inline-flex; align-items: center; gap: 10px;
+    color: rgba(246,242,234,0.85);
+  }
+  .cover-head .mark .dot {
+    width: 7px; height: 7px; background: var(--gold); border-radius: 50%;
+  }
+
+  .cover-body {
+    align-self: center;
+    max-width: 920px;
+  }
+  .cover-eyebrow {
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+  }
+  .cover-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(48px, 9vw, 128px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .cover-title em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold);
+  }
+  .cover-sub {
+    margin-top: 36px;
+    max-width: 560px;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(18px, 2vw, 22px);
+    line-height: 1.5;
+    color: rgba(246,242,234,0.82);
+  }
+  .cover-rule {
+    width: 64px; height: 1.5px; background: var(--gold);
+    margin: 44px 0 24px;
+  }
+
+  .cover-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 40px;
+    align-items: end;
+    padding-top: 48px;
+    border-top: 1px solid rgba(246,242,234,0.15);
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.6);
+  }
+  .cover-foot .label {
+    display: block;
+    color: rgba(246,242,234,0.4);
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+  .cover-foot .val {
+    color: var(--paper);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  /* ───────── Article shell ───────── */
+  article {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: clamp(80px, 12vh, 140px) var(--gutter);
+  }
+
+  .section + .section,
+  .brand-update + .section { margin-top: clamp(80px, 12vh, 120px); }
+
+  .section-num {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-num::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule-soft);
+  }
+
+  h1.section-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 5.5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 36px;
+  }
+  h1.section-title em { font-style: italic; font-weight: 300; color: var(--gold-deep); }
+
+  .dropcap::first-letter {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 5.2em;
+    float: left;
+    line-height: 0.88;
+    padding: 6px 12px 0 0;
+    color: var(--ink);
+  }
+
+  p {
+    margin: 0 0 1.2em;
+    text-wrap: pretty;
+  }
+  p.lede {
+    font-size: 1.18em;
+    line-height: 1.55;
+    color: #2a2926;
+  }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ───────── Pull quote ───────── */
+  .pullquote {
+    margin: clamp(40px, 6vh, 64px) 0;
+    padding: 0;
+    border: none;
+    position: relative;
+  }
+  .pullquote .pq-mark {
+    font-family: var(--serif);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 96px;
+    line-height: 0.6;
+    color: var(--gold);
+    display: block;
+    margin-bottom: -12px;
+  }
+  .pullquote blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(24px, 3.2vw, 34px);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .pullquote cite {
+    display: block;
+    margin-top: 20px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-style: normal;
+    color: var(--muted);
+  }
+
+  /* Side pull quote — sets flush against right rule */
+  .sidequote {
+    float: right;
+    width: min(320px, 42%);
+    margin: 8px -60px 24px 32px;
+    padding: 20px 0 20px 28px;
+    border-left: 2px solid var(--gold);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .sidequote cite {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  @media (max-width: 900px) {
+    .sidequote { float: none; width: auto; margin: 28px 0; }
+  }
+
+  /* ───────── Subheads ───────── */
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    margin: 2em 0 0.6em;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.25;
+    margin: 0 0 6px;
+  }
+  h3 .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    color: var(--gold-deep);
+    margin-right: 10px;
+  }
+
+  /* ───────── Tool list ───────── */
+  .tools {
+    list-style: none;
+    padding: 0;
+    margin: 28px 0 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .tools li {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .tools .tool-name {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+  }
+  .tools .tool-name small {
+    display: block;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-top: 4px;
+  }
+  .tools .tool-desc {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #2a2926;
+  }
+  @media (max-width: 700px) {
+    .tools li { grid-template-columns: 1fr; gap: 6px; }
+  }
+
+  /* ───────── Prompt card ───────── */
+  .prompt {
+    margin: 28px 0 40px;
+  }
+  .prompt-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+  .prompt-head .num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 40px;
+    color: var(--gold);
+    line-height: 1;
+    min-width: 34px;
+  }
+  .prompt-head h3 {
+    margin: 0;
+    font-size: 24px;
+  }
+  .prompt-desc {
+    margin: 0 0 16px 50px;
+    font-size: 16px;
+    color: var(--muted);
+    font-family: var(--sans);
+    line-height: 1.55;
+  }
+  .prompt-body {
+    margin-left: 50px;
+    padding: 22px 26px;
+    background: var(--paper-deep);
+    border-left: 2px solid var(--gold);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.55;
+    color: #1a1916;
+    position: relative;
+  }
+  .prompt-body::before {
+    content: "“";
+    position: absolute;
+    top: -14px; left: 14px;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 400;
+  }
+  .prompt-body .phase {
+    display: block;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 4px;
+  }
+  .prompt-body + .prompt-body { margin-top: 14px; }
+  @media (max-width: 700px) {
+    .prompt-desc, .prompt-body { margin-left: 0; }
+  }
+
+  /* ───────── Q&A ───────── */
+  .qa { margin-top: 8px; }
+  .qa-item { padding: 28px 0; border-bottom: 1px solid var(--rule-soft); }
+  .qa-item:first-child { border-top: 1px solid var(--rule-soft); }
+  .qa-q {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 14px;
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .qa-q .marker {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+  }
+  .qa-a {
+    margin: 0 0 0 38px;
+    font-size: 17px;
+    line-height: 1.65;
+    color: #2a2926;
+  }
+  @media (max-width: 700px) {
+    .qa-a { margin-left: 0; }
+  }
+
+  /* ───────── Lessons ───────── */
+  .lessons { counter-reset: lesson; margin-top: 8px; }
+  .lesson {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 28px;
+    padding: 32px 0;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .lesson:last-child { border-bottom: 1px solid var(--rule-soft); }
+  .lesson .lesson-num {
+    counter-increment: lesson;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 64px;
+    line-height: 0.9;
+    color: var(--gold);
+  }
+  .lesson .lesson-num::before { content: counter(lesson, decimal-leading-zero); }
+  .lesson h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.25;
+    letter-spacing: -0.005em;
+    margin: 6px 0 8px;
+  }
+  .lesson p {
+    font-size: 17px;
+    color: #2a2926;
+    margin: 0;
+  }
+  @media (max-width: 700px) {
+    .lesson { grid-template-columns: 1fr; gap: 4px; }
+    .lesson .lesson-num { font-size: 44px; }
+  }
+
+  /* ───────── Audit checklist (LinkedIn fixes) ───────── */
+  .audit-list {
+    list-style: none;
+    padding: 0;
+    margin: 32px 0 0;
+    counter-reset: audit;
+  }
+  .audit-list li {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 22px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--rule-soft);
+    counter-increment: audit;
+  }
+  .audit-list li:first-child { border-top: 1px solid var(--rule-soft); }
+  .audit-list li::before {
+    content: counter(audit, decimal-leading-zero);
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 32px;
+    line-height: 1;
+    color: var(--gold);
+    align-self: start;
+    padding-top: 4px;
+  }
+  .audit-list .audit-name {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.25;
+    margin: 0 0 4px;
+  }
+  .audit-list .audit-desc {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #2a2926;
+    margin: 0;
+  }
+  @media (max-width: 700px) {
+    .audit-list li { grid-template-columns: 40px 1fr; gap: 14px; }
+    .audit-list li::before { font-size: 26px; }
+  }
+
+  /* ───────── Appreciation ───────── */
+  .testimonials { display: grid; gap: 36px; margin: 40px 0 0; }
+  .testimonial {
+    padding-left: 24px;
+    border-left: 2px solid var(--gold);
+  }
+  .testimonial blockquote {
+    margin: 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .testimonial cite {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--sans);
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .thanks-list {
+    margin: 40px 0 0;
+    padding: 24px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.7;
+    color: #2a2926;
+  }
+
+  /* ───────── Colophon / footer ───────── */
+  .colophon {
+    margin-top: clamp(100px, 14vh, 160px);
+    padding: 56px 0 0;
+    border-top: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    font-family: var(--sans);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+  }
+  .colophon .label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: var(--muted-2);
+    margin-bottom: 8px;
+  }
+  .colophon .val {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+  }
+  @media (max-width: 600px) {
+    .colophon { grid-template-columns: 1fr; }
+  }
+
+  /* ───────── Progress bar ───────── */
+  .progress {
+    position: fixed; top: 0; left: 0;
+    height: 2px; width: 0%;
+    background: var(--gold);
+    z-index: 50;
+    transition: width 120ms linear;
+  }
+
+  /* ───────── Running header ───────── */
+  .runhead {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px var(--gutter);
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(246,242,234,0.88);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule-soft);
+    z-index: 40;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+  .runhead.visible { opacity: 1; transform: translateY(0); }
+  .runhead .mark { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
+  .runhead .mark .dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+
+  /* ───────── Forecast Card (after intro) ───────── */
+  .brand-update {
+    max-width: var(--max);
+    margin: clamp(60px, 10vh, 100px) auto 0;
+    padding: 0 var(--gutter);
+  }
+  .bu-card {
+    position: relative;
+    background: var(--ink);
+    color: var(--paper);
+    padding: clamp(36px, 5vw, 56px) clamp(32px, 5vw, 56px);
+    overflow: hidden;
+    border: 1px solid var(--ink);
+    box-shadow: 8px 8px 0 0 var(--gold);
+  }
+  .bu-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(600px 200px at 90% -20%, rgba(181,138,58,0.22), transparent 65%),
+      radial-gradient(400px 300px at -10% 120%, rgba(181,138,58,0.1), transparent 65%);
+    pointer-events: none;
+  }
+  .bu-tape {
+    position: absolute;
+    top: 18px; right: -52px;
+    transform: rotate(38deg);
+    background: var(--gold);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 6px 60px;
+  }
+  .bu-eyebrow {
+    position: relative;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .bu-eyebrow::before {
+    content: "";
+    width: 28px; height: 1.5px; background: var(--gold);
+  }
+  .bu-title {
+    position: relative;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(30px, 4.6vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    margin: 0 0 12px;
+    color: var(--paper);
+  }
+  .bu-title em { font-style: italic; color: var(--gold); }
+  .bu-title s { text-decoration: line-through rgba(246,242,234,0.5) 2px; color: rgba(246,242,234,0.5); }
+  .bu-body {
+    position: relative;
+    font-family: var(--serif);
+    font-size: 18px;
+    line-height: 1.6;
+    color: rgba(246,242,234,0.88);
+    margin: 0 0 22px;
+    max-width: 56ch;
+  }
+  .bu-body em { color: var(--gold); font-style: italic; }
+  .bu-swap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 26px 0 24px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(246,242,234,0.15);
+    border-bottom: 1px solid rgba(246,242,234,0.15);
+    flex-wrap: wrap;
+  }
+  .bu-old, .bu-new {
+    font-family: var(--serif);
+    font-size: clamp(22px, 3.2vw, 32px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .bu-old {
+    color: rgba(246,242,234,0.45);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    font-weight: 400;
+  }
+  .bu-arrow {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .bu-new {
+    color: var(--paper);
+    font-weight: 500;
+  }
+  .bu-new .cap-a {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .bu-meta {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px 32px;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(246,242,234,0.5);
+  }
+  .bu-meta .val {
+    display: block;
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--paper);
+    margin-top: 6px;
+  }
+  .bu-meta a.val { border-bottom: 1px dotted rgba(246,242,234,0.4); }
+  .bu-wink {
+    position: relative;
+    margin: 22px 0 0;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: rgba(246,242,234,0.7);
+  }
+  .bu-wink .emoji {
+    font-style: normal;
+    filter: grayscale(1) brightness(1.2);
+    opacity: 0.8;
+  }
+
+  /* Print */
+  @media print {
+    .progress, .runhead { display: none; }
+    body { font-size: 11pt; }
+    .cover { min-height: auto; break-after: page; }
+    .section { break-inside: avoid-page; }
+    .site-nav-outer { display: none !important; }
+  }
+
+  /* ───────── Session Video ───────── */
+  .video-section {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: clamp(56px, 8vh, 80px) var(--gutter) 0;
+  }
+  .video-eyebrow {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .video-eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule-soft);
+  }
+  .video-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(28px, 4.5vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 0 20px;
+  }
+  .video-title em { font-style: italic; font-weight: 300; color: var(--gold-deep); }
+  .video-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--muted);
+    margin: 0 0 28px;
+    max-width: 560px;
+  }
+  .video-frame {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: var(--ink);
+    border: 1px solid var(--rule-soft);
+  }
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    justify-content: space-between;
+    padding: 14px 2px 0;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .video-meta a {
+    color: var(--gold-deep);
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 2px;
+  }
+
+  /* ===== SITE NAV (hardcoded to main-site palette — page has its own --ink) ===== */
+  .site-nav-outer {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 16px 24px 16px;
+    background: #F5EFE6;
+  }
+  .site-nav {
+    max-width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px 12px 22px;
+    background: rgba(245,239,230,0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(31,58,95,0.14);
+    border-radius: 999px;
+    box-shadow: 0 1px 3px rgba(31,38,47,.08), 0 1px 2px rgba(31,38,47,.04);
+  }
+  .nav-word {
+    font-family: "Fraunces", serif;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: #1F3A5F;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .nav-word .ai { color: #C97B4A; font-weight: 700; font-style: italic; }
+  .nav-word .dot-period { color: #C97B4A; margin-left: 1px; }
+  .nav-mid {
+    display: flex;
+    gap: 28px;
+    font-family: "Inter", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .nav-mid a {
+    color: #2A2A2A;
+    text-decoration: none;
+    transition: color 200ms;
+  }
+  .nav-mid a:hover { color: #C97B4A; }
+  .nav-mid a.active { color: #C97B4A; }
+  .nav-cta {
+    font-family: "Inter", "Helvetica Neue", sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 17px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    background: #1F3A5F;
+    color: #F5EFE6;
+    transition: all 200ms;
+    white-space: nowrap;
+  }
+  .nav-cta:hover { background: #162A45; transform: translateY(-1px); }
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px; height: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+  }
+  .nav-toggle span {
+    position: absolute;
+    width: 20px; height: 1.5px;
+    background: #1F3A5F;
+    transition: all 200ms;
+  }
+  .nav-toggle span:nth-child(1) { top: 13px; }
+  .nav-toggle span:nth-child(2) { top: 19px; }
+  .nav-toggle span:nth-child(3) { top: 25px; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) { top: 19px; transform: rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) { top: 19px; transform: rotate(-45deg); }
+  .nav-drawer {
+    display: none;
+    flex-direction: column;
+    background: #FAF6EE;
+    border: 1px solid rgba(31,58,95,.1);
+    border-radius: 16px;
+    margin-top: 8px;
+    padding: 8px 0;
+    box-shadow: 0 4px 12px rgba(31,38,47,.08);
+  }
+  .nav-drawer.open { display: flex; }
+  .nav-drawer a {
+    font-size: 15px;
+    font-weight: 500;
+    color: #2A2A2A;
+    text-decoration: none;
+    padding: 14px 22px;
+    border-bottom: 1px solid rgba(31,58,95,.06);
+    transition: color 180ms;
+  }
+  .nav-drawer a:last-child { border-bottom: none; }
+  .nav-drawer a:hover { color: #C97B4A; }
+  @media (max-width: 800px) {
+    .nav-mid { display: none; }
+    .nav-toggle { display: flex; }
+    .site-nav-outer { padding: 0 16px; }
+    .site-nav { padding: 10px 14px 10px 18px; }
+    .nav-word { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SITE NAV ===== -->
+<div class="site-nav-outer" id="site-nav-outer">
+  <nav class="site-nav">
+    <a class="nav-word" href="../index.html">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></a>
+    <div class="nav-mid">
+      <a href="../blog/">Blog</a>
+      <a href="../masterclass-series.html">Masterclass Series</a>
+      <a href="../past-sessions.html" class="active">Past Sessions</a>
+      <a href="../index.html#instructor">Instructor</a>
+    </div>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-controls="nav-drawer" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="../masterclass-series.html" class="nav-cta">Join the series →</a>
+  </nav>
+  <div class="nav-drawer" id="nav-drawer">
+    <a href="../blog/">Blog</a>
+    <a href="../masterclass-series.html">Masterclass Series</a>
+    <a href="../past-sessions.html">Past Sessions</a>
+    <a href="../index.html#instructor">Instructor</a>
+  </div>
+</div>
+<script>
+  (function(){
+    var t = document.getElementById('nav-toggle');
+    var d = document.getElementById('nav-drawer');
+    if (!t || !d) return;
+    function close(){ d.classList.remove('open'); t.setAttribute('aria-expanded','false'); }
+    t.addEventListener('click', function(){
+      var open = d.classList.toggle('open');
+      t.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    d.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+  })();
+</script>
+
+<div class="progress" id="progress"></div>
+
+<header class="runhead" id="runhead">
+  <a href="../past-sessions.html" style="color: inherit; text-decoration: none;">&lsaquo; Past Sessions</a>
+  <span>Masterclass Playbook &middot; Addie Agarwal</span>
+</header>
+
+<!-- ───────── COVER ───────── -->
+<section class="cover">
+  <div class="cover-head">
+    <span class="mark"><span class="dot"></span>A Masterclass Playbook</span>
+    <span>Vol. 02 &middot; April 25</span>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-eyebrow">The Playbook &middot; No. 02</div>
+    <h1 class="cover-title">
+      The Automation<br/>
+      <em>Edge.</em>
+    </h1>
+    <div class="cover-rule"></div>
+    <p class="cover-sub">
+      Mastering AI workflows &amp; automation &mdash; a recap &amp; field guide
+      from the April&nbsp;25 masterclass on closing the gap between
+      imagining a thing and shipping it.
+    </p>
+  </div>
+
+  <div class="cover-foot">
+    <div>
+      <span class="label">Written by</span>
+      <span class="val">Addie Agarwal</span>
+    </div>
+    <div>
+      <span class="label">Session</span>
+      <span class="val">April 25 &middot; Live</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── SESSION VIDEO ───────── -->
+<section class="video-section" id="recording" aria-label="Session recording">
+  <div class="video-eyebrow">The Recording &middot; April 25, 2026</div>
+  <h2 class="video-title">Watch the <em>session.</em></h2>
+  <p class="video-sub">
+    The full masterclass, unedited. Put it on while you work, or skim the playbook below
+    for the prompts, the live audits, and the moment we built a brand-aligned pitch deck
+    from a single sentence.
+  </p>
+  <div class="video-frame">
+    <iframe
+      src="https://www.youtube.com/embed/ZZ6Kd7zdLI4"
+      title="The Automation Edge — April 25, 2026"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
+  </div>
+  <div class="video-meta">
+    <span>Live session &middot; Recorded April 25, 2026</span>
+    <a href="https://youtu.be/ZZ6Kd7zdLI4" target="_blank" rel="noopener">Open in YouTube &rsaquo;</a>
+  </div>
+</section>
+
+<!-- ───────── ARTICLE ───────── -->
+<article>
+
+  <!-- Introduction -->
+  <section class="section" id="intro" data-runhead="Introduction">
+    <div class="section-num">I &middot; Introduction</div>
+    <h1 class="section-title">Welcome to the <em>recap</em>.</h1>
+
+    <p class="lede dropcap">
+      This playbook accompanies the April&nbsp;25 AI Masterclass &mdash; the
+      follow-up to <em>The AI Advantage</em>, designed to take the room past
+      &ldquo;what AI can do&rdquo; and into the operational center of how it
+      actually changes a working week.
+    </p>
+
+    <aside class="sidequote">
+      The biggest mistake people make is sounding too technical with the AI.
+      Talk to it like a colleague. Plain, conversational, human language wins.
+      <cite>&mdash; The core prompting principle, restated</cite>
+    </aside>
+
+    <p>
+      The thesis for this session was simple: the barrier to building anything
+      &mdash; an income statement, a 28-slide pitch deck, a LinkedIn campaign,
+      a blog post from a two-hour webinar &mdash; used to be <em>execution time</em>.
+      Four weeks coding. Two days designing. An afternoon scrubbing PDFs into a P&amp;L.
+      AI has compressed all of that to near-zero. Your job is no longer
+      <em>doing</em> the work. It&rsquo;s <em>imagining the architecture</em> and
+      describing what should exist.
+    </p>
+
+    <p>
+      What follows is the complete recap: the tools we leaned on, the exact
+      prompts that produced real outputs on stage, the audience&rsquo;s
+      sharpest questions answered candidly, the LinkedIn audit formula that
+      surfaced the same four failure points across every profile we touched,
+      and a forecast on what&rsquo;s arriving next.
+    </p>
+  </section>
+
+  <!-- ───────── Forecast Card (after intro) ───────── -->
+  <aside class="brand-update" aria-label="Autonomous agents forecast">
+    <div class="bu-card">
+      <span class="bu-tape">Forecast</span>
+      <div class="bu-eyebrow">A near-future warning</div>
+      <h2 class="bu-title">
+        The interface itself<br/>
+        is about to <em>disappear.</em>
+      </h2>
+      <p class="bu-body">
+        Highly autonomous agents are already being tested behind closed doors
+        &mdash; one of them, in a controlled run, completed a full cybersecurity
+        penetration in <em>seconds</em>. When these models release publicly,
+        traditional SaaS &mdash; Canva, PowerPoint, basic CRMs &mdash; won&rsquo;t
+        hold. Software stops being a rigid interface you click through, and starts
+        being a <em>dynamic environment</em> generated instantly via text.
+        Preparing your operations for that shift today is the entire point of
+        this masterclass.
+      </p>
+
+      <div class="bu-swap" aria-label="Old way vs. new way">
+        <span class="bu-old">Click. Drag. Configure.</span>
+        <span class="bu-arrow">&rsaquo;&rsaquo; Soon</span>
+        <span class="bu-new">Describe. <span class="cap-a">Done.</span></span>
+      </div>
+
+      <div class="bu-meta">
+        <div>
+          <span>The shift</span>
+          <span class="val">From software to systems</span>
+        </div>
+        <div>
+          <span>Your job</span>
+          <span class="val">Imagine the architecture</span>
+        </div>
+        <div>
+          <span>Their job</span>
+          <span class="val">Build it, instantly</span>
+        </div>
+      </div>
+
+      <p class="bu-wink">
+        <span class="emoji">✶</span> &nbsp;If you can describe it, you can ship it.
+        The only moat left is <em>imagination.</em>
+      </p>
+    </div>
+  </aside>
+
+  <section class="section" id="tools" data-runhead="Tools Discussed">
+    <div class="section-num">II &middot; Tools Discussed</div>
+    <h1 class="section-title">The working <em>stack</em>.</h1>
+
+    <p class="lede">
+      We expanded the toolkit considerably this week. The center of gravity is
+      still Claude, but we also leaned hard on Gemini for video, Excel for raw
+      financials, and Claude Design as a separate creative environment that runs
+      on its own meter.
+    </p>
+
+    <ul class="tools">
+      <li>
+        <div class="tool-name">
+          Claude: Sonnet vs. Opus
+          <small>The 95/5 rule</small>
+        </div>
+        <div class="tool-desc">
+          Sonnet is the daily driver &mdash; recommended for ninety-five percent of
+          work to save tokens and time. Reserve Opus for the heavy stuff: deep
+          mathematical, scientific, or complex multi-step research. Don&rsquo;t
+          burn Opus tokens on a tweet.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Claude Co-work &amp; Live Artifacts
+          <small>Local, persistent</small>
+        </div>
+        <div class="tool-desc">
+          Background software that runs locally on your machine &mdash; for
+          example, a live daily unread-email digest that reads your calendar
+          and inbox each morning and surfaces what actually matters before
+          you sit down at your desk.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Claude Routines
+          <small>Cloud, asynchronous</small>
+        </div>
+        <div class="tool-desc">
+          Remote automations that execute even when your laptop is closed.
+          They run on Anthropic&rsquo;s side, lean on API connectors, and let
+          you build genuine background workflows &mdash; the kind that wake up
+          at 6&nbsp;AM, do the work, and leave you a draft.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          API Connectors
+          <small>The bridges</small>
+        </div>
+        <div class="tool-desc">
+          The plumbing that lets Claude talk directly to the software you
+          already pay for &mdash; Gmail, Google Calendar, Google Drive,
+          Microsoft Office, HubSpot, Pipedrive. The connectors are how a
+          prompt becomes an action.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Claude + Microsoft Excel
+          <small>The financial brain</small>
+        </div>
+        <div class="tool-desc">
+          A native add-on that lets Claude live inside Excel. Drop in a stack of
+          unstructured PDF bank statements and ask for a P&amp;L &mdash; it
+          parses, categorizes, and produces a verified income and expense
+          statement, balance sheet, or 1040 worksheet in minutes.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Claude Design
+          <small>claude.ai/design</small>
+        </div>
+        <div class="tool-desc">
+          A separate visual environment with its own credit pool, used for UI/UX,
+          slide decks, standalone HTML presentations, brand systems, and animated
+          LinkedIn ads. Independent from your Co-work tokens &mdash; which makes
+          it cheap fuel for heavy visual lifting.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          Google Gemini
+          <small>The video specialist</small>
+        </div>
+        <div class="tool-desc">
+          Best-in-class for facial, visual, and audio recognition on long-form
+          video. We used it to read an entire two-hour webinar end to end and
+          spit out timestamps, a clean transcript, every Q&amp;A exchange, and a
+          blog-ready summary &mdash; in under a minute.
+        </div>
+      </li>
+      <li>
+        <div class="tool-name">
+          YouTube Studio
+          <small>The bridge</small>
+        </div>
+        <div class="tool-desc">
+          A small but critical hack. Most LLMs can&rsquo;t ingest a multi-gigabyte
+          video. Upload it as <em>Unlisted</em> to YouTube, hand Gemini the link,
+          and the entire size problem disappears. Private hosting, public-grade
+          analysis.
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Prompts -->
+  <section class="section" id="prompts" data-runhead="High-Impact Prompts">
+    <div class="section-num">III &middot; High-Impact Prompts</div>
+    <h1 class="section-title">The exact <em>asks</em>.</h1>
+
+    <p class="lede">
+      Verbatim prompts from the live demos. Notice how plain they are &mdash; no
+      &ldquo;act as a Fortune 500 CFO,&rdquo; no rigid persona, no list of
+      constraints. Just clear context, clear goal, and a colleague-style ask.
+    </p>
+
+    <div class="pullquote">
+      <span class="pq-mark">&ldquo;</span>
+      <blockquote>
+        Don&rsquo;t overcomplicate the prompt. The model knows more than you
+        think. Tell it what you want like you&rsquo;d tell a teammate, and let
+        it reach.
+      </blockquote>
+      <cite>The prompt-simplicity principle</cite>
+    </div>
+
+    <!-- Prompt 1 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">1</span>
+        <h3>The P&amp;L Engine</h3>
+      </div>
+      <p class="prompt-desc">Used inside Claude + Excel to digest a stack of unstructured bank statements and produce a verified income and expense statement.</p>
+      <div class="prompt-body">
+        Hey Claude, can you study the attached files and build out a complete
+        income and expense statement for me. Most importantly&hellip; once you
+        are done please verify the data.
+      </div>
+    </div>
+
+    <!-- Prompt 2 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">2</span>
+        <h3>The Pitch Deck Architect</h3>
+      </div>
+      <p class="prompt-desc">Three phases &mdash; the initial draft, brand alignment from the website, and the surgical UI fix. The whole deck came together inside Claude Design.</p>
+      <div class="prompt-body">
+        <span class="phase">Phase 1 &middot; Initial draft</span>
+        Hey Claude, I want you to build a detailed presentation on PowerPoint
+        and a standalone HTML for me. My company&rsquo;s name is Eagle Cap
+        Ventures and I want you to research and talk about and cover pretty
+        much everything when it comes to pain points professionals
+        face&hellip; how multifamily investing is different from other
+        alternative forms of investing&hellip; how is it beneficial to busy
+        professionals and also do some research for me like how it compares
+        to the S&amp;P 500 maybe over the last 30 years.
+      </div>
+      <div class="prompt-body">
+        <span class="phase">Phase 2 &middot; Brand alignment</span>
+        Please make the presentation according to my brand from this website.
+      </div>
+      <div class="prompt-body">
+        <span class="phase">Phase 3 &middot; Iterative correction</span>
+        Slide 26, my photo is way off, that is it.
+      </div>
+    </div>
+
+    <!-- Prompt 3 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">3</span>
+        <h3>The LinkedIn Campaign</h3>
+      </div>
+      <p class="prompt-desc">A single sentence produced a clean run of brand-aligned ads &mdash; ready to schedule, no Canva required.</p>
+      <div class="prompt-body">
+        I want you to create a few ads for me to post on LinkedIn.
+      </div>
+    </div>
+
+    <!-- Prompt 4 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">4</span>
+        <h3>The Webinar Decoder</h3>
+      </div>
+      <p class="prompt-desc">The YouTube&nbsp;&rarr;&nbsp;Gemini workflow in two moves. First, ingest the entire video. Then, hand the output back to Claude Design to ship it as a blog post.</p>
+      <div class="prompt-body">
+        <span class="phase">Phase 1 &middot; Gemini, on the recording</span>
+        I have this webinar we did&hellip; can you analyze the entire video
+        and produce the following for me: 1. A complete breakdown of what
+        was shared. 2. The entire set of questions asked and answered. 3. A
+        summary of the event. 4. Feedback and appreciation shared, tips
+        shared, and key takeaways&hellip; I am eventually going to build a
+        blog about this and I also want you to capture timestamps from the
+        video as references.
+      </div>
+      <div class="prompt-body">
+        <span class="phase">Phase 2 &middot; Claude Design, on the blog</span>
+        Help me create an engaging blog post for my website and&hellip;
+        [paste the full Gemini output].
+      </div>
+    </div>
+
+    <!-- Prompt 5 -->
+    <div class="prompt">
+      <div class="prompt-head">
+        <span class="num">5</span>
+        <h3>The Profile Auditor</h3>
+      </div>
+      <p class="prompt-desc">Run on live volunteers from the room &mdash; Erik Byker, Leah, Syleena, Anita, Manny. Every audit surfaced the same four fixes (see the audit formula below).</p>
+      <div class="prompt-body">
+        Can you analyze my profile entirely and tell me what works, what am I
+        doing wrong, what can I do better, and anything else that you think
+        would help my engagement.
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A -->
+  <section class="section" id="qa" data-runhead="Q&amp;A Session">
+    <div class="section-num">IV &middot; Interactive Q&amp;A</div>
+    <h1 class="section-title">The audience <em>asked.</em></h1>
+
+    <p class="lede">
+      A structured summary of the operational and technical questions that came
+      up live, with the answers given on stage.
+    </p>
+
+    <div class="qa">
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>Is Claude Design a separate platform from standard Claude (Co-work / Code)?</span></div>
+        <p class="qa-a">
+          Yes. Claude Design lives at <em>claude.ai/design</em> and operates
+          independently of your standard Claude account. Crucially, it pulls
+          from a separate bank of credits and tokens &mdash; which makes it
+          remarkably cost-effective for heavy visual lifting, system
+          planning, and decks.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>Is what we&rsquo;re seeing right now in Claude Code or Co-work? Is it desktop or web-based?</span></div>
+        <p class="qa-a">
+          Most of today&rsquo;s demos run inside Claude Co-work, with Claude
+          Design opened in the browser when we shift to visuals. Co-work runs
+          locally and keeps your data on your machine; Design is web-based
+          but tied to its own creative sandbox. They complement each other
+          &mdash; pick the surface based on the kind of output you want.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>Why did Claude generate irrelevant or &ldquo;wild&rdquo; marketing assets when I connected my GitHub repository?</span></div>
+        <p class="qa-a">
+          If your GitHub repo is private or its access is locked, Claude can&rsquo;t
+          actually read your brand code &mdash; but the model is still
+          programmed to complete the task. So it <em>hallucinates</em> a
+          brand and ships generic, chaotic designs. The fix: open the
+          repository&rsquo;s permissions to Claude, or paste your brand
+          parameters directly into the prompt.
+        </p>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q"><span class="marker">Q.</span><span>What does it mean that a LinkedIn URL is &ldquo;unprofessional,&rdquo; and how do I fix it?</span></div>
+        <p class="qa-a">
+          A default LinkedIn URL ends with a random string of numbers and
+          letters &mdash; that&rsquo;s the giveaway. Open Settings on your
+          LinkedIn profile and customize the URL to something clean and
+          memorable: your full name (<em>/in/firstlast</em>) or your primary
+          skill (<em>/in/realestateexpert</em>). Thirty seconds of work,
+          measurably better recall.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LinkedIn Audit Formula -->
+  <section class="section" id="audit" data-runhead="LinkedIn Audit Formula">
+    <div class="section-num">V &middot; The LinkedIn Audit Formula</div>
+    <h1 class="section-title">The same four <em>failure points</em>.</h1>
+
+    <p class="lede">
+      We ran live audits on volunteer profiles in the room. Across every single
+      one &mdash; different industries, different career stages, different
+      countries &mdash; Claude flagged the same four issues. If you do nothing
+      else after this session, do these.
+    </p>
+
+    <ol class="audit-list">
+      <li>
+        <div>
+          <p class="audit-name">Clean the custom URL.</p>
+          <p class="audit-desc">
+            Strip the trailing numbers from your LinkedIn URL. Use your name
+            or your primary skill. Memorable, brandable, and clearly
+            intentional &mdash; the difference between an amateur profile
+            and a professional one.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <p class="audit-name">Fill the Featured section.</p>
+          <p class="audit-desc">
+            An empty Featured section is the single biggest conversion leak
+            on LinkedIn. Pin your masterclasses, your booking link, your
+            lead magnets, your best post. This is the part of the profile
+            that turns a visitor into an action.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <p class="audit-name">Stop posting event reminders.</p>
+          <p class="audit-desc">
+            &ldquo;Join my webinar tomorrow!&rdquo; posts kill algorithm
+            engagement. The platform&rsquo;s feed promotes narrative and
+            thought-leadership, not promotional bursts. Build the audience
+            with stories; convert them with the Featured section.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <p class="audit-name">Fix misaligned Top Skills.</p>
+          <p class="audit-desc">
+            Most profiles still surface a degree or a job from a decade ago
+            in the Top Skills slot. Edit ruthlessly. Your skills should
+            match the offering you&rsquo;re selling <em>today</em>, not the
+            r&eacute;sum&eacute; you wrote in 2014.
+          </p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- Lessons -->
+  <section class="section" id="lessons" data-runhead="Core Lessons">
+    <div class="section-num">VI &middot; Core Lessons Learnt</div>
+    <h1 class="section-title">The new <em>operating model</em>.</h1>
+
+    <p class="lede">
+      Four ideas to carry into next week. None of them are about code. All of
+      them are about how you allocate your attention now that the doing is
+      essentially free.
+    </p>
+
+    <div class="lessons">
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>Act dumb on purpose.</h3>
+          <p>
+            The single biggest mistake in the room is over-engineering the
+            prompt &mdash; rigid personas, dense system instructions, fake
+            constraints. The most effective outputs come from plain,
+            conversational, human language. If you&rsquo;d say it that way to
+            a smart colleague, that&rsquo;s the prompt.
+          </p>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>From execution to ideation.</h3>
+          <p>
+            The bottleneck used to be doing the work &mdash; four weeks of
+            coding, hours in the slide editor, an afternoon scrubbing PDFs
+            into a P&amp;L. AI has compressed all of that to near-zero. Your
+            real job is now <em>imagining</em> the architecture and
+            describing what should exist. The ideas are the moat.
+          </p>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>Use YouTube as a bridge to Gemini.</h3>
+          <p>
+            You can&rsquo;t feed a two-gigabyte webinar into a context window
+            directly. Upload the file privately to YouTube, hand the link
+            to Gemini, and the size problem evaporates &mdash; you get a
+            full transcript, time-stamped Q&amp;A, and a blog-ready summary
+            in under a minute.
+          </p>
+        </div>
+      </div>
+
+      <div class="lesson">
+        <div class="lesson-num"></div>
+        <div>
+          <h3>Automate the prospect, not just the inbox.</h3>
+          <p>
+            Wire your website form to a Claude routine. The instant a lead
+            submits, Claude looks up their LinkedIn, reads their interests,
+            and drafts a hyper-personalized welcome &mdash; before you&rsquo;ve
+            seen the notification. You meet every prospect already knowing
+            who they are.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appreciation -->
+  <section class="section" id="appreciation" data-runhead="Appreciation">
+    <div class="section-num">VII &middot; Appreciation &amp; Community</div>
+    <h1 class="section-title">With <em>gratitude</em>.</h1>
+
+    <p class="lede">
+      The energy in this second session was, if anything, louder than the first.
+      Live LinkedIn audits, live laughter, and a quietly unanimous request to
+      make this a recurring, bi-monthly thing. Thank you to everyone who showed
+      up, raised a hand, and shared their profile in front of the room.
+    </p>
+
+    <div class="section-num" style="margin-top:48px">From the live chat</div>
+
+    <div class="testimonials">
+      <div class="testimonial">
+        <blockquote>Mind <em>blowing.</em></blockquote>
+        <cite>&mdash; Fedna Morency</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Asking Claude to build a button to download your animations from
+          Claude Design is such a hack &mdash; I was struggling just screen
+          recording.
+        </blockquote>
+        <cite>&mdash; Manny Awasom</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>This is very enlightening &mdash; thank you, Addie!</blockquote>
+        <cite>&mdash; Erik Byker</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>Excellent work!</blockquote>
+        <cite>&mdash; Lena Sells</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Freedom looks like me driving to the airport for vacay. Lol.
+        </blockquote>
+        <cite>&mdash; Fedna Morency</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Claude might crash from pure disgust of my LinkedIn. I need to
+          work on it.
+        </blockquote>
+        <cite>&mdash; Manny Awasom</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>Thanks for being so <em>generous!</em></blockquote>
+        <cite>&mdash; Lloyd Bailey</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>Definitely interested in the bi-monthly course.</blockquote>
+        <cite>&mdash; Fedna Morency</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>Another great session, Addie. Great work!</blockquote>
+        <cite>&mdash; Manny Awasom</cite>
+      </div>
+      <div class="testimonial">
+        <blockquote>
+          Thank you for doing this live, Addie &mdash; thanks for another
+          wonderful session!
+        </blockquote>
+        <cite>&mdash; Leah Krebs &amp; Yetunde Orimoloye</cite>
+      </div>
+    </div>
+
+    <div class="thanks-list">
+      <strong>Special thanks</strong> to Erik&nbsp;Byker, Leah&nbsp;Krebs,
+      Lena&nbsp;Sells, Fedna&nbsp;Morency, Anita&nbsp;A, Manny&nbsp;Awasom,
+      Syleena&nbsp;Sturdifen, Lloyd&nbsp;Bailey, Yetunde&nbsp;Orimoloye,
+      Aline&nbsp;Correia, Ebenezer&nbsp;Adekunle, Teteisha&nbsp;Pearson,
+      Obinna&nbsp;Udokporo, Donatus&nbsp;Ehimhen, Joshua&nbsp;Akers,
+      Sesan&nbsp;Omotosho, Paninga&nbsp;Muiliya, Jeremy&nbsp;Krebs,
+      Leslie&nbsp;Awasom, and Derek&nbsp;Brown &mdash; and to the entire
+      <em>XSITE Capital</em> community for showing up loud, asking the
+      sharp questions, and volunteering profiles for the live tear-downs.
+    </div>
+  </section>
+
+  <!-- Colophon -->
+  <footer class="colophon">
+    <div>
+      <span class="label">Written by</span>
+      <span class="val">Addie Agarwal</span>
+    </div>
+    <div>
+      <span class="label">Session</span>
+      <span class="val">The Automation Edge &middot; April 25</span>
+    </div>
+  </footer>
+</article>
+
+<script>
+  // progress bar
+  const progress = document.getElementById('progress');
+  const runhead = document.getElementById('runhead');
+  const cover = document.querySelector('.cover');
+
+  function onScroll() {
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    const y = window.scrollY;
+    progress.style.width = Math.max(0, Math.min(1, y / h)) * 100 + '%';
+
+    const coverH = cover.getBoundingClientRect().height;
+    if (y > coverH - 80) runhead.classList.add('visible');
+    else runhead.classList.remove('visible');
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>
