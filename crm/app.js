@@ -90,11 +90,12 @@ function prefsSet(patch) {
   localStorage.setItem(PREFS_KEY, JSON.stringify(next));
   return next;
 }
-// The reply-to default: prefer the per-browser override saved by "Set as
-// default"; fall back to the value baked into config.js.
-function defaultReplyTo() {
-  return prefsGet().defaultReplyTo || cfg.DEFAULT_REPLY_TO;
-}
+// Sender defaults: prefer the per-browser override saved by "Set as default";
+// fall back to the value baked into config.js. These are read every time a new
+// campaign is created so the UI doesn't go stale after the user changes them.
+function defaultReplyTo()  { return prefsGet().defaultReplyTo  || cfg.DEFAULT_REPLY_TO;  }
+function defaultFromName() { return prefsGet().defaultFromName || cfg.DEFAULT_FROM_NAME; }
+function defaultFromEmail(){ return prefsGet().defaultFromEmail|| cfg.DEFAULT_FROM_EMAIL;}
 
 // ---------------------------------------------------------------------------
 // Multi-list picker — a small popover that wraps a checkbox list so it looks
@@ -1027,9 +1028,9 @@ async function openNewCampaign() {
         name: name.value.trim(),
         list_id: ids[0] || null,         // keep legacy column in sync with first pick
         list_ids: ids,
-        from_name: cfg.DEFAULT_FROM_NAME,
-        from_email: cfg.DEFAULT_FROM_EMAIL,
-        reply_to: defaultReplyTo(),
+        from_name:  defaultFromName(),   // pulls from saved pref, falls back to config.js
+        from_email: defaultFromEmail(),
+        reply_to:   defaultReplyTo(),
         created_by: currentUser.id,
       }).select("id").single();
       if (error) { toast(error.message, "error"); return; }
@@ -1071,36 +1072,55 @@ async function renderCampaignEditor(id) {
   const fromEmail= el("input", { type: "text", value: c.from_email });
   const replyTo  = el("input", { type: "text", value: c.reply_to || "" });
 
-  // Reply-to default toggle. Clicking "Set as default" persists the current
-  // reply-to to localStorage so future new campaigns prefill with it.
-  const replyDefaultBtn = el("button", { type: "button", class: "inline-link" }, "Set as default");
-  function syncDefaultLabel() {
-    const isDefault = replyTo.value.trim() === defaultReplyTo();
-    if (isDefault) {
-      replyDefaultBtn.textContent = "✓ Default";
-      replyDefaultBtn.classList.add("is-default");
-      replyDefaultBtn.disabled = true;
-    } else {
-      replyDefaultBtn.textContent = "Set as default";
-      replyDefaultBtn.classList.remove("is-default");
-      replyDefaultBtn.disabled = false;
+  // "Set as default" buttons. Clicking persists the current value of a sender
+  // field to localStorage so future new campaigns prefill with it. One factory
+  // covers reply-to, from-name, and from-email so they all behave identically.
+  function buildDefaultToggle({ input, label, getCurrentDefault, prefKey }) {
+    const btn = el("button", { type: "button", class: "inline-link" }, "Set as default");
+    function sync() {
+      const isDefault = input.value.trim() === getCurrentDefault();
+      if (isDefault) {
+        btn.textContent = "✓ Default";
+        btn.classList.add("is-default");
+        btn.disabled = true;
+      } else {
+        btn.textContent = "Set as default";
+        btn.classList.remove("is-default");
+        btn.disabled = false;
+      }
     }
+    btn.addEventListener("click", () => {
+      const v = input.value.trim();
+      if (!v) { toast(`Type a ${label.toLowerCase()} first.`, "error"); return; }
+      prefsSet({ [prefKey]: v });
+      toast(`Default ${label.toLowerCase()} set to ${v}.`, "success");
+      sync();
+    });
+    input.addEventListener("input", sync);
+    return { btn, sync };
   }
-  replyDefaultBtn.addEventListener("click", () => {
-    const v = replyTo.value.trim();
-    if (!v) { toast("Type a reply-to first.", "error"); return; }
-    prefsSet({ defaultReplyTo: v });
-    toast(`Default reply-to set to ${v}.`, "success");
-    syncDefaultLabel();
-  });
-  replyTo.addEventListener("input", syncDefaultLabel);
 
-  const replyToField = el("div", { class: "field" },
-    el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px" } },
-      el("label", { style: { margin: 0 } }, "Reply-to"),
-      replyDefaultBtn,
-    ),
-    replyTo);
+  const fromNameDefault  = buildDefaultToggle({ input: fromName,  label: "From name",  getCurrentDefault: defaultFromName,  prefKey: "defaultFromName"  });
+  const fromEmailDefault = buildDefaultToggle({ input: fromEmail, label: "From email", getCurrentDefault: defaultFromEmail, prefKey: "defaultFromEmail" });
+  const replyToDefault   = buildDefaultToggle({ input: replyTo,   label: "Reply-to",   getCurrentDefault: defaultReplyTo,   prefKey: "defaultReplyTo"   });
+
+  function syncDefaultLabel() {
+    fromNameDefault.sync();
+    fromEmailDefault.sync();
+    replyToDefault.sync();
+  }
+
+  // Helper to render a field with a label-row that has the toggle on the right
+  function fieldWithToggle(labelText, input, toggleBtn) {
+    return el("div", { class: "field" },
+      el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "8px" } },
+        el("label", { style: { margin: 0 } }, labelText),
+        toggleBtn,
+      ),
+      input);
+  }
+
+  const replyToField = fieldWithToggle("Reply-to", replyTo, replyToDefault.btn);
 
   // Multi-list picker replaces the old single <select>. Keeps list_ids as the
   // source of truth; legacy list_id is stored as the first pick for anything
@@ -1119,8 +1139,8 @@ async function renderCampaignEditor(id) {
     replyToField));
   syncDefaultLabel();
   form.appendChild(el("div", { class: "row row-2" },
-    el("div", { class: "field" }, el("label", {}, "From name"), fromName),
-    el("div", { class: "field" }, el("label", {}, "From email"), fromEmail)));
+    fieldWithToggle("From name",  fromName,  fromNameDefault.btn),
+    fieldWithToggle("From email", fromEmail, fromEmailDefault.btn)));
 
   // AI prompt box
   const aiPromptT = el("textarea", { placeholder: "e.g. Recap yesterday's AI Advantage masterclass. Mention the 168 attendees, link to https://ignoraint.com/past-sessions/the-ai-advantage.html for the recording and ebook, invite replies with takeaways, and encourage them to forward to someone figuring out AI." });
