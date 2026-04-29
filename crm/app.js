@@ -90,12 +90,56 @@ function prefsSet(patch) {
   localStorage.setItem(PREFS_KEY, JSON.stringify(next));
   return next;
 }
-// Sender defaults: prefer the per-browser override saved by "Set as default";
-// fall back to the value baked into config.js. These are read every time a new
-// campaign is created so the UI doesn't go stale after the user changes them.
-function defaultReplyTo()  { return prefsGet().defaultReplyTo  || cfg.DEFAULT_REPLY_TO;  }
-function defaultFromName() { return prefsGet().defaultFromName || cfg.DEFAULT_FROM_NAME; }
-function defaultFromEmail(){ return prefsGet().defaultFromEmail|| cfg.DEFAULT_FROM_EMAIL;}
+// Sender defaults are stored on profiles (default_from_name, default_from_email,
+// default_reply_to). We cache them in this in-memory object after sign-in so
+// the UI reads them synchronously. localStorage acts as an offline-friendly
+// cache, and config.js is the final fallback.
+//
+// Why DB-backed? localStorage doesn't survive Safari ITP (cleared after 7 days
+// of no interaction), private browsing, or moving between devices — which is
+// why "Set as default" appeared not to stick.
+const PREF_TO_COLUMN = {
+  defaultFromName:  "default_from_name",
+  defaultFromEmail: "default_from_email",
+  defaultReplyTo:   "default_reply_to",
+};
+let serverDefaults = {}; // populated by loadServerDefaults() after sign-in
+
+async function loadServerDefaults() {
+  if (!currentUser) return;
+  try {
+    const { data, error } = await sb
+      .from("profiles")
+      .select("default_from_name, default_from_email, default_reply_to")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+    if (!error && data) serverDefaults = data;
+    // Mirror server values into localStorage so a hard reload still has them
+    // available before this fetch returns.
+    if (data) {
+      const patch = {};
+      if (data.default_from_name)  patch.defaultFromName  = data.default_from_name;
+      if (data.default_from_email) patch.defaultFromEmail = data.default_from_email;
+      if (data.default_reply_to)   patch.defaultReplyTo   = data.default_reply_to;
+      if (Object.keys(patch).length) prefsSet(patch);
+    }
+  } catch { /* migration not applied yet — fall back to localStorage */ }
+}
+
+async function saveServerDefault(prefKey, value) {
+  const col = PREF_TO_COLUMN[prefKey];
+  if (!col || !currentUser) return false;
+  try {
+    const { error } = await sb.from("profiles").update({ [col]: value }).eq("id", currentUser.id);
+    if (error) return false;
+    serverDefaults = { ...serverDefaults, [col]: value };
+    return true;
+  } catch { return false; }
+}
+
+function defaultReplyTo()  { return serverDefaults.default_reply_to   || prefsGet().defaultReplyTo  || cfg.DEFAULT_REPLY_TO;  }
+function defaultFromName() { return serverDefaults.default_from_name  || prefsGet().defaultFromName || cfg.DEFAULT_FROM_NAME; }
+function defaultFromEmail(){ return serverDefaults.default_from_email || prefsGet().defaultFromEmail|| cfg.DEFAULT_FROM_EMAIL;}
 
 // ---------------------------------------------------------------------------
 // Multi-list picker — a small popover that wraps a checkbox list so it looks
@@ -208,6 +252,11 @@ async function onSignedIn() {
   $("#user-email").textContent = currentUser.email;
   showApp();
   wireNav();
+  // Load DB-backed sender defaults in the background. We don't block the
+  // initial route since defaults are only consulted when creating a new
+  // campaign or rendering the editor — both of which take long enough for
+  // this to finish first.
+  loadServerDefaults();
   handleRoute();
 }
 
@@ -1089,12 +1138,20 @@ async function renderCampaignEditor(id) {
         btn.disabled = false;
       }
     }
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const v = input.value.trim();
       if (!v) { toast(`Type a ${label.toLowerCase()} first.`, "error"); return; }
+      // Update localStorage instantly for snappy UX, then persist to the DB
+      // so it survives Safari ITP, device switches, and re-installs.
       prefsSet({ [prefKey]: v });
-      toast(`Default ${label.toLowerCase()} set to ${v}.`, "success");
       sync();
+      const savedToDb = await saveServerDefault(prefKey, v);
+      toast(
+        savedToDb
+          ? `Default ${label.toLowerCase()} set to ${v}.`
+          : `Saved locally as ${v}. (DB migration pending — won't sync to other devices yet.)`,
+        savedToDb ? "success" : "info"
+      );
     });
     input.addEventListener("input", sync);
     return { btn, sync };
