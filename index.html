@@ -74,9 +74,10 @@ p { margin: 0; }
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: 16px 24px 0;
-  /* padding-top replaces margin-top so the outer div starts at page top,
-     eliminating the gap where body background would bleed through */
+  padding: 16px 24px 16px;
+  /* Solid cream backdrop so the cream pill stays cream over any section
+     behind it (dark hero, dark testimonials, etc.) */
+  background: var(--paper);
 }
 .site-nav {
   max-width: 1160px;
@@ -85,7 +86,7 @@ p { margin: 0; }
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px 12px 22px;
-  background: rgba(245, 239, 230, 0.82);
+  background: rgba(245, 239, 230, 0.96);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(31,58,95,0.14);
@@ -966,35 +967,9 @@ p { margin: 0; }
   position: relative;
 }
 
-/* ============ NAV — scroll-based dark/light ============ */
-/* Default: light (cream pill) — already defined above.
-   When .nav-on-dark is added by JS (over the dark hero): */
-.site-nav-outer.nav-on-dark {
-  background: var(--paper); /* fills the padding area above the pill with cream */
-}
-.site-nav-outer.nav-on-dark .site-nav {
-  background: rgba(20, 40, 72, 0.55);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-color: rgba(245, 239, 230, 0.1);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-}
-.site-nav-outer.nav-on-dark .nav-word { color: var(--paper); }
-.site-nav-outer.nav-on-dark .nav-word .ai { color: var(--ember-soft); }
-.site-nav-outer.nav-on-dark .nav-word .dot-period { color: var(--ember-soft); }
-.site-nav-outer.nav-on-dark .nav-mid a { color: rgba(245,239,230,0.75); }
-.site-nav-outer.nav-on-dark .nav-mid a:hover { color: var(--ember-soft); }
-.site-nav-outer.nav-on-dark .nav-toggle span { background: var(--paper); }
-.site-nav-outer.nav-on-dark .btn-primary { background: var(--ember); }
-.site-nav-outer.nav-on-dark .nav-drawer {
-  background: rgba(20,40,72,0.96);
-  border-color: rgba(245,239,230,0.1);
-}
-.site-nav-outer.nav-on-dark .nav-drawer a {
-  color: rgba(245,239,230,0.8);
-  border-bottom-color: rgba(245,239,230,0.07);
-}
-.site-nav-outer.nav-on-dark .nav-drawer a:hover { color: var(--ember-soft); }
+/* ============ NAV — single light state (cream pill) ============ */
+/* Previously toggled .nav-on-dark over the dark hero, but the result read as a
+   muddy slate. The pill now stays cream across every section. */
 
 /* ============ ARCH SVG (static, blends into hero background) ============ */
 .hero-arch-wrap {
@@ -1039,7 +1014,7 @@ p { margin: 0; }
 <body>
 
 <!-- ============ NAV (lives at body level so sticky works across whole page) ============ -->
-<div class="site-nav-outer nav-on-dark" id="site-nav-outer">
+<div class="site-nav-outer" id="site-nav-outer">
   <nav class="site-nav">
     <a class="nav-word" href="index.html">ignor<span class="ai">AI</span>nt<span class="dot-period">.</span></a>
     <div class="nav-mid">
@@ -1065,7 +1040,6 @@ p { margin: 0; }
   (function(){
     var t = document.getElementById('nav-toggle');
     var d = document.getElementById('nav-drawer');
-    var nav = document.getElementById('site-nav-outer');
 
     /* Hamburger toggle */
     if (t && d) {
@@ -1075,29 +1049,6 @@ p { margin: 0; }
         t.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
       d.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeDrawer); });
-    }
-
-    /* Dark/light nav: add .nav-on-dark while the dark hero wrap is visible */
-    function updateNav() {
-      if (!nav) return;
-      var wrap = document.getElementById('page-hero-wrap');
-      /* If the wrap isn't in the DOM yet (this script runs inline before the
-         hero is parsed), leave the initial .nav-on-dark from the HTML alone —
-         otherwise we'd flash the cream body background above the pill on load. */
-      if (!wrap) return;
-      var bottom = wrap.getBoundingClientRect().bottom;
-      if (bottom > 60) {
-        nav.classList.add('nav-on-dark');
-      } else {
-        nav.classList.remove('nav-on-dark');
-      }
-    }
-    window.addEventListener('scroll', updateNav, { passive: true });
-    /* Defer first run until after the hero wrap is parsed. */
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', updateNav);
-    } else {
-      updateNav();
     }
   })();
 </script>
