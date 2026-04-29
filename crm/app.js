@@ -1122,9 +1122,13 @@ async function renderCampaignEditor(id) {
   const replyTo  = el("input", { type: "text", value: c.reply_to || "" });
 
   // "Set as default" buttons. Clicking persists the current value of a sender
-  // field to localStorage so future new campaigns prefill with it. One factory
-  // covers reply-to, from-name, and from-email so they all behave identically.
-  function buildDefaultToggle({ input, label, getCurrentDefault, prefKey }) {
+  // field three places, in order:
+  //   1. localStorage      (instant, snappy UX)
+  //   2. profiles.default_*  (so it survives Safari ITP, device switches, etc.)
+  //   3. the current campaign row on this exact campaign (so a page refresh
+  //      doesn't reload an old saved value and look like the click did nothing)
+  // One factory covers reply-to, from-name, and from-email.
+  function buildDefaultToggle({ input, label, getCurrentDefault, prefKey, campaignField }) {
     const btn = el("button", { type: "button", class: "inline-link" }, "Set as default");
     function sync() {
       const isDefault = input.value.trim() === getCurrentDefault();
@@ -1141,25 +1145,32 @@ async function renderCampaignEditor(id) {
     btn.addEventListener("click", async () => {
       const v = input.value.trim();
       if (!v) { toast(`Type a ${label.toLowerCase()} first.`, "error"); return; }
-      // Update localStorage instantly for snappy UX, then persist to the DB
-      // so it survives Safari ITP, device switches, and re-installs.
+      // 1. localStorage — instant
       prefsSet({ [prefKey]: v });
       sync();
+      // 2. profiles row — survives device/browser/ITP
       const savedToDb = await saveServerDefault(prefKey, v);
-      toast(
-        savedToDb
-          ? `Default ${label.toLowerCase()} set to ${v}.`
-          : `Saved locally as ${v}. (DB migration pending — won't sync to other devices yet.)`,
-        savedToDb ? "success" : "info"
-      );
+      // 3. the current campaign row — so a page refresh shows the new value
+      //    instead of reverting to the campaign's previously-saved sender.
+      let savedToCampaign = false;
+      if (campaignField && c?.id) {
+        const { error } = await sb.from("campaigns").update({ [campaignField]: v }).eq("id", c.id);
+        savedToCampaign = !error;
+        if (!error) c[campaignField] = v;
+      }
+      const parts = [];
+      if (savedToDb)        parts.push("default updated");
+      if (savedToCampaign)  parts.push("this campaign updated");
+      if (!savedToDb && !savedToCampaign) parts.push("saved locally only");
+      toast(`${label}: ${parts.join(" · ")}.`, savedToDb || savedToCampaign ? "success" : "info");
     });
     input.addEventListener("input", sync);
     return { btn, sync };
   }
 
-  const fromNameDefault  = buildDefaultToggle({ input: fromName,  label: "From name",  getCurrentDefault: defaultFromName,  prefKey: "defaultFromName"  });
-  const fromEmailDefault = buildDefaultToggle({ input: fromEmail, label: "From email", getCurrentDefault: defaultFromEmail, prefKey: "defaultFromEmail" });
-  const replyToDefault   = buildDefaultToggle({ input: replyTo,   label: "Reply-to",   getCurrentDefault: defaultReplyTo,   prefKey: "defaultReplyTo"   });
+  const fromNameDefault  = buildDefaultToggle({ input: fromName,  label: "From name",  getCurrentDefault: defaultFromName,  prefKey: "defaultFromName",  campaignField: "from_name"  });
+  const fromEmailDefault = buildDefaultToggle({ input: fromEmail, label: "From email", getCurrentDefault: defaultFromEmail, prefKey: "defaultFromEmail", campaignField: "from_email" });
+  const replyToDefault   = buildDefaultToggle({ input: replyTo,   label: "Reply-to",   getCurrentDefault: defaultReplyTo,   prefKey: "defaultReplyTo",   campaignField: "reply_to"   });
 
   function syncDefaultLabel() {
     fromNameDefault.sync();
